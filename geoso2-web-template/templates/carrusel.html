@@ -14,20 +14,22 @@
     {% endfor %}
   </div>
 
-  <div class="carousel-inner">
-    {% for img in imagenes %}
+  <div id="carouselExample" class="carousel slide">
+    <div class="carousel-inner">
+    {% for imagen in imagenes %}
       <div class="carousel-item {% if loop.first %}active{% endif %}">
-        <img src="{{ img }}" class="d-block w-100" alt="Imagen {{ loop.index }}">
+        <img src="{{ imagen }}" class="d-block w-100" alt="Imagen {{ loop.index }}">
       </div>
     {% endfor %}
-  </div>
+    </div>
 
-  <button class="carousel-control-prev" type="button" data-bs-target="#miCarrusel" data-bs-slide="prev">
-    <span class="carousel-control-prev-icon"></span>
-  </button>
-  <button class="carousel-control-next" type="button" data-bs-target="#miCarrusel" data-bs-slide="next">
-    <span class="carousel-control-next-icon"></span>
-  </button>
-
+    <button class="carousel-control-prev" type="button" data-bs-target="#miCarrusel" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#miCarrusel" data-bs-slide="next">
+      <span class="carousel-control-next-icon"></span>
+    </button>
 </div>
+<br>
+<diV class="line-gap"></diV>
 {% endblock %}

@@ -9,12 +9,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark navbar-limitado">
       <div class="container-fluid">
 
         <!-- Logo -->
         <a class="navbar-brand navbar-brand-logo" href="./index.html">
           <img src="../logo/GEOSO2-cabecera.svg" alt="GEOSO2" class="navbar-logo">
+        </a>
 
         <!-- Botón hamburguesa -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" 
@@ -25,58 +27,48 @@
 
         <!-- Menú colapsable -->
         <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
-
-          <!-- Enlaces -->
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              <a class="nav-link" href="./content/rafagas/quienes_somos.html">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <span class="menu-text">¿QUIÉNES SOMOS?</span>
+              <a class="nav-link" href="./quienes-somos.html">
+                <i class="fa-solid fa-users"></i> ¿QUIÉNES SOMOS?
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="./content/proyectos/rafagas.html">
-                <i class="fa-solid fa-bolt"></i>
-                <span class="menu-text">RÁFAGAS</span>
+              <a class="nav-link" href="./rafagas.html">
+                <i class="fa-solid fa-bolt"></i> RÁFAGAS
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="./content/publicaciones/proyectos.html">
-                <i class="fa-solid fa-project-diagram"></i>
-                <span class="menu-text">PROYECTOS</span>
+              <a class="nav-link" href="./proyectos.html">
+                <i class="fa-solid fa-project-diagram"></i> PROYECTOS
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="./content/contacto/publicaciones.html">
-                <i class="fa-solid fa-book"></i>
-                <span class="menu-text">PUBLICACIONES</span>
+              <a class="nav-link" href="./publicaciones.html">
+                <i class="fa-solid fa-book"></i> PUBLICACIONES
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="./geocoopera/web.html">
-                <i class="fa-solid fa-envelope"></i>
-                <span class="menu-text">CONTACTOS</span>
+              <a class="nav-link" href="./contacto.html">
+                <i class="fa-solid fa-envelope"></i> CONTACTO
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="./geocoopera/web.html">
-                <i class="fa-solid fa-handshake"></i>
-                <span class="menu-text">GEOCOOPERA</span>
+              <a class="nav-link" href="./geocoopera.html">
+                <i class="fa-solid fa-handshake"></i> GEOCOOPERA
               </a>
             </li>
           </ul>
-         </a>
-                <span class="research-group-text">
-                <a class="nav-link2"  href="">Grupo de Investigación Geoespacial y Dinámicas Territoriales para la Sostenibilidad</a>
-                </span>
 
-
+          <span class="research-group-text">
+            <a class="nav-link2" href="">Grupo de Investigación Geoespacial y Dinámicas Territoriales para la Sostenibilidad</a>
+          </span>
 
           <!-- Icono lupa -->
           <button type="button" class="btn btn-link p-0 ms-3 text-decoration-none search-trigger" aria-label="Abrir buscador">
             <i class="fa-solid fa-magnifying-glass search-icon"></i>
           </button>
-        </div> 
+        </div>
       </div>
     </nav>
 
@@ -89,6 +81,7 @@
       </form>
     </div>
 
+    <!-- Contenido principal -->
     <div class="container mt-4">
       
 <h2 class="text-center mb-4"></h2>
@@ -117,7 +110,8 @@
     
   </div>
 
-  <div class="carousel-inner">
+  <div id="carouselExample" class="carousel slide">
+    <div class="carousel-inner">
     
       <div class="carousel-item active">
         <img src="img/foto1.jpg" class="d-block w-100" alt="Imagen 1">
@@ -143,25 +137,26 @@
         <img src="img/foto6.jpg" class="d-block w-100" alt="Imagen 6">
       </div>
     
-  </div>
+    </div>
 
-  <button class="carousel-control-prev" type="button" data-bs-target="#miCarrusel" data-bs-slide="prev">
-    <span class="carousel-control-prev-icon"></span>
-  </button>
-  <button class="carousel-control-next" type="button" data-bs-target="#miCarrusel" data-bs-slide="next">
-    <span class="carousel-control-next-icon"></span>
-  </button>
-
+    <button class="carousel-control-prev" type="button" data-bs-target="#miCarrusel" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon"></span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#miCarrusel" data-bs-slide="next">
+      <span class="carousel-control-next-icon"></span>
+    </button>
 </div>
+<br>
+<diV class="line-gap"></diV>
 
     </div>
+
     <!-- Scripts -->
     <script>
       const searchTrigger = document.querySelector('.search-trigger');
       const searchForm = document.querySelector('.search-form');
       const searchInput = document.querySelector('.search-input');
 
-      // Abrir/cerrar con la lupa
       searchTrigger.addEventListener('click', (event) => {
         event.stopPropagation();
         searchForm.classList.toggle('active');
@@ -170,14 +165,12 @@
         }
       });
 
-      // Cerrar al hacer clic fuera
       document.addEventListener('click', (event) => {
         if (!searchForm.contains(event.target) && !searchTrigger.contains(event.target)) {
           searchForm.classList.remove('active');
         }
       });
 
-      // Cerrar al pulsar ESC
       document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') {
           searchForm.classList.remove('active');
