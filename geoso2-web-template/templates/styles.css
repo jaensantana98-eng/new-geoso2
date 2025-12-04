@@ -116,6 +116,7 @@ body {
     text-align: center;  
 }
 
+<<<<<<< HEAD
 .marco3 {
     border: 2px solid rgb(86, 93, 113);
     padding: 12px;
@@ -124,6 +125,8 @@ body {
     background-color: rgba(255, 255, 255, 0.05);
 }
 
+=======
+>>>>>>> 67208ca70ab4229c909798e28e572e85eaab7987
 .imagen-derecha {
     float: right;
     margin-left: 15px;
