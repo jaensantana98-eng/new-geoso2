@@ -1,10 +1,11 @@
 /* Logo y marca */
 .navbar-logo {
   height: 30px;
+  width: auto;
 }
 .navbar-brand-logo {
   display: flex;
-  align-items: center;
+  align-items: justify;
 }
 
 .navbar-logo:hover {
@@ -100,4 +101,22 @@
   transform: scale(1.05);
   transition: transform 0.3s ease;
   text-shadow: 0 0 6px rgba(255,255,255,0.7);
+}
+.line-gap {
+  border-bottom: 2px solid black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.line-gap:before,
+.line-gap:after {
+  content: "";
+  flex: 1;
+  border-bottom: 2px solid black;
+}
+.line-gap:before {
+  margin-right: 20px;
+}
+.line-gap:after {
+  margin-left: 20px;
 }
