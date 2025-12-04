@@ -109,14 +109,15 @@ body {
     border: 2px solid rgb(86, 93, 113);
     padding: 12px;
     border-radius: 8px;
+
     margin-bottom: 16px;
     background-color: rgba(255, 255, 255, 0.05);
     width: 60%;
     margin: 0 auto;
-    text-align: center;  
+    text-align: center; 
+     
 }
 
-<<<<<<< HEAD
 .marco3 {
     border: 2px solid rgb(86, 93, 113);
     padding: 12px;
@@ -125,8 +126,6 @@ body {
     background-color: rgba(255, 255, 255, 0.05);
 }
 
-=======
->>>>>>> 67208ca70ab4229c909798e28e572e85eaab7987
 .imagen-derecha {
     float: right;
     margin-left: 15px;
@@ -142,3 +141,13 @@ body {
     width: 250px;
     height: 250px;
 }
+
+.footer {
+    float: left;
+    margin-right: 15px;
+    margin-bottom: 10px;
+    width: 500px;
+    height: 500px;
+    font-size: 10px;
+}
+  
