@@ -82,6 +82,41 @@ body {
   transition: transform 0.3s ease;
   text-shadow: 0 0 6px rgba(255,255,255,0.7);
 }
+
+/*      CARRUSEL        */
+
+/* Hace que el carrusel ocupe el ancho TOTAL real del navegador */
+#carrusel {
+    width: 100vw;
+    margin-left: calc(50% - 50vw); /* truco para romper límites del container */
+}
+
+/* Altura tipo hero */
+#carrusel .carousel-item img {
+    height: 70vh;       /* cámbialo a 100vh si lo quieres pantalla completa */
+    object-fit: cover;
+}
+
+/* Indicadores minimalistas y modernos */
+#carrusel .carousel-indicators [data-bs-target] {
+    width: 12px;
+    height: 12px;
+    background-color: white;
+    border-radius: 50%;
+    opacity: 0.6;
+}
+
+#carrusel .carousel-indicators .active {
+    opacity: 1;
+}
+
+/* Iconos de flechas en blanco */
+#carrusel .carousel-control-prev-icon,
+#carrusel .carousel-control-next-icon {
+    filter: invert(1);
+}
+
+
 .marco {
     background-color: rgb(74, 81, 101);
     box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
