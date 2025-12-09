@@ -204,3 +204,7 @@ html {
   border-radius: 8px; 
   box-shadow: 4px 4px 12px rgba(0,0,0,0.4);
 }
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
