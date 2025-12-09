@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Declaración de parque regional - GEOSO2</title>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+
+    <div id="navbar"></div>
+
+      <main class="container mt-4 ps-0 ms-4">
+
+            <h2>Impacto positivo de la declaración de parque regional en evolución de la calidad de agua</h2>
+            <br>
+            <p>Se realizó un trabajo de investigación de la evolución de la calidad de agua en lagunas de gravera 
+                del Parque Regional del Sureste de Madrid mediante el uso de imágenes Landsat TM5 <a href="https://www.tandfonline.com/doi/full/10.1080/07038992.2019.1674136" target="blank">(Echavarría-Caballero et al., 2019)</a>
+                cuyos resultados muestran que la calidad del agua de los estanques dentro del Parque Regional del Sureste (PRSE) mejoró 
+                a lo largo de la serie de tiempo estudiada según su transparencia medida según el Disco de Secchi <a href="#figura1" class="preview-img"> (Figura 1).</a><img src="../imagenes/rafagas/rafagas1_02.jpg" class="miniatura" alt="preview"></p>
+    
+                <img id="figura1" src="../imagenes/rafagas/rafagas1_02.jpg" alt="Imagen 1" style="width:40%; display:block; margin:auto;" class="img-marco">
+                <p style="text-align:center;"><strong>Figura 1.</strong>% masas de agua y su calidad clasificadas según la OCDE</p>
+
+                <br>
+                <p>Según la clasificación de la OCDE, en 1984, casi todas las masas de agua fueron clasificadas como hipereutróficas (98,3%). 
+                    Se observa una mejora notable a lo largo de los años, de modo que en 2010 y 2011 el número de masas de agua en estado 
+                    hipereutrófico se ha reducido casi a la mitad. En 2010 aparecieron por primera vez masas de agua clasificadas como oligotróficas. 
+                    En 2011, último año del periodo de estudio, el 60% de los cuerpos de agua eran hipereutróficos, el 30,7% eutróficos y el 9,3% mesotróficos.</p>
+
+                    <img id="figura2" src="../imagenes/rafagas/rafagas1_03.jpg" alt="Imagen 2" style="width:40%; display:block; margin:auto;" class="img-marco">
+                <p style="text-align:center;"><strong>Figura 2.</strong>Calidad según Disco de Secchi de algunas lagunas del PRSE en 6 fechas</p>
+                    
+                    <br>
+                    <p>Así, parece que la declaración del PRSE de 1994 ha sido una medida efectiva y ha tenido un impacto positivo en la evolución de la calidad 
+                        a lo largo de los años. Sin embargo, se observó un período de estancamiento entre 1989 y 2009 <a href="#figura2" class="preview-img">(Figura 2)</a><img src="../imagenes/rafagas/rafagas1_03.jpg" class="miniatura" alt="preview">, coincidiendo con la aparición de numerosos 
+                        cuerpos de agua en la zona de explotación <a href="#figura3" class="preview-img">(Figura 3)</a><img src="../imagenes/rafagas/rafagas1_04.jpg" class="miniatura" alt="preview">.</p>
+
+                    <img id="figura3" src="../imagenes/rafagas/rafagas1_04.jpg" alt="Imagen 3" style="width:40%; display:block; margin:auto;" class="img-marco">
+                <p style="text-align:center;"><strong>Figura 3.</strong>Evolución del área de los cuerpos de agua en el periodo estudiado (1984-2011)</p>    
+
+                    <br>
+                    <p>Una vez que se estabilizó el área de los cuerpos de agua después de 2009 <a href="#figura3" class="preview-img">(Figura 3)</a><img src="../imagenes/rafagas/rafagas1_04.jpg" class="miniatura" alt="preview">, la calidad del agua aumentó significativamente en el área de estudio. 
+                        Si bien parece que la relación entre la calidad del agua y la creación de estanques de pozo, es decir, la explotación como gravera, en el PRSE es evidente, 
+                        existen varios factores ambientales que tienen gran influencia, por lo que se recomienda ampliar la investigación en este sentido.</p>
+
+                    <p>El siguiente visor permite ver para cada año el estado trófico según la clasificación de la OCDE, y el estado ecológico según la directiva marco del agua para cada una de las lagunas del PRSE. 
+                        Se puede apreciar cómo ha sido la evolución en número sino también en términos de calidad.</p>
+
+                        <br>
+                    <div class="marco2" style="text-align:center;"><h1>"Visor pendiente de inclusión"</h1></div>
+        </main> 
+        <footer class="footer">
+          <div>
+            <div>
+              <p><a href="https://www.upm.es"><img src="https://www.geoso2.es/logos/UPM/UPM-Escudo_con_leyenda.svg"
+                    width="45%"></a></p>
+            </div>
+            <div>
+                Grupo de Investigación Geoespacial y Dinámicas Territoriales para la Sostenibilidad
+              </p>
+            </div>
+            <div>
+                v.03.0
+              </p>
+            </div>
+          </div>
+      </footer>
+    <script>
+      fetch("navbar.html")
+        .then(res => res.text())
+        .then(data => document.getElementById("navbar").innerHTML = data)
+        .catch(err => console.error("Error cargando navbar:", err));
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

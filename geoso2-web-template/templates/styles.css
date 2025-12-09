@@ -178,7 +178,48 @@ body {
   color: white;
 }
 
-a {
+a.link-reset {
   text-decoration: none; /* quita subrayado */
   color: inherit;        /* mantiene color normal */
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.img-marco {
+  border: 2px solid #555;
+  border-radius: 8px;
+  box-shadow: 4px 4px 12px rgba(0,0,0,0.4);
+  width: 70%;
+  display: block;
+  margin: auto;
+}
+
+.miniatura {
+  display: none;
+  width: 150px;
+  border: 1px solid #ccc;
+}
+
+.preview-img:hover + .miniatura {
+  display: block;
+  position: absolute;
+}
+
+.preview-img {
+  position: relative;
+  cursor: pointer;
+}
+
+.imagenizq-texto {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.imagenizq-texto img {
+  width: 200px; 
+  border: 2px solid #555;
+  border-radius: 8px;
 }
