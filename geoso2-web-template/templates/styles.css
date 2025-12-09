@@ -116,13 +116,12 @@
 .line-gap:before {
   margin-right: 20px;
 }
-<<<<<<< HEAD
 .line-gap:after {
   margin-left: 20px;
 }
 .texto2 {
   text-align: center;
-=======
+}
 .imagen-izquierda {
     float: left;
     margin-right: 15px;
@@ -134,5 +133,4 @@
   margin-left:2em;
   text-indent:-2em;
   text-align: left;
->>>>>>> 378d5ec3f1a6242b269bd0752242f3d11a6f80ab
 }
