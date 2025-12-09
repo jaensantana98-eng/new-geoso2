@@ -4,7 +4,8 @@
 }
 .navbar-brand-logo {
   display: flex;
-  align-items: justify;
+  align-items: center;
+  justify-content: center;
 }
 
 .navbar-logo:hover {
@@ -125,15 +126,6 @@
     margin: 0 auto;
     text-align: center;  
 }
-
-.imagen-derecha {
-    float: right;
-    margin-left: 15px;
-    margin-bottom: 10px;
-    width: 250px;
-    height: 250px;
-}
-
 .imagen-izquierda {
     float: left;
     margin-right: 15px;

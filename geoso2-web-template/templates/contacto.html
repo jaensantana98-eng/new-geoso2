@@ -1,35 +1,19 @@
-<!DOCTYPE html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiénes Somos - GEOSO2</title>
-      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
-  </head>
-  <body>
+{% extends "index.html" %}
 
-    <div id="navbar"></div>
+{% block title %}Contacto{% endblock %}
 
-      <main class="container mt-4 ps-0 ms-4">
-
-          <h4><strong><u>Contacta con nosotros</u></strong></h4>
-          <p>
-              El Grupo de Investigación Geoespacial y Dinámicas Territoriales para la Sostenibilidad tiene su sede
-              en la Escuela Técnica Superior de Ingeniería de Montes, Forestal y del Medio Natural de la Universidad
-              Politécnica de Madrid.
-          </p>   
-
-      </main>
-
-    <script>
-      fetch("navbar.html")
-        .then(res => res.text())
-        .then(data => document.getElementById("navbar").innerHTML = data)
-        .catch(err => console.error("Error cargando navbar:", err));
-    </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-  </body>
-</html>
+{% block content %}
+<h4><strong>Contacta con nosotros</strong></h4>
+<p>
+  El Grupo de Investigación Geoespacial y Dinámicas Territoriales para la Sostenibilidad tiene su sede
+  en la Escuela Técnica Superior de Ingeniería de Montes, Forestal y del Medio Natural de la Universidad
+  Politécnica de Madrid.
+</p>
+<img src="../logo/email-geoso2.svg" width="150" height="100">
+<br>
+<iframe
+  src="https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3036.176379382654!2d-3.7229139999999994!3d40.449233!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd422835fae5e141%3A0x8edc1a24b1f863db!2sETSI%20Montes%2C%20Forestal%20y%20del%20Medio%20Natural.%20Edificio%20Forestales.!5e0!3m2!1sen!2ses!4v1708282419113!5m2!1sen!2ses"
+  width="1000" height="600" style="border:0;" allowfullscreen="" loading="lazy"
+  referrerpolicy="no-referrer-when-downgrade">
+</iframe>
+{% endblock %}
