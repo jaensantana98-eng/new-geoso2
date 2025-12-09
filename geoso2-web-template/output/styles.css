@@ -1,4 +1,3 @@
-/* Logo y marca */
 .navbar-logo {
   height: 30px;
   width: auto;
@@ -39,7 +38,6 @@
   text-shadow: 0 0 6px rgba(255,255,255,0.7);
   border-bottom: 2px solid blue;
 }
-
 /* Texto adicional */
 .research-group-text {
   color: rgba(255,255,255,.55);
@@ -102,6 +100,7 @@
   transition: transform 0.3s ease;
   text-shadow: 0 0 6px rgba(255,255,255,0.7);
 }
+<<<<<<< HEAD
 .line-gap {
   border-bottom: 2px solid black;
   display: flex;
@@ -119,4 +118,51 @@
 }
 .line-gap:after {
   margin-left: 20px;
+=======
+
+.marco {
+    background-color: rgb(74, 81, 101);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+}
+
+.marco:hover {
+    background-color: rgb(62, 67, 82);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    transition: background-color 0.5s ease, box-shadow 0.3s ease;
+}
+
+.marco2 {
+    border: 2px solid rgb(86, 93, 113);
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    background-color: rgba(255, 255, 255, 0.05);
+    width: 60%;
+    margin: 0 auto;
+    text-align: center;  
+}
+
+.imagen-derecha {
+    float: right;
+    margin-left: 15px;
+    margin-bottom: 10px;
+    width: 250px;
+    height: 250px;
+}
+
+.imagen-izquierda {
+    float: left;
+    margin-right: 15px;
+    margin-bottom: 10px;
+    width: 250px;
+    height: 250px;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+  text-align: left;
+>>>>>>> 378d5ec3f1a6242b269bd0752242f3d11a6f80ab
 }

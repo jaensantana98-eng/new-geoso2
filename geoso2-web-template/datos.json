@@ -1,14 +1,32 @@
 {
-    "titulo": "Prueba de Concepto - Jinja2",
-    "nombre": "Luis Izquierdo",
-    "email": "luis@example.com",
-    "mensaje": "Este es un mensaje de prueba generado dinámicamente con Jinja2. El template ha sido modificado exitosamente con valores desde Python.",
-    "items": [
-        "Elemento 1: Configuración del entorno virtual",
-        "Elemento 2: Instalación de Jinja2",
-        "Elemento 3: Creación del template HTML",
-        "Elemento 4: Script de Python funcionando",
-        "Elemento 5: Generación del output.html",
-        "Elemento 6: Enseñar la web"
-    ]
+    "index": {
+        "imagenes": [
+        "img/foto1.jpg",
+        "img/foto2.png",
+        "img/foto3.png",
+        "img/foto4.jpg",
+        "img/foto5.jpg",
+        "img/foto6.jpg"
+
+        ]
+    },
+    "quienes-somos": {
+        "titulo": "Quienes Somos - GEOSO2",
+        "descripcion": "Somos un grupo interdisciplinar de investigadores que trabajamos con un enfoque holístico, geoespacial y social, usando métodos, técnicas y tecnologías de GIS, Remote Sensing, Big Data, encuestas, Artificial Intelligence, etc., para monitorear, analizar, modelar y simular nuestro entorno, con el objetivo de promover un desarrollo sostenible."
+    },
+    "publicaciones": {
+        "entradas": [
+            {
+                "anio": "2024",
+                "refenrencias": [
+                    {
+                        "autores": "Echavarria-Caballero, C., Dominguez-Gomez, J. A., Gonzalez-Garcia, C., Dominguez-Perez, R., & Garcia-Garcia, M. J.",
+                        "titulo": "Warming inland water in peninsular Spain revealed by landsat 5 analysis",
+                        "revista": "GEOCARTO INTERNATIONAL, 39(1)",
+                        "doi": "https://doi.org/10.1080/10106049.2024.2371923"
+                    }
+                ]
+            }
+        ]
+    }
 }

@@ -3,23 +3,20 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>GEOS02 JESUS</title>
+    <title>{% block title %}GEOSO2{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="./styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark navbar-limitado">
       <div class="container-fluid">
 
         <!-- Logo -->
         <a class="navbar-brand navbar-brand-logo" href="./index.html">
           <img src="../logo/GEOSO2-cabecera.svg" alt="GEOSO2" class="navbar-logo">
-         </a>
-                <span class="research-group-text">
-                Grupo de Investigación Geoespacial y<br>Dinámicas Territoriales para la Sostenibilidad
-                </span>
-
+        </a>
 
         <!-- Botón hamburguesa -->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" 
@@ -30,53 +27,48 @@
 
         <!-- Menú colapsable -->
         <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
-
-          <!-- Enlaces -->
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              <a class="nav-link" href="./content/rafagas/rafagas.html">
-                <i class="fa-solid fa-bolt"></i>
-                <span class="menu-text">RÁFAGAS</span>
+              <a class="nav-link" href="./quienes-somos.html">
+                <i class="fa-solid fa-users"></i> ¿QUIÉNES SOMOS?
+              </a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="./rafagas.html">
+                <i class="fa-solid fa-bolt"></i> RÁFAGAS
               </a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="./proyectos.html">
-                <i class="fa-solid fa-project-diagram"></i>
-                <span class="menu-text">PROYECTOS</span>
+                <i class="fa-solid fa-project-diagram"></i> PROYECTOS
               </a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="./publicaciones.html">
-                <i class="fa-solid fa-book"></i>
-                <span class="menu-text">PUBLICACIONES</span>
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="./geocoopera/web.html">
-                <i class="fa-solid fa-handshake"></i>
-                <span class="menu-text">GEOCOOPERA</span>
+                <i class="fa-solid fa-book"></i> PUBLICACIONES
               </a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="./contacto.html">
-                <i class="fa-solid fa-envelope"></i>
-                <span class="menu-text">CONTACTO</span>
+                <i class="fa-solid fa-envelope"></i> CONTACTO
               </a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="./quienes-somos.html">
-                <i class="fa-solid fa-users"></i>
-                <span class="menu-text">¿QUIÉNES SOMOS?</span>
+              <a class="nav-link" href="./geocoopera.html">
+                <i class="fa-solid fa-handshake"></i> GEOCOOPERA
               </a>
             </li>
           </ul>
 
+          <span class="research-group-text">
+            <a class="nav-link2" href="">Grupo de Investigación Geoespacial y Dinámicas Territoriales para la Sostenibilidad</a>
+          </span>
 
           <!-- Icono lupa -->
           <button type="button" class="btn btn-link p-0 ms-3 text-decoration-none search-trigger" aria-label="Abrir buscador">
             <i class="fa-solid fa-magnifying-glass search-icon"></i>
           </button>
-        </div> 
+        </div>
       </div>
     </nav>
 
@@ -89,27 +81,35 @@
       </form>
     </div>
 
-    <!-- carrusel -->
-    <div id="carouselExample" class="carousel slide" data-bs-ride="carousel">
-      <div class="carousel-inner">
-        <div class="carousel-item active">
-          <img src="https://picsum.photos/1200/400?random=1" class="d-block w-100" alt="...">
+    <!-- Contenido principal -->
+    <div class="container mt-4">
+      {% block content %}
+
+      <!-- Carrusel de imágenes -->
+      <div id="miCarrusel" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+          {% for img in imagenes %}
+            <button type="button" data-bs-target="#miCarrusel" data-bs-slide-to="{{ loop.index0 }}"
+                    class="{% if loop.first %}active{% endif %}"></button>
+          {% endfor %}
         </div>
-        <div class="carousel-item">
-          <img src="https://picsum.photos/1200/400?random=2" class="d-block w-100" alt="...">
+
+        <div class="carousel-inner">
+          {% for img in imagenes %}
+            <div class="carousel-item {% if loop.first %}active{% endif %}">
+              <img src="{{ img }}" class="d-block w-100" alt="Imagen {{ loop.index }}">
+            </div>
+          {% endfor %}
         </div>
-        <div class="carousel-item">
-          <img src="https://picsum.photos/1200/400?random=3" class="d-block w-100" alt="...">
-        </div>
+
+        <button class="carousel-control-prev" type="button" data-bs-target="#miCarrusel" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#miCarrusel" data-bs-slide="next">
+          <span class="carousel-control-next-icon"></span>
+        </button>
       </div>
-      <button class="carousel-control-prev" type="button" data-bs-target="#carouselExample" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Anterior</span>
-      </button>
-      <button class="carousel-control-next" type="button" data-bs-target="#carouselExample" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Siguiente</span>
-      </button>
+      {% endblock %}
     </div>
 
     <!-- Scripts -->
@@ -118,7 +118,6 @@
       const searchForm = document.querySelector('.search-form');
       const searchInput = document.querySelector('.search-input');
 
-      // Abrir/cerrar con la lupa
       searchTrigger.addEventListener('click', (event) => {
         event.stopPropagation();
         searchForm.classList.toggle('active');
@@ -127,14 +126,12 @@
         }
       });
 
-      // Cerrar al hacer clic fuera
       document.addEventListener('click', (event) => {
         if (!searchForm.contains(event.target) && !searchTrigger.contains(event.target)) {
           searchForm.classList.remove('active');
         }
       });
 
-      // Cerrar al pulsar ESC
       document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') {
           searchForm.classList.remove('active');
