@@ -1,43 +1,28 @@
+body {
+  background-color: rgb(74, 81, 101);
+  color: white;
+}
 .navbar-logo {
   height: 30px;
-  width: auto;
 }
 .navbar-brand-logo {
   display: flex;
   align-items: center;
-  justify-content: center;
 }
-
 .navbar-logo:hover {
   transform: scale(1.05);
   transition: transform 0.3s ease;
 }
-.nav-link2 {
-  color: rgba(255,255,255,.55);
-  margin-right: 50px;
-  transition: color 0.3s ease, text-shadow 0.3s ease;
-  text-decoration: none;
-  border-bottom: 2px solid transparent;
-}
-.nav-link2:hover {
-  color: #fff;
-  transform: scale(1.05);
-  transition: transform 0.3s ease;
-  text-shadow: 0 0 6px rgba(255,255,255,0.7);
-}
 .nav-link {
   color: rgba(255,255,255,.55);
   margin-right: 50px;
-  transition: color 0.3s ease, text-shadow 0.3s ease, border-bottom 0.3s ease;
-  text-decoration: none;
-  border-bottom: 2px solid transparent;
+  transition: color 0.3s ease, text-shadow 0.3s ease;
 }
 .nav-link:hover {
   color: #fff;
   transform: scale(1.05);
   transition: transform 0.3s ease;
   text-shadow: 0 0 6px rgba(255,255,255,0.7);
-  border-bottom: 2px solid blue;
 }
 /* Texto adicional */
 .research-group-text {
@@ -46,14 +31,12 @@
   font-weight: 500;
   margin-left: 1rem;
 }
-
 /* Contenedor del buscador fuera del navbar: igual que bg-dark y ancho completo */
 .search-container {
   background-color: #212529;   /* mismo color que navbar bg-dark */
   width: 100%;                 /* ocupa todo el ancho */
   border-top: 1px solid rgba(255,255,255,.1); /* sutil separación */
 }
-
 /* Form animado: despliegue vertical suave a ancho completo */
 .search-form {
   width: 100%;
@@ -67,7 +50,6 @@
   max-height: 80px;            /* altura suficiente para el input */
   opacity: 1;
 }
-
 /* Input ocupa todo el ancho y mantiene estética oscura */
 .search-input {
   flex: 1;
@@ -86,7 +68,6 @@
   box-shadow: 0 0 0 0.2rem rgba(25,135,84,.25);
   border-color: rgba(255,255,255,.75);       /* success */
 }
-
 /* Icono lupa dentro del navbar */
 .search-icon {
   color: rgba(255,255,255,.55);
@@ -101,36 +82,125 @@
   transition: transform 0.3s ease;
   text-shadow: 0 0 6px rgba(255,255,255,0.7);
 }
-.line-gap {
-  border-bottom: 2px solid black;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.marco {
+    background-color: rgb(74, 81, 101);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 16px;
 }
-.line-gap:before,
-.line-gap:after {
-  content: "";
-  flex: 1;
-  border-bottom: 2px solid black;
+.marco:hover {
+    background-color: rgb(62, 67, 82);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    transition: background-color 0.5s ease, box-shadow 0.3s ease;
 }
-.line-gap:before {
-  margin-right: 20px;
+.marco2 {
+    border: 2px solid rgb(86, 93, 113);
+    padding: 12px;
+    border-radius: 8px;
+
+    margin-bottom: 16px;
+    background-color: rgba(255, 255, 255, 0.05);
+    width: 60%;
+    margin: 0 auto;
+    text-align: center;  
+    text-align: center; 
+
 }
-.line-gap:after {
-  margin-left: 20px;
+
+.marco3 {
+    border: 2px solid rgb(86, 93, 113);
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    background-color: rgba(255, 255, 255, 0.05);
 }
-.texto2 {
-  text-align: center;
-}
-.imagen-izquierda {
-    float: left;
-    margin-right: 15px;
+
+.imagen-derecha {
     margin-bottom: 10px;
     width: 250px;
     height: 250px;
 }
-.hanging-indent div.csl-entry {
-  margin-left:2em;
-  text-indent:-2em;
-  text-align: left;
+
+.footer {
+    float: left;
+    margin-right: 15px;
+    margin-bottom: 10px;
+    width: 500px;
+    height: 500px;
+    font-size: 10px;
+}
+
+.body-rafagas {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.marco-columna, .marco {
+  background-color: rgb(74, 81, 101);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  width: 45%;
+  text-align: center;
+}
+
+.marco-columna img, .marco img {
+  max-width: 100%;
+  height: auto;
+  margin-bottom: 10px;
+}
+
+.marco-columna p, .marco p {
+  color: white;
+}
+
+a.link-reset {
+  text-decoration: none; /* quita subrayado */
+  color: inherit;        /* mantiene color normal */
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.img-marco {
+  border: 2px solid #555;
+  border-radius: 8px;
+  box-shadow: 4px 4px 12px rgba(0,0,0,0.4);
+  width: 70%;
+  display: block;
+  margin: auto;
+}
+
+.miniatura {
+  display: none;
+  width: 150px;
+  border: 1px solid #ccc;
+}
+
+.preview-img:hover + .miniatura {
+  display: block;
+  position: absolute;
+}
+
+.preview-img {
+  position: relative;
+  cursor: pointer;
+}
+
+.imagenizq-texto {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.imagenizq-texto img {
+  width: 200px; 
+  border: 2px solid #555;
+  border-radius: 8px; 
+  box-shadow: 4px 4px 12px rgba(0,0,0,0.4);
 }

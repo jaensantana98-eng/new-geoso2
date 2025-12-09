@@ -3,66 +3,45 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>GEOS02 JESUS</title>
+    <title>{% block title %}GEOSO2v2{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="./styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   </head>
   <body>
-    <div id="navbar"></div>
+  <div id="navbar"></div>
+    {% include "navbar.html" %}
 
-    <!-- carrusel -->
-  <div id="miCarrusel" class="carousel slide" data-bs-ride="carousel">
+    <!-- Contenido principal -->
+    <div class="container mt-4">
+      {% block content %}
 
-  <div class="carousel-indicators">
-    
-      <button type="button" data-bs-target="#miCarrusel" data-bs-slide-to="0"
-              class="active"></button>
-    
-      <button type="button" data-bs-target="#miCarrusel" data-bs-slide-to="1"
-              class=""></button>
-    
-      <button type="button" data-bs-target="#miCarrusel" data-bs-slide-to="2"
-              class=""></button>
-    
-      <button type="button" data-bs-target="#miCarrusel" data-bs-slide-to="3"
-              class=""></button>
-    
-      <button type="button" data-bs-target="#miCarrusel" data-bs-slide-to="4"
-              class=""></button>
-    
-      <button type="button" data-bs-target="#miCarrusel" data-bs-slide-to="5"
-              class=""></button>
-    
-  </div>
+      <!-- Carrusel de imágenes -->
+      <div id="miCarrusel" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+          {% for img in imagenes %}
+            <button type="button" data-bs-target="#miCarrusel" data-bs-slide-to="{{ loop.index0 }}"
+                    class="{% if loop.first %}active{% endif %}"></button>
+          {% endfor %}
+        </div>
 
-  <div class="carousel-inner">
-    
-      <div class="carousel-item active">
-        <img src="../img/foto1.jpg" class="d-block w-100" alt="Imagen 1">
+        <div class="carousel-inner">
+          {% for img in imagenes %}
+            <div class="carousel-item {% if loop.first %}active{% endif %}">
+              <img src="{{ img }}" class="d-block w-100" alt="Imagen {{ loop.index }}">
+            </div>
+          {% endfor %}
+        </div>
+
+        <button class="carousel-control-prev" type="button" data-bs-target="#miCarrusel" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#miCarrusel" data-bs-slide="next">
+          <span class="carousel-control-next-icon"></span>
+        </button>
       </div>
-    
-      <div class="carousel-item ">
-        <img src="../img/foto2.png" class="d-block w-100" alt="Imagen 2">
-      </div>
-    
-      <div class="carousel-item ">
-        <img src="../img/foto3.png" class="d-block w-100" alt="Imagen 3">
-      </div>
-    
-      <div class="carousel-item ">
-        <img src="../img/foto4.jpg" class="d-block w-100" alt="Imagen 4">
-      </div>
-    
-      <div class="carousel-item ">
-        <img src="../img/foto5.jpg" class="d-block w-100" alt="Imagen 5">
-      </div>
-    
-      <div class="carousel-item ">
-        <img src="../img/foto6.jpg" class="d-block w-100" alt="Imagen 6">
-      </div>
-    
-  </div>
+      {% endblock %}
+    </div>
 
     <!-- Scripts -->
     <script>
@@ -70,12 +49,6 @@
       const searchForm = document.querySelector('.search-form');
       const searchInput = document.querySelector('.search-input');
 
-       fetch("navbar.html")
-      .then(res => res.text())
-      .then(data => document.getElementById("navbar").innerHTML = data)
-      .catch(err => console.error("Error cargando navbar:", err));
-
-      // Abrir/cerrar con la lupa
       searchTrigger.addEventListener('click', (event) => {
         event.stopPropagation();
         searchForm.classList.toggle('active');
@@ -84,14 +57,12 @@
         }
       });
 
-      // Cerrar al hacer clic fuera
       document.addEventListener('click', (event) => {
         if (!searchForm.contains(event.target) && !searchTrigger.contains(event.target)) {
           searchForm.classList.remove('active');
         }
       });
 
-      // Cerrar al pulsar ESC
       document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') {
           searchForm.classList.remove('active');
