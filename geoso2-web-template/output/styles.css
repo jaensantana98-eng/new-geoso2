@@ -208,3 +208,13 @@ html {
   margin-left:2em;
   text-indent:-2em;
 }
+.nav-footer-left {
+  text-align: left;
+}
+
+.nav-footer-center {
+  text-align: center;
+}
+.nav-footer-right {
+  text-align: right;
+}

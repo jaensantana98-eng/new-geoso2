@@ -208,3 +208,25 @@ html {
   margin-left:2em;
   text-indent:-2em;
 }
+.nav-footer {
+  padding: 10px 20px;
+  width: -100px;
+}
+.nav-footer .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.nav-footer-left, .nav-footer-center, .nav-footer-right {
+  flex: 1;
+  text-align: center;
+}
+.nav-footer-left {
+  text-align: left;
+}
+.nav-footer-center {
+  text-align: center;
+}
+.nav-footer-right {
+  text-align: right;
+}
