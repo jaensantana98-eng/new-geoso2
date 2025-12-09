@@ -11,7 +11,8 @@ import shutil
 import re
 
 # Configurar Jinja2 para cargar la plantilla desde el directorio actual
-env = Environment(loader=FileSystemLoader('.'))
+base_dir = os.path.dirname(os.path.abspath(__file__))
+env = Environment(loader=FileSystemLoader(base_dir))
 template = env.get_template('template.html')
 
 def convertir_links(texto):
