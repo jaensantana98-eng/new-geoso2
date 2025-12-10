@@ -11,8 +11,8 @@ html, body {
 }
 /* --- FOOTER --- */
 .footer {
-  background-color: #003366;
-  padding: 0px ;
+  padding: 15px ;
+  margin-top: 30px;
 }
 
 .nav-footer {
