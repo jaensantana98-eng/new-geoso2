@@ -12,15 +12,11 @@ html, body {
 /* --- FOOTER --- */
 .footer {
   background-color: #003366;
-  padding: 15px ;
-  margin-top: 30px;
+  padding: 0px ;
 }
 
 .nav-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding:  0px;
+  display: flex
 }
 
 .nav-footer-left p,
@@ -147,16 +143,6 @@ html, body {
     width: 250px;
     height: 250px;
 }
-
-.footer {
-    float: left;
-    margin-right: 15px;
-    margin-bottom: 10px;
-    width: 500px;
-    height: 500px;
-    font-size: 10px;
-}
-
 .body-rafagas {
   display: flex;
   justify-content: space-between;
