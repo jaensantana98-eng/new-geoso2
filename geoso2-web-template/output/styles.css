@@ -143,20 +143,6 @@ html, body {
     width: 250px;
     height: 250px;
 }
-<<<<<<< HEAD
-
-
-.footer {
-    float: left;
-    margin-right: 15px;
-    margin-bottom: 10px;
-    width: 500px;
-    height: 500px;
-    font-size: 10px;
-}
-
-=======
->>>>>>> 97be9d9b02fd306c5e690280804ed375a8b7afb7
 .body-rafagas {
   display: flex;
   justify-content: space-between;
