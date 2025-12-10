@@ -138,6 +138,13 @@ html, body {
     background-color: rgba(255, 255, 255, 0.05);
 }
 
+.img-uniforme {
+  width: 250px;
+  height: 300px;
+  object-fit: cover;
+  object-position: center;
+}
+
 .imagen-derecha {
     margin-bottom: 10px;
     width: 250px;

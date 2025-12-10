@@ -95,6 +95,12 @@ html, body {
   box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
+.img-uniforme {
+  width: 250px;
+  height: 300px;
+  object-fit: cover;
+  object-position: center;
+}
 
 /* --- CARRUSEL (ORIGINAL) --- */
 
