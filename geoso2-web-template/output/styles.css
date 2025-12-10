@@ -155,6 +155,11 @@ html, body {
   font-family: Arial, sans-serif;
 }
 
+.texto-justificado {
+  flex: 1;         /* el texto ocupa el resto */
+  text-align: justify;
+}
+
 .marco-columna, .marco {
   background-color: rgb(74, 81, 101);
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
