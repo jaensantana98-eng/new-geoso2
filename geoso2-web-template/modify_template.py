@@ -2,6 +2,7 @@ import os
 import json
 from jinja2 import Environment, FileSystemLoader
 from datetime import datetime
+import shutil
 
 def main():
     base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -43,6 +44,11 @@ def main():
         with open(os.path.join(output_dir, salida), "w", encoding="utf-8") as f:
             f.write(html_generado)
         print(f"✓ Página generada correctamente: {salida}")
+
+    css_file = os.path.join(templates_dir, "styles.css")
+    if os.path.exists(css_file):
+        shutil.copy(css_file, output_dir)
+        print("✓ CSS actualizado en output: styles.css")
 
 if __name__ == '__main__':
     main()
