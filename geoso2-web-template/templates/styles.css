@@ -1,3 +1,13 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+}
 /* --- FOOTER --- */
 .footer {
   background-color: #003366;
@@ -106,7 +116,6 @@
 .line-gap {
   height: 40px;
 }
-<<<<<<< HEAD
 .hanging-indent div.csl-entry {
   margin-left:2em;
   text-indent:-2em;
@@ -133,5 +142,3 @@
 .nav-footer-right {
   text-align: right;
 }
-=======
->>>>>>> 9d063caa606e01245688c2bd024f01db4995b2b0
