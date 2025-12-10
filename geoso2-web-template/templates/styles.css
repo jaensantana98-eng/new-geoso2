@@ -193,7 +193,6 @@ html {
   margin: auto;
 }
 
-<<<<<<< HEAD
 .img-uniforme {
   width: 250px;
   height: 300px;
@@ -206,12 +205,6 @@ html {
 #miCarrusel img {
   max-height: 500px;
   object-fit: cover;
-=======
-.miniatura {
-  display: none;
-  width: 150px;
-  border: 1px solid #ccc;
->>>>>>> 1e19bd877c23d58f050c152d154602e9bdcf9154
 }
 
 .preview-img:hover + .miniatura {
