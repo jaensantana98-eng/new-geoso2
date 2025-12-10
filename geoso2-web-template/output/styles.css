@@ -11,12 +11,16 @@ html, body {
 }
 /* --- FOOTER --- */
 .footer {
-  padding: 15px ;
-  margin-top: 30px;
+  background-color: #003366;
+  padding: 15px 0;
+  margin-top: 180px;
 }
 
 .nav-footer {
-  display: flex
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 40px;
 }
 
 .nav-footer-left p,
@@ -24,6 +28,7 @@ html, body {
 .nav-footer-right p {
   margin: 0;
 }
+
 .navbar-logo {
   height: 30px;
 }
@@ -227,10 +232,22 @@ html {
   margin-left:2em;
   text-indent:-2em;
 }
+.nav-footer {
+  padding: 10px 20px;
+  width: -100px;
+}
+.nav-footer .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.nav-footer-left, .nav-footer-center, .nav-footer-right {
+  flex: 1;
+  text-align: center;
+}
 .nav-footer-left {
   text-align: left;
 }
-
 .nav-footer-center {
   text-align: center;
 }
