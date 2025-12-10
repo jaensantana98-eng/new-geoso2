@@ -1,6 +1,32 @@
-body {
+html, body {
   background-color: rgb(74, 81, 101);
   color: white;
+  height: 100%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+.main-content {
+  flex: 1;
+}
+/* --- FOOTER --- */
+.footer {
+  background-color: #003366;
+  padding: 15px ;
+  margin-top: 30px;
+}
+
+.nav-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding:  0px;
+}
+
+.nav-footer-left p,
+.nav-footer-center p,
+.nav-footer-right p {
+  margin: 0;
 }
 .navbar-logo {
   height: 30px;
@@ -207,4 +233,14 @@ html {
 .hanging-indent div.csl-entry {
   margin-left:2em;
   text-indent:-2em;
+}
+.nav-footer-left {
+  text-align: left;
+}
+
+.nav-footer-center {
+  text-align: center;
+}
+.nav-footer-right {
+  text-align: right;
 }

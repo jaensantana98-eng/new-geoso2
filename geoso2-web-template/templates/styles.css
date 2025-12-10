@@ -1,3 +1,13 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+}
 /* --- FOOTER --- */
 .footer {
   background-color: #003366;
@@ -105,4 +115,30 @@
 
 .line-gap {
   height: 40px;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+.nav-footer {
+  padding: 10px 20px;
+  width: -100px;
+}
+.nav-footer .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.nav-footer-left, .nav-footer-center, .nav-footer-right {
+  flex: 1;
+  text-align: center;
+}
+.nav-footer-left {
+  text-align: left;
+}
+.nav-footer-center {
+  text-align: center;
+}
+.nav-footer-right {
+  text-align: right;
 }
