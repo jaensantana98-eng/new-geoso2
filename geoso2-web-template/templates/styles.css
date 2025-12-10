@@ -207,6 +207,12 @@ html {
   object-fit: cover;
 }
 
+.miniatura {
+  display: none;
+  width: 150px;
+  border: 1px solid #ccc;
+}
+
 .preview-img:hover + .miniatura {
   display: block;
   position: absolute;
