@@ -16,10 +16,7 @@ html, body {
 }
 
 .nav-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding:  0px;
+  display: flex
 }
 
 .nav-footer-left p,
@@ -146,6 +143,7 @@ html, body {
     width: 250px;
     height: 250px;
 }
+<<<<<<< HEAD
 
 
 .footer {
@@ -157,6 +155,8 @@ html, body {
     font-size: 10px;
 }
 
+=======
+>>>>>>> 97be9d9b02fd306c5e690280804ed375a8b7afb7
 .body-rafagas {
   display: flex;
   justify-content: space-between;
