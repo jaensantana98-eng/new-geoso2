@@ -1,209 +1,112 @@
-body {
-  background-color: rgb(74, 81, 101);
-  color: white;
+/* --- FOOTER --- */
+.footer {
+  background-color: #003366;
+  padding: 20px 0;
+  margin-top: 40px;
 }
-.navbar-logo {
-  height: 30px;
-}
-.navbar-brand-logo {
+
+.nav-footer {
   display: flex;
+  justify-content: space-between;
   align-items: center;
+  padding: 0 40px;
 }
-.navbar-logo:hover {
-  transform: scale(1.05);
-  transition: transform 0.3s ease;
+
+.nav-footer-left p,
+.nav-footer-center p,
+.nav-footer-right p {
+  margin: 0;
 }
-.nav-link {
-  color: rgba(255,255,255,.55);
-  margin-right: 50px;
-  transition: color 0.3s ease, text-shadow 0.3s ease;
+
+/* --- NAVBAR CUSTOM --- */
+#navbar {
+  margin-bottom: 20px;
 }
-.nav-link:hover {
-  color: #fff;
-  transform: scale(1.05);
-  transition: transform 0.3s ease;
-  text-shadow: 0 0 6px rgba(255,255,255,0.7);
-}
-/* Texto adicional */
-.research-group-text {
-  color: rgba(255,255,255,.55);
-  font-size: 0.6rem;
-  font-weight: 500;
-  margin-left: 1rem;
-}
-/* Contenedor del buscador fuera del navbar: igual que bg-dark y ancho completo */
-.search-container {
-  background-color: #212529;   /* mismo color que navbar bg-dark */
-  width: 100%;                 /* ocupa todo el ancho */
-  border-top: 1px solid rgba(255,255,255,.1); /* sutil separación */
-}
-/* Form animado: despliegue vertical suave a ancho completo */
+
 .search-form {
-  width: 100%;
-  display: flex;               /* para que el input pueda usar flex:1 */
-  max-height: 0;               /* ANIMACIÓN VERTICAL */
-  opacity: 0;
+  position: relative;
+  display: inline-block;
+  transition: all 0.3s ease;
+  width: 0;
   overflow: hidden;
-  transition: max-height 0.4s ease, opacity 0.4s ease;
+  opacity: 0;
 }
+
 .search-form.active {
-  max-height: 80px;            /* altura suficiente para el input */
+  width: 200px;
   opacity: 1;
 }
-/* Input ocupa todo el ancho y mantiene estética oscura */
+
 .search-input {
-  flex: 1;
-  background-color: #2a2f34;
-  border-color: #2a2f34;
-  color: #fff;
-  margin: 0.5rem 0.75rem;      /* respiración lateral */
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  padding: 4px 8px;
+  width: 100%;
 }
-.search-input::placeholder {
-  color: rgba(255,255,255,.55);
-}
-.search-input:focus {
-  background-color: #2a2f34;
-  color: #fff;
-  outline: none;
-  box-shadow: 0 0 0 0.2rem rgba(25,135,84,.25);
-  border-color: rgba(255,255,255,.75);       /* success */
-}
-/* Icono lupa dentro del navbar */
-.search-icon {
-  color: rgba(255,255,255,.55);
-  font-size: 1.5rem;
+
+.search-trigger {
   cursor: pointer;
-  margin-left: 1rem;
-  margin-right: 1rem;
-}
-.search-icon:hover {
-  color: #fff;
-  transform: scale(1.05);
-  transition: transform 0.3s ease;
-  text-shadow: 0 0 6px rgba(255,255,255,0.7);
-}
-.marco {
-    background-color: rgb(74, 81, 101);
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-    padding: 12px;
-    border-radius: 8px;
-    margin-bottom: 16px;
-}
-.marco:hover {
-    background-color: rgb(62, 67, 82);
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-    transition: background-color 0.5s ease, box-shadow 0.3s ease;
-}
-.marco2 {
-    border: 2px solid rgb(86, 93, 113);
-    padding: 12px;
-    border-radius: 8px;
-
-    margin-bottom: 16px;
-    background-color: rgba(255, 255, 255, 0.05);
-    width: 60%;
-    margin: 0 auto;
-    text-align: center;  
-    text-align: center; 
-
 }
 
-.marco3 {
-    border: 2px solid rgb(86, 93, 113);
-    padding: 12px;
-    border-radius: 8px;
-    margin-bottom: 16px;
-    background-color: rgba(255, 255, 255, 0.05);
-}
-
-.imagen-derecha {
-    margin-bottom: 10px;
-    width: 250px;
-    height: 250px;
-}
-
-.footer {
-    float: left;
-    margin-right: 15px;
-    margin-bottom: 10px;
-    width: 500px;
-    height: 500px;
-    font-size: 10px;
-}
+/* --- RÁFAGAS --- */
 
 .body-rafagas {
   display: flex;
-  justify-content: space-between;
-  margin: 20px;
-  font-family: Arial, sans-serif;
+  flex-direction: column;
+  gap: 25px;
+  padding: 20px;
 }
 
-.marco-columna, .marco {
-  background-color: rgb(74, 81, 101);
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
-  padding: 12px;
+.marco-columna {
+  background: #f8f9fa;
+  padding: 15px;
   border-radius: 8px;
-  margin-bottom: 16px;
-  width: 45%;
-  text-align: center;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: transform 0.2s ease;
 }
 
-.marco-columna img, .marco img {
-  max-width: 100%;
-  height: auto;
-  margin-bottom: 10px;
-}
-
-.marco-columna p, .marco p {
-  color: white;
-}
-
-a.link-reset {
-  text-decoration: none; /* quita subrayado */
-  color: inherit;        /* mantiene color normal */
-}
-
-html {
-  scroll-behavior: smooth;
+.marco-columna:hover {
+  transform: scale(1.02);
 }
 
 .img-marco {
-  border: 2px solid #555;
+  border-radius: 6px;
+}
+
+.link-reset {
+  text-decoration: none;
+  color: inherit;
+}
+
+.marco {
+  background: #f8f9fa;
+  padding: 20px;
   border-radius: 8px;
-  box-shadow: 4px 4px 12px rgba(0,0,0,0.4);
-  width: 70%;
-  display: block;
-  margin: auto;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
-.miniatura {
-  display: none;
-  width: 150px;
-  border: 1px solid #ccc;
+/* --- CARRUSEL (ORIGINAL) --- */
+
+#miCarrusel img {
+  max-height: 500px;
+  object-fit: cover;
 }
 
-.preview-img:hover + .miniatura {
-  display: block;
-  position: absolute;
+.carousel-indicators [data-bs-target] {
+  background-color: #fff;
 }
 
-.preview-img {
-  position: relative;
-  cursor: pointer;
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  filter: invert(1);
 }
 
-.imagenizq-texto {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
+/* --- OTROS ESTILOS --- */
 
-.imagenizq-texto img {
-  width: 200px; 
-  border: 2px solid #555;
-  border-radius: 8px; 
-  box-shadow: 4px 4px 12px rgba(0,0,0,0.4);
+.line-gap {
+  height: 40px;
 }
+<<<<<<< HEAD
 .hanging-indent div.csl-entry {
   margin-left:2em;
   text-indent:-2em;
@@ -230,3 +133,5 @@ html {
 .nav-footer-right {
   text-align: right;
 }
+=======
+>>>>>>> 9d063caa606e01245688c2bd024f01db4995b2b0

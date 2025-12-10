@@ -25,6 +25,7 @@ def main():
     ]
 
     templates_a_generar = [
+        
         ("index.html", "index.html"),
         ("carrusel.html", "carrusel.html"),
         ("quienes-somos.html", "quienes-somos.html"),

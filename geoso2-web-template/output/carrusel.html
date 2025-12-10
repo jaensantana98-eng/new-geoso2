@@ -93,6 +93,39 @@
       
 <h2 class="text-center mb-4"></h2>
 
+<style>
+    /* Carrusel full-width y full-height opcional */
+    #miCarrusel {
+        width: 100vw;
+        margin-left: calc(50% - 50vw); /* Para que realmente ocupe de borde a borde */
+    }
+
+    /* Altura moderna estilo "hero" - ajustable */
+    #miCarrusel .carousel-item img {
+        height: 70vh;          /* Ajusta a 100vh si quieres pantalla completa */
+        object-fit: cover;     /* Moderno: recorta sin deformar */
+        border-radius: 0;      /* Limpio y profesional */
+    }
+
+    /* Indicadores minimalistas */
+    .carousel-indicators [data-bs-target] {
+        background-color: #fff;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        opacity: 0.6;
+    }
+    .carousel-indicators .active {
+        opacity: 1;
+    }
+
+    /* Controles más modernos */
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        filter: invert(1);   /* Iconos blancos */
+    }
+</style>
+
 <div id="miCarrusel" class="carousel slide" data-bs-ride="carousel">
 
   <div class="carousel-indicators">
@@ -117,8 +150,7 @@
     
   </div>
 
-  <div id="carouselExample" class="carousel slide">
-    <div class="carousel-inner">
+  <div class="carousel-inner">
     
       <div class="carousel-item active">
         <img src="img/foto1.jpg" class="d-block w-100" alt="Imagen 1">
@@ -144,17 +176,17 @@
         <img src="img/foto6.jpg" class="d-block w-100" alt="Imagen 6">
       </div>
     
-    </div>
+  </div>
 
-    <button class="carousel-control-prev" type="button" data-bs-target="#miCarrusel" data-bs-slide="prev">
-      <span class="carousel-control-prev-icon"></span>
-    </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#miCarrusel" data-bs-slide="next">
-      <span class="carousel-control-next-icon"></span>
-    </button>
+  <button class="carousel-control-prev" type="button" data-bs-target="#miCarrusel" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon"></span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#miCarrusel" data-bs-slide="next">
+    <span class="carousel-control-next-icon"></span>
+  </button>
+
 </div>
-<br>
-<div class="line-gap"></div>
+
 
       
       
