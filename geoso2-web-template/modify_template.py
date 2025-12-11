@@ -36,6 +36,8 @@ def main():
         ("navbar.html", "navbar.html"),
         ("rafagas.html", "rafagas.html"),
         ("rafaga_publicacion.html", "rafaga_publicacion.html"),
+        ("proyectos.html", "proyectos.html"),
+        ("club.html", "club.html")
     ]
 
     for tpl_name, salida in templates_a_generar:
