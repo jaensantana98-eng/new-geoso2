@@ -36,6 +36,7 @@ def main():
         ("navbar.html", "navbar.html"),
         ("rafagas.html", "rafagas.html"),
         ("rafaga_publicacion.html", "rafaga_publicacion.html"),
+        ("noticias.html", "noticias.html"),
         ("noticia01.html", "noticia01.html"),
     ]
 
