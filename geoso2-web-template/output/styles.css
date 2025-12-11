@@ -205,6 +205,13 @@ html {
   object-position: center;
 }
 
+.img-index {
+  width: 350px;
+  height: 350px;
+  object-position: center;
+}
+
+
 /* --- CARRUSEL (ORIGINAL) --- */
 
 #miCarrusel img {
