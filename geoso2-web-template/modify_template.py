@@ -38,6 +38,8 @@ def main():
         ("rafaga_publicacion.html", "rafaga_publicacion.html"),
         ("noticias.html", "noticias.html"),
         ("noticia01.html", "noticia01.html"),
+        ("proyectos.html", "proyectos.html"),
+        ("club.html", "club.html")
     ]
 
     for tpl_name, salida in templates_a_generar:
