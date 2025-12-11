@@ -37,7 +37,9 @@ def main():
         ("rafagas.html", "rafagas.html"),
         ("rafaga_publicacion.html", "rafaga_publicacion.html"),
         ("noticias.html", "noticias.html"),
+        ("agenda.html", "agenda.html"),
         ("noticia01.html", "noticia01.html"),
+        ("noticia02.html", "noticia02.html"),
         ("proyectos.html", "proyectos.html"),
         ("club.html", "club.html")
     ]
