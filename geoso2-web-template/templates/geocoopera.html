@@ -1,20 +1,10 @@
-{% extends "index.html" %}
+{% extends "index_base.html" %}
 
 {% block title %}Visor Interactivo - GEOSO2{% endblock %}
 
 {% block content %}
-
 <main class="container mt-4 ps-0 ms-4">
-
-    <h4><strong><u>Visor Interactivo</u></strong></h4>
-
-    <p>
-        Geocoopera es un portal colaborativo en constante evolución,
-        para georreferenciar proyectos y acciones de cooperación.
-        Desarrollado por el grupo GEOSO2 (UPM) para publicar resultados
-        del proyecto GEOCOOP/2024, pero abierto a cualquier acción de cooperación.
-    </p>
-
+  <h4><strong><u>{{ geocoopera.titulo }}</u></strong></h4>
+  <p>{{ geocoopera.descripcion }}</p>
 </main>
-
 {% endblock %}

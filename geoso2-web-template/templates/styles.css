@@ -2,9 +2,12 @@ html, body {
   background-color: rgb(74, 81, 101);
   color: white;
   height: 100%;
-  margin: 0;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
+  max-width: 1200px;
+  padding: 0 20px;
+  overflow-x: hidden;
 }
 .main-content {
   flex: 1;
@@ -148,13 +151,6 @@ html, body {
     width: 250px;
     height: 250px;
 }
-.body-rafagas {
-  display: flex;
-  justify-content: space-between;
-  margin: 20px;
-  font-family: Arial, sans-serif;
-}
-
 .texto-justificado {
   flex: 1;         /* el texto ocupa el resto */
   text-align: justify;
@@ -253,6 +249,8 @@ html {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  overflow-x: hidden;
+  max-width: 1200px;
 }
 .nav-footer-left, .nav-footer-center, .nav-footer-right {
   flex: 1;

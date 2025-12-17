@@ -1,83 +1,96 @@
-{% extends "index.html" %}
+{% extends "index_base.html" %}
 
 {% block title %}Club - GEOSO2{% endblock %}
 
 {% block content %}
-    <p style="text-align: center; font-size: 35px;">
-        <strong>Arbolado Autóctono en campos deportivos</strong>
-    </p>
-    </div>
+<p style="text-align: center; font-size: 35px;">
+  <strong>{{ club.titulo }}</strong>
+</p>
 
-    <p style="text-align: center; font-size: 25px;">
-        <strong>Estudio sobre gestión de la vegetación autóctona para su mantenimiento y conservación en las instalaciones de la Real Sociedad Hípica Española Club de Campo, S.A.</strong>
-    </p>
+<p style="text-align: center; font-size: 25px;">
+  <strong>{{ club.subtitulo }}</strong>
+</p>
 
-    <p style="text-align: center; font-style: italic; font-size: 20px;">
-        Contrato privado Financiado por: RSHECC, S.A.
-    </p>
-    <br>
-    <p style="text-align: center; font-style: italic;font-size: 20px;">
-        2023-2024
-    </p>
-<p>El club dispone de un rico patrimonio arbóreo de carácter autóctono que ha sido inventariado y se mantiene actualizado mediante Sistemas de información Geográfica, utilizando técnicas de medición en campo (<a href="#fig-01">Figura&nbsp;1</a>Figura 1 y Figura 2) y geolocalización (Figura 3).</p>
+<p style="text-align: center; font-style: italic; font-size: 20px;">
+  {{ club.contrato }}
+</p>
+<br>
+<p style="text-align: center; font-style: italic; font-size: 20px;">
+  {{ club.periodo }}
+</p>
 
+{% for parrafo in club.parrafos %}
+
+<p>{{ parrafo.texto1 }}</p>
+
+{% endfor %}
+
+{% for figura in club.figuras %}
 <div class="container my-4">
   <div class="row">
-    <div id="fig-01" class="col-md-4 text-start">
+    <div class="col-md-4 text-start">
       <figure>
-        <img src="../imput/img/proyectos/images/club/images/02.png" class="img-fluid" style="width:450px;">
-        <figcaption>Figura 1: Medición en campo de diámetros (forcípula)</figcaption>
+        <img src="{{figura.figura1}}" class="img-fluid" style="width:450px;">
+        <figcaption>{{ figura.pie1 }}</figcaption>
       </figure>
     </div>
 
-    <div id="fig-02" class="col-md-8 text-end">
+    <div class="col-md-8 text-end">
       <figure>
-        <img src="../imput/img/proyectos/images/club/images/03.png" class="img-fluid" style="width:500px;">
-        <figcaption>Figura 2: Medición en campo de alturas (hipsómero Blume Leiss)</figcaption>
+        <img src="{{figura.figura2}}" class="img-fluid" style="width:500px;">
+        <figcaption>{{figura.pie2}}</figcaption>
       </figure>
     </div>
   </div>
 </div>
-<br>
-<br>
-<p>En la base de datos se encuentran recogidas especies como encinas (Quercus ilex subsp. ballota), pinos piñoneros (Pinus pinea), pinos carrascos (Pinus halepensis) y otras especies como cipreses (Cupresus sp.), enebro de la miera (Juniperus oxycedrus), álamos (Populus sp.) y olmos (Ulmus sp.).</p>
-<br>
-<div id="fig-03">
-<figure class= "text-center">
-  <img src="../imput/img/proyectos/images/club/images/04.png" width="800px" class="img-fluid">
-  <figcaption>Figura 3: Proceso de inventario y geolocalización. Móvil con app activa intervariando un árbol (izquierda) y pantalla de PC con sistema GIS mostrando posición gráfica y valores alfanuméricos almacenados (derecha).</figcaption>
-</figure>
-</div>
-<p>Entere los árboles inventariados se encuentran ejemplares singulares tnto de encina como de enebros, cuyo elevado se trata de preservar con los tratamientos fitofortificantes de primavera y otoño.</p>
-<p>Desde hace 25 años se evalúa el efeco de diversos tratamientos (Figura 4 y Figura 5) sobre la salud de árboles del club, habiendose obtenidos resultados razonablemente favorables para la protección y mejora de estos ejemplares a largo plazo. Este trabajo de investigación se ha dado a conocer en algunos congresos especializados <strong>(García Ventura et al., 2015).</strong></p>
-<div id="fig-04">
-<figure class= "text-center">
-  <img src="../imput/img/proyectos/images/club/images/05.png" width="500px" class="img-fluid">
-  <figcaption>Figura 4: Tratamiento aéreo Enebro singular</figcaption>
-</figure>
-</div>
-<br>
-<div id="fig-05">
-<figure class= "text-center">
-  <img src="../imput/img/proyectos/images/club/images/06.jpg" width="700px" class="img-fluid">
-  <figcaption>Figura 5: Tratamiento radicular Encina singular</figcaption>
-</figure>
-</div>
-<p>Además, se realizan estudios y labores de vigilancia y control.</p>
-<p>Otra de las líneas de trabajo en el convenio es el asesoramiento técnico y la elaboración de informes sobre temas o áreas específicas que afectan al estado del arbolado, estos trabajos se realizan a petición de los responsables del Club. Cada año suelen realizarse labores de vigilancia y control de posibles focos de organismos patógenos (Figura 6), como hongos de pudrición de la madera o insectos perforadores con grave riesgo para la estabilidad de alguno de los pies arbóreos.</p>
+{% endfor %}
+{% for parrafo in club.parrafos %}
 
-<div id="fig-06">
-<figure class= "text-center">
-  <img src="../imput/img/proyectos/images/club/images/07.jpg" width="700px" class="img-fluid">
-  <figcaption>Figura 6:  Hongo tipo Armillaria en base de tronco (izquierda); Galerías escolíticos (centro); Chancro en Ciprés de Lawson (derecha)</figcaption>
-</figure>
-</div>
-<p>También realizamos seguimiento de las talas y apeos, además de las labores de poda (Figura 7).</p>
-<div id="fig-07">
-<figure class= "text-center">
-  <img src="../imput/img/proyectos/images/club/images/08.jpg" width="700px" class="img-fluid">
-  <figcaption>Figura 7: Despiece de encina ejemplar afectada por pudrición (izquierda) y Proceso de apeo de pino piñonero singular (derecha)</figcaption>
-</figure>
-<p>La extensión en el tiempo de este proyecto, así como la variedad de temáticas ambientales a tratar y las diversas herramientas tecnológicas a emplear ofrece una buena oportunidad de formación como aprendizaje servicio, por lo que en su marco se han desarrollado varios trabajos fin de máster y algunas prácticas en empresa.</p>
+<p class="texto-justificado">{{ parrafo.texto2 }}</p>
 
+{% endfor %}
+
+{% for figura in club.figuras %}
+<figure class= "text-center">
+  <img src="{{figura.figura3}}" width="800px" class="img-fluid">
+  <figcaption>{{figura.pie3}}</figcaption>
+</figure>
+{% endfor %}
+{% for parrafo in club.parrafos %}
+<p class="texto-justificado">{{ parrafo.texto3}}</p>
+<p class="texto-justificado">{{ parrafo.texto4}}<strong><a style="text-decoration: none;" href="../imput/img/proyectos/images/club/VIII_Congreso_Iberico_de_Agroingenieria_639_a_649.pdf">{{ parrafo.textonegro}}</a></strong></p>
+
+{% endfor %}
+{% for figura in club.figuras %}
+<figure class= "text-center">
+  <img src="{{figura.figura4}}" width="650px" class="img-fluid">
+  <figcaption>{{figura.pie4}}</figcaption>
+</figure>
+<figure class= "text-center">
+  <img src="{{figura.figura5}}" width="650px" class="img-fluid">
+  <figcaption>{{figura.pie5}}</figcaption>
+</figure>
+{% endfor %}
+{% for parrafo in club.parrafos %}
+<p class="texto-justificado">{{parrafo.texto5}}</p>
+<p class="texto-justificado">{{parrafo.texto6}}</p>
+{% endfor %}
+{% for figura in club.figuras %}
+<figure class= "text-center">
+  <img src="{{figura.figura6}}" width="650px" class="img-fluid">
+  <figcaption>{{figura.pie6}}</figcaption>
+</figure>
+{% endfor %}
+{% for parrafo in club.parrafos %}
+<p class="texto-justificado">{{parrafo.texto7}}</p>
+{% endfor %}
+{% for figura in club.figuras %}
+<figure class= "text-center">
+  <img src="{{figura.figura7}}" width="650px" class="img-fluid">
+  <figcaption>{{figura.pie7}}</figcaption>
+</figure>
+{% endfor %}
+{% for parrafo in club.parrafos %}
+<p class="texto-justificado">{{parrafo.texto8}}</p>
+{% endfor %}
 {% endblock %}
