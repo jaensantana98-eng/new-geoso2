@@ -1,0 +1,28 @@
+{
+    "carrusel": [
+        {
+            "imagen": "data/img/foto1.jpg",
+            "enlace": "https://12jcm.ingegraf.es"
+        },
+        {
+            "imagen": "data/img/foto2.png",
+            "enlace": "https://www.geoso2.es/content/carousel/files/03/INTED_2024_ppt.pdf"
+        },
+        {
+            "imagen": "data/img/foto3.png",
+            "enlace": "https://www.geoso2.es/content/rafagas/01/01.html"
+        },
+        {
+            "imagen": "data/img/foto4.jpg",
+            "enlace": "https://www.geoso2.es/content/carousel/files/08/GEOSO2_EELISA_TALLER_ZyL_2025_v3.pdf"
+        },
+        {
+            "imagen": "data/img/foto5.jpg",
+            "enlace": "https://www.geoso2.es/content/carousel/files/07/GEOSO2_FICHA_INCIO_CARRUSEL_COMUNICACION_CUD24.pdf"
+        },
+        {
+            "imagen": "data/img/foto6.jpg",
+            "enlace": "https://www.geoso2.es/content/carousel/files/06/GEOSO2_FICHA_INCIO_CARRUSEL_DEFENSATESISCAROLINA_presentacion.pdf"
+        }
+    ]
+}

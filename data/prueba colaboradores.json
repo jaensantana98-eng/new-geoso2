@@ -1,0 +1,24 @@
+{
+    "entidades": [
+        {
+            "imagen": "data/img/Altitum_horizontal.png",
+            "enlace": "https://altitum.com"
+        },
+        {
+            "imagen": "data/img/left_cape_logo_01.png",
+            "enlace": "https://www.leftcape.com"
+        },
+        {
+            "imagen": "data/img/nediage_logo_black.png",
+            "enlace": "https://nediage.eu"
+        },
+        {
+            "imagen": "data/img/SRM_logo.png",
+            "enlace": "https://ipsilum.com/web/"
+        },
+        {
+            "imagen": "data/img/Original.png",
+            "enlace": "https://zercaylejos.org"
+        }
+    ]
+}
