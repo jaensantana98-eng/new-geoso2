@@ -1,9 +1,10 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <div class="container-fluid">
+  <div class="container">
+  <div class="container navbar-wrapper">
 
     <!-- Logo -->
     <a class="navbar-brand navbar-brand-logo" href="./index.html">
-      <img src="../logo/GEOSO2-cabecera.svg" alt="GEOSO2" class="navbar-logo">
+      <img src="../imput/logos/GEOSO2-cabecera.svg" alt="GEOSO2" class="navbar-logo">
     </a>
     <span class="research-group-text">
       Grupo de Investigación Geoespacial y<br>Dinámicas Territoriales para la Sostenibilidad
@@ -20,6 +21,7 @@
     <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
 
       <!-- Enlaces -->
+    <div class="text-center">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
           <a class="nav-link" href="./rafagas.html">
@@ -57,7 +59,14 @@
             <span class="menu-text">¿QUIÉNES SOMOS?</span>
           </a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://blogs.upm.es/alcorque/">
+            <i class="fa-solid fa-tree"></i>
+            <span class="menu-text">ALCORQUE</span>
+          </a>
+        </li>
       </ul>
+    </div>
 
       <!-- Icono lupa -->
       <button type="button" class="btn btn-link p-0 ms-3 text-decoration-none search-trigger" aria-label="Abrir buscador">
@@ -65,12 +74,13 @@
       </button>
     </div> 
   </div>
+  </div>
 </nav>
 
 <!-- Buscador fuera del navbar -->
 <div class="search-container">
   <form class="search-form" role="search" autocomplete="off">
-    <div class="container-fluid d-flex align-items-center">
+    <div class="container d-flex align-items-center">
       <input class="form-control search-input" type="search" placeholder="Buscar" aria-label="Buscar">
     </div>
   </form>

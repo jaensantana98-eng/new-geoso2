@@ -1,6 +1,96 @@
-{% extends "index.html" %}
+{% extends "index_base.html" %}
 
 {% block title %}Club - GEOSO2{% endblock %}
 
 {% block content %}
+<p style="text-align: center; font-size: 35px;">
+  <strong>{{ club.titulo }}</strong>
+</p>
 
+<p style="text-align: center; font-size: 25px;">
+  <strong>{{ club.subtitulo }}</strong>
+</p>
+
+<p style="text-align: center; font-style: italic; font-size: 20px;">
+  {{ club.contrato }}
+</p>
+<br>
+<p style="text-align: center; font-style: italic; font-size: 20px;">
+  {{ club.periodo }}
+</p>
+
+{% for parrafo in club.parrafos %}
+
+<p>{{ parrafo.texto1 }}</p>
+
+{% endfor %}
+
+{% for figura in club.figuras %}
+<div class="container my-4">
+  <div class="row">
+    <div class="col-md-4 text-start">
+      <figure>
+        <img src="{{figura.figura1}}" class="img-fluid" style="width:450px;">
+        <figcaption>{{ figura.pie1 }}</figcaption>
+      </figure>
+    </div>
+
+    <div class="col-md-8 text-end">
+      <figure>
+        <img src="{{figura.figura2}}" class="img-fluid" style="width:500px;">
+        <figcaption>{{figura.pie2}}</figcaption>
+      </figure>
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% for parrafo in club.parrafos %}
+
+<p class="texto-justificado">{{ parrafo.texto2 }}</p>
+
+{% endfor %}
+
+{% for figura in club.figuras %}
+<figure class= "text-center">
+  <img src="{{figura.figura3}}" width="800px" class="img-fluid">
+  <figcaption>{{figura.pie3}}</figcaption>
+</figure>
+{% endfor %}
+{% for parrafo in club.parrafos %}
+<p class="texto-justificado">{{ parrafo.texto3}}</p>
+<p class="texto-justificado">{{ parrafo.texto4}}<strong><a style="text-decoration: none;" href="../imput/img/proyectos/images/club/VIII_Congreso_Iberico_de_Agroingenieria_639_a_649.pdf">{{ parrafo.textonegro}}</a></strong></p>
+
+{% endfor %}
+{% for figura in club.figuras %}
+<figure class= "text-center">
+  <img src="{{figura.figura4}}" width="650px" class="img-fluid">
+  <figcaption>{{figura.pie4}}</figcaption>
+</figure>
+<figure class= "text-center">
+  <img src="{{figura.figura5}}" width="650px" class="img-fluid">
+  <figcaption>{{figura.pie5}}</figcaption>
+</figure>
+{% endfor %}
+{% for parrafo in club.parrafos %}
+<p class="texto-justificado">{{parrafo.texto5}}</p>
+<p class="texto-justificado">{{parrafo.texto6}}</p>
+{% endfor %}
+{% for figura in club.figuras %}
+<figure class= "text-center">
+  <img src="{{figura.figura6}}" width="650px" class="img-fluid">
+  <figcaption>{{figura.pie6}}</figcaption>
+</figure>
+{% endfor %}
+{% for parrafo in club.parrafos %}
+<p class="texto-justificado">{{parrafo.texto7}}</p>
+{% endfor %}
+{% for figura in club.figuras %}
+<figure class= "text-center">
+  <img src="{{figura.figura7}}" width="650px" class="img-fluid">
+  <figcaption>{{figura.pie7}}</figcaption>
+</figure>
+{% endfor %}
+{% for parrafo in club.parrafos %}
+<p class="texto-justificado">{{parrafo.texto8}}</p>
+{% endfor %}
+{% endblock %}

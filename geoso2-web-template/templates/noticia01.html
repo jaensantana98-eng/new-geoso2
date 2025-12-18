@@ -1,51 +1,39 @@
-{% extends "index.html" %}
+{% extends "index_base.html" %}
 
 {% block title %}GEOSO2 y la Cooperación Internacional{% endblock %}
 
 {% block content %}
-
 <div class="mx-3 mt-4">
-
-    <h2>
-    GEOSO2 y la Cooperación Internacional.
-        Investigadores y alumnos de la UPM visitan la Universidad de Bertoua en su viaje de campo a poblaciones baka de Camerún 
-    </h2>
-    <p  style="text-align:center; font-weight:200">
-        Fecha: 22 julio 2024
-    </p>
-    <br>
-    <p>
-    Investigadores y alumnos del Grupo de Investigación geoespacial y dinámicas territoriales para la sostenibilidad (GEOSO2) han iniciado su visita a las poblaciones baka del Sur de Camerún con una reunión de trabajo en el Institut superieur d’agricultura, du boit, d l’eau et de l’environnemet ISABEE de la Universidad de Bertua, Belabo, Camerún.
-    </p>
-    <br>
-
-    <div class="container my-4">
-        <img src="../imput/img/noticias/01/02.jpg" alt="Noticia 1" style="width:60%; display:block; margin:auto;" class="img-marco">
-        <p style="text-align:center; font-weight:200">Reuniones de trabajo en la Universidad de Bertrua.</p>
-    </div>
-        <br><br>
-    <p>
-    Durante la visita se han debatido varios temas de colaboración entre ambos equipos de trabajo como: detección remota aplicada a deforestación, inundaciones y cambios en el uso del suelo, desarrollo, transformación y comercialización de productos forestales no leñosos, monitorización de productos forestales leñosos etc. 
-    <br>
-    Esta visita se enmarca en las actividades a desarrollar por el proyecto GEOCOOP, Acción Semilla financiada por la UPM en su programa de cooperación internacional. Dicho proyecto titulado “Metodología colaborativa para el desarrollo de acciones de cooperación internacional. Aplicación a la mejora del acceso a agua de calidad para la población Baka del Sur de Camerún”, llevará a cabo acciones sobre el terreno que mejoren el acceso al agua de las poblaciones baka, y analizará aspectos del entorno ambiental y socioeconómico en el que vive dicha población para ayudar a la ONGD Zerca y Lejos mediante diagnóstico y análisis la situación, a plantear áreas temáticas en las que desarrollar sus proyectos y criterios para la priorización de los mismos.
-    </p>
-    <br>
-    <div class="container my-4">
-        <div class="row text-center align-items-center">
-            <img src="../imput/img/noticias/01/03.png" alt="Noticia 1" style="width:80%; display:block; margin:auto;">
-          <p style="text-align:center; font-weight:200">Primer pozo analizado: Preparando la incubadora de campo desarrollada en la UPM Wata 2.0 (Izquierda) <br> Tomando muestras en el pozo de abastecimiento de la población baka (derecha).</p>
-        </div>
-    </div>
-          <br><br>
-    <p>
-    Como parte de las actividades desarrolladas por el grupo del Institut superieur d’agricultura, du boit, d l’eau et de l’environnemet se han realizado reuniones con representantes de poblaciones baka que mantienen relación con investigadores de dicho instituto.   
-    </p>
-    <br>
-
-    <div class="container my-4">
-        <img src="../imput/img/noticias/01/04.png" alt="Noticia 1" style="width:100%; display:block; margin:auto;">
-        <p style="text-align:center; font-weight:200">Visita de la delegación UPM (proyecto GEOCOOP) a los representantes de poblaciones baka de Belabo. Encuentro desarrollado en el marco de las relaciones con el ISABEE.</p>
-    </div>
-
+  <h2 style="text-align: center;"><strong>{{ noticias.detalles.noticia01.titulo }}</strong></h2>
+  <p style="text-align:center; font-weight:200">
+    Fecha: {{ noticias.detalles.noticia01.fecha }}
+  </p>
+  <br>
 </div>
+  {% for parrafo in noticias.detalles.noticia01.parrafos %}
+    <p>{{ parrafo.texto1 }}</p>
+  {% endfor %}
+  {% for img in noticias.detalles.noticia01.imagenes %}
+    <div class="container my-4 text-center">
+      <img src="{{ img.src1 }}" alt="{{ img.alt1 }}" class="img-marco2">
+      <p style="text-align:center; font-weight:200">{{ img.pie }}</p>
+    </div>
+  {% endfor %}
+  <p>Durante la visita se han debatido varios temas de colaboración entre ambos equipos de trabajo como: detección remota aplicada a deforestación, inundaciones y cambios en el uso del suelo, desarrollo, transformación y comercialización de productos forestales no leñosos, monitorización de productos forestales leñosos etc.</p>
+  <p>Esta visita se enmarca en las actividades a desarrollar por el proyecto GEOCOOP, Acción Semilla financiada por la UPM en su programa de cooperación internacional. Dicho proyecto titulado “Metodología colaborativa para el desarrollo de acciones de cooperación internacional. Aplicación a la mejora del acceso a agua de calidad para la población Baka del Sur de Camerún”, llevará a cabo acciones sobre el terreno que mejoren el acceso al agua de las poblaciones baka, y analizará aspectos del entorno ambiental y socioeconómico en el que vive dicha población para ayudar a la ONGD <a  style=" text-decoration: none;" href="https://zercaylejos.org/">Zerca y Lejos</a> mediante diagnóstico y análisis la situación, a plantear áreas temáticas en las que desarrollar sus proyectos y criterios para la priorización de los mismos.</p>
+{% for img in noticias.detalles.noticia01.imagenes %}
+    <div class="container my-4 text-center">
+      <img src="{{ img.src2 }}" alt="{{ img.alt2 }}" class="img-marco2" width="800px">
+      <p style="text-align:center; font-weight:200">{{ img.pie2 }}</p>
+    </div>
+  {% endfor %}
+  {% for parrafo in noticias.detalles.noticia01.parrafos %}
+    <p>{{ parrafo.texto4 }}</p>
+  {% endfor %}
+  {% for img in noticias.detalles.noticia01.imagenes %}
+    <div class="container my-4 text-center">
+      <img src="{{ img.src3 }}" alt="{{ img.alt3 }}" class="img-marco2" width="800px">
+      <p style="text-align:center; font-weight:200">{{ img.pie3 }}</p>
+    </div>
+  {% endfor %}
 {% endblock %}
