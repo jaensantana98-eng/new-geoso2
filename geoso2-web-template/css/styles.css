@@ -1,10 +1,59 @@
+
+.navbar {
+  padding-top: 0.3rem;
+  padding-bottom: 0.3rem;
+  min-height: 50px;
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+}
+::-webkit-scrollbar-track {
+  background: rgb(50, 57, 77);
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgb(100, 107, 127);
+  border-radius: 6px;
+  border: 2px solid rgb(50, 57, 77);
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(120, 127, 147);
+}
+.navbar-nav {
+  flex-wrap: nowrap;
+  gap:0.5rem;
+}
+
+.navbar-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+  box-sizing: border-box
+}
+
+.page-wrapper {
+
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 35px;
+  padding-right: 35px;  
+  box-sizing: border-box;
+}
+
 html, body {
+  width: 100%;
   background-color: rgb(74, 81, 101);
   color: white;
+  scroll-behavior: smooth;
+  scrollbar-gutter: stable;
   height: 100%;
   margin: 0;
-  display: flex;
-  flex-direction: column;
+  overflow-x: hidden;
+  padding: 0
+
 }
 .main-content {
   flex: 1;
@@ -13,14 +62,14 @@ html, body {
 .footer {
   background-color: #212529;
   padding: 15px 0;
-  margin-top: 175px;
+  margin-top: 80px;
 }
 
 .nav-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 40px;
+  padding: 0 0px;
 }
 
 .nav-footer-left p,
@@ -30,7 +79,7 @@ html, body {
 }
 
 .navbar-logo {
-  height: 30px;
+  height: 24px;
 }
 .navbar-brand-logo {
   display: flex;
@@ -40,10 +89,17 @@ html, body {
   transform: scale(1.05);
   transition: transform 0.3s ease;
 }
+.nav-link .menu-text {
+  font-size: clamp(0.6rem, 1vw, 0.9rem);
+  white-space: nowrap;
+}
+
 .nav-link {
   color: rgba(255,255,255,.55);
-  margin-right: 50px;
   transition: color 0.3s ease, text-shadow 0.3s ease;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.8rem;
+  white-space: nowrap;
 }
 .nav-link:hover {
   color: #fff;
@@ -57,6 +113,7 @@ html, body {
   font-size: 0.6rem;
   font-weight: 500;
   margin-left: 1rem;
+  font-size: 0.6rem;
 }
 /* Contenedor del buscador fuera del navbar: igual que bg-dark y ancho completo */
 .search-container {
@@ -98,10 +155,9 @@ html, body {
 /* Icono lupa dentro del navbar */
 .search-icon {
   color: rgba(255,255,255,.55);
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   cursor: pointer;
-  margin-left: 1rem;
-  margin-right: 1rem;
+  margin-left: 0.5rem;
 }
 .search-icon:hover {
   color: #fff;
@@ -187,6 +243,7 @@ a.link-reset {
 
 html {
   scroll-behavior: smooth;
+  scrollbar-gutter: stable;
 }
 
 .img-marco {
@@ -266,4 +323,10 @@ html {
 }
 .nav-footer-right {
   text-align: right;
+}
+.carousel-inner {
+  background-color: rgb(74, 81, 101);
+}
+.carousel-item {
+  transition: transform 1s ease-in-out, opacity 1s ease-in-out;
 }
