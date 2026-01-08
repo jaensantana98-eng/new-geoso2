@@ -22,14 +22,13 @@ class AgendaWindow(tk.Toplevel):
             "fecha del evento": "",
             "hora": "",
             "lugar": "",
-            "cuerpo": "",
+            "descripcion": "",
             "enlace": {
                 "texto": "",
                 "url": "",
                 "usar_en_titulo": True,
                 "usar_en_portada": True
             },
-            "fecha": "",
         }
 
         # Asegurar carpeta de imágenes
@@ -88,15 +87,11 @@ class DatosTab(tk.Frame):
         self.entry_fecha = ttk.Entry(frm)
         self.entry_fecha.grid(row=3, column=1, sticky="ew", pady=6)
 
-        ttk.Label(frm, text="Hora:").grid(row=4, column=0, sticky="w", pady=6)
-        self.entry_hora = ttk.Entry(frm)
-        self.entry_hora.grid(row=4, column=1, sticky="ew", pady=6)
-
         ttk.Label(frm, text="Lugar:").grid(row=5, column=0, sticky="w", pady=6)
         self.entry_lugar = ttk.Entry(frm)
         self.entry_lugar.grid(row=5, column=1, sticky="ew", pady=6)
 
-        ttk.Label(frm, text="Cuerpo:").grid(row=6, column=0, sticky="nw", pady=6)
+        ttk.Label(frm, text="Descripción:").grid(row=6, column=0, sticky="nw", pady=6)
         cuerpo_frame = ttk.Frame(frm)
         cuerpo_frame.grid(row=6, column=1, sticky="nsew", pady=6)
         self.text_cuerpo = tk.Text(cuerpo_frame, wrap="word")
@@ -147,7 +142,6 @@ class DatosTab(tk.Frame):
         self.entry_portada.bind("<KeyRelease>", self.update_state)
         self.text_titulo.bind("<KeyRelease>", self.update_state)
         self.entry_fecha.bind("<KeyRelease>", self.update_state)
-        self.entry_hora.bind("<KeyRelease>", self.update_state)
         self.entry_lugar.bind("<KeyRelease>", self.update_state)
         self.text_cuerpo.bind("<KeyRelease>", self.update_state)
         self.entry_enlace_texto.bind("<KeyRelease>", self.update_state)
@@ -163,7 +157,7 @@ class DatosTab(tk.Frame):
 
         try:
             nombre = os.path.basename(ruta)
-            destino = os.path.join("data/img", nombre)
+            destino = os.path.join("", nombre)
 
             with Image.open(ruta) as img:
                 # Convertir a RGB para evitar problemas de formato
@@ -211,10 +205,9 @@ class DatosTab(tk.Frame):
     def update_state(self, event=None):
         self.controller.state["titulo"] = self.text_titulo.get("1.0", tk.END).strip()
         self.controller.state["fecha del evento"] = self.entry_fecha.get().strip()
-        self.controller.state["hora"] = self.entry_hora.get().strip()
         self.controller.state["lugar"] = self.entry_lugar.get().strip()
         self.controller.state["portada"] = self.entry_portada.get().strip()
-        self.controller.state["cuerpo"] = self.text_cuerpo.get("1.0", tk.END).strip()
+        self.controller.state["descripcion"] = self.text_cuerpo.get("1.0", tk.END).strip()
         self.controller.state["enlace"]["texto"] = self.entry_enlace_texto.get().strip()
         self.controller.state["enlace"]["url"] = self.entry_enlace_url.get().strip()
         self.controller.state["enlace"]["usar_en_titulo"] = self.var_link_titulo.get()
@@ -238,7 +231,7 @@ class DatosTab(tk.Frame):
         self.entry_lugar.insert(0, datos.get("lugar", ""))
 
         self.text_cuerpo.delete("1.0", tk.END)
-        self.text_cuerpo.insert("1.0", datos.get("cuerpo", ""))
+        self.text_cuerpo.insert("1.0", datos.get("descripcion", ""))
 
         self.entry_enlace_texto.delete(0, tk.END)
         self.entry_enlace_texto.insert(0, datos.get("enlace", {}).get("texto", ""))
@@ -286,12 +279,34 @@ class PreviewTab(tk.Frame):
 
     def save_json(self):
         datos = self.controller.state.copy()
-        datos["fecha"] = datetime.datetime.now().strftime("%d-%m-%Y")
-        ruta = filedialog.asksaveasfilename(defaultextension=".json", filetypes=[("JSON files", "*.json")], initialdir="data")
-        if ruta:
-            try:
-                with open(ruta, "w", encoding="utf-8") as f:
-                    json.dump(datos, f, indent=4, ensure_ascii=False)
-                messagebox.showinfo("Guardado", f"Archivo JSON guardado en {ruta}")
-            except Exception as e:
-                messagebox.showerror("Error", f"No se pudo guardar el JSON:\n{e}")
+
+        index_json = "geoso2-web-template/json/index.json"
+        try:
+            if os.path.exists(index_json):
+                with open(index_json, "r", encoding="utf-8") as f:
+                    agenda = json.load(f)
+            else:
+                agenda = {}
+            
+            agenda.setdefault("index_page", {})
+            agenda["index_page"].setdefault("agenda", [])
+
+            nuevo_id = f"evento{len(agenda['index_page']['agenda']) + 1}"
+            nuevo_evento = {
+                "id": nuevo_id,
+                "titulo": datos.get("titulo", ""),
+                "descripcion": datos.get("descripcion", ""),
+                "fecha": f"Fecha: {datos.get('fecha del evento', '')} Hora: {datos.get('hora', '')}",
+                "lugar": f"Lugar: {datos.get('lugar', '')}",
+                "imagen": datos.get("portada", ""),
+                "link": datos.get("enlace", {}).get("url", ""),
+                "texto_link": datos.get("enlace", {}).get("texto", "")
+            }
+
+            agenda["index_page"]["agenda"].append(nuevo_evento)
+            with open(index_json, "w", encoding="utf-8") as f:
+                json.dump(agenda, f, indent=4, ensure_ascii=False)
+            messagebox.showinfo("Éxito", "El JSON de la agenda se ha guardado correctamente.")
+        
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo guardar el JSON:\n{e}")

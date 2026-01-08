@@ -192,13 +192,31 @@ class PreviewTab(tk.Frame):
 
     def save_json(self):
         datos = self.controller.state.copy()
-        ruta = filedialog.asksaveasfilename(defaultextension=".json",
-                                            filetypes=[("JSON files", "*.json")],
-                                            initialdir="data")
-        if ruta:
-            try:
-                with open(ruta, "w", encoding="utf-8") as f:
-                    json.dump(datos, f, indent=4, ensure_ascii=False)
-                messagebox.showinfo("Guardado", f"Archivo JSON guardado en {ruta}")
-            except Exception as e:
-                messagebox.showerror("Error", f"No se pudo guardar el JSON:\n{e}")
+
+        index_json = "geoso2-web-template/json/index.json"
+
+        try:
+            if os.path.exists(index_json):
+                with open(index_json, "r", encoding="utf-8") as f:
+                    carrusel = json.load(f)
+            else:
+                carrusel = {}
+            
+            carrusel.setdefault("carousel", [])
+
+            nuevo_carrusel = []
+            for i, item in enumerate(datos["carrusel"], start=1):
+                nuevo_carrusel.append({
+                    "src": item["imagen"],
+                    "alt": f"Imagen {i}",
+                    "link": item["enlace"]
+                })
+            carrusel["index_page"]["carousel"] = nuevo_carrusel
+
+            with open(index_json, "w", encoding="utf-8") as f:
+                json.dump(carrusel, f, indent=4, ensure_ascii=False)
+            messagebox.showinfo("Éxito", "El carrusel se ha actualizado correctamente.")
+
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo actualizar el carrusel:\n{e}")
+            

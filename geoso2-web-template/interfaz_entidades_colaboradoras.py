@@ -53,29 +53,34 @@ class DatosTab(ttk.Frame):
         frm.pack(fill="both", expand=True, padx=10, pady=10)
 
         # --- Campos de entrada ---
-        ttk.Label(frm, text="Imagen:").grid(row=0, column=0, sticky="w", pady=6)
-        self.entry_imagen = ttk.Entry(frm)
-        self.entry_imagen.grid(row=0, column=1, sticky="ew", pady=6)
-        ttk.Button(frm, text="Buscar", command=self.select_imagen).grid(row=0, column=2, padx=8)
+        ttk.Label(frm, text="Nombre:").grid(row=0, column=0, sticky="w", pady=6)
+        self.entry_nombre = ttk.Entry(frm)
+        self.entry_nombre.grid(row=0, column=1, sticky="ew", pady=6)
 
-        ttk.Label(frm, text="Enlace:").grid(row=1, column=0, sticky="w")
+        ttk.Label(frm, text="Imagen:").grid(row=1, column=0, sticky="w", pady=6)
+        self.entry_imagen = ttk.Entry(frm)
+        self.entry_imagen.grid(row=1, column=1, sticky="ew", pady=6)
+        ttk.Button(frm, text="Buscar", command=self.select_imagen).grid(row=1, column=2, padx=8)
+
+        ttk.Label(frm, text="Enlace:").grid(row=2, column=0, sticky="w")
         self.entry_enlace = ttk.Entry(frm)
-        self.entry_enlace.grid(row=1, column=1, sticky="ew", padx=5, pady=5)
-        ttk.Button(frm, text="Probar enlace", command=self.probar_enlace).grid(row=1, column=2, padx=8)
+        self.entry_enlace.grid(row=2, column=1, sticky="ew", padx=5, pady=5)
+        ttk.Button(frm, text="Probar enlace", command=self.probar_enlace).grid(row=2, column=2, padx=8)
 
         frm.columnconfigure(1, weight=1)
 
         # --- Botones de gestión ---
         btn_frame = ttk.Frame(frm)
-        btn_frame.grid(row=2, column=0, columnspan=3, pady=10)
+        btn_frame.grid(row=3, column=0, columnspan=3, pady=10)
 
         ttk.Button(btn_frame, text="Añadir", command=self.add_item).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Eliminar", command=self.delete_item).pack(side="left", padx=5)
 
         # --- Tabla Treeview ---
-        self.tree = ttk.Treeview(frm, columns=("Imagen", "Enlace"), show="headings", height=12)
-        self.tree.grid(row=3, column=0, columnspan=3, sticky="nsew")
+        self.tree = ttk.Treeview(frm, columns=("Nombre", "Imagen", "Enlace"), show="headings", height=12)
+        self.tree.grid(row=4, column=0, columnspan=3, sticky="nsew")
 
+        self.tree.heading("Nombre", text="Nombre")
         self.tree.heading("Imagen", text="Imagen")
         self.tree.heading("Enlace", text="Enlace")
 
@@ -112,13 +117,15 @@ class DatosTab(ttk.Frame):
             messagebox.showerror("Error", f"No se pudo abrir el enlace:\n{e}")
 
     def add_item(self):
+        Nombre = self.entry_nombre.get().strip()
         imagen = self.entry_imagen.get().strip()
         enlace = self.entry_enlace.get().strip()
         if not imagen or not enlace:
             messagebox.showwarning("Aviso", "Debes seleccionar una imagen y escribir un enlace.")
             return
-        self.controller.state["entidades"].append({"imagen": imagen, "enlace": enlace})
+        self.controller.state["entidades"].append({"nombre": Nombre, "imagen": imagen, "enlace": enlace})
         self.refresh_table()
+        self.entry_nombre.delete(0, tk.END)
         self.entry_imagen.delete(0, tk.END)
         self.entry_enlace.delete(0, tk.END)
 
@@ -184,13 +191,33 @@ class PreviewTab(tk.Frame):
 
     def save_json(self):
         datos = self.controller.state.copy()
-        ruta = filedialog.asksaveasfilename(defaultextension=".json",
-                                            filetypes=[("JSON files", "*.json")],
-                                            initialdir="data")
-        if ruta:
-            try:
-                with open(ruta, "w", encoding="utf-8") as f:
-                    json.dump(datos, f, indent=4, ensure_ascii=False)
-                messagebox.showinfo("Guardado", f"Archivo JSON guardado en {ruta}")
-            except Exception as e:
-                messagebox.showerror("Error", f"No se pudo guardar el JSON:\n{e}")
+        index_json = "geoso2-web-template/json/index.json"
+
+        try:
+            # Cargar JSON maestro
+            if os.path.exists(index_json):
+                with open(index_json, "r", encoding="utf-8") as f:
+                    colaboradores = json.load(f)
+            else:
+                colaboradores = {}
+
+            colaboradores.setdefault("colaboradores", [])
+
+            # Convertir formato desde la interfaz al formato del index.json
+            nuevas_entidades = []
+            for item in datos["entidades"]:
+                nuevas_entidades.append({
+                    "nombre": item["nombre"],
+                    "imagen": item["imagen"],
+                    "link": item["enlace"]
+                })
+
+            colaboradores["index_page"]["colaboradores"] = nuevas_entidades
+            # Guardar JSON maestro
+            with open(index_json, "w", encoding="utf-8") as f:
+                json.dump(colaboradores, f, indent=4, ensure_ascii=False)
+
+            messagebox.showinfo("Guardado", "Colaboradores actualizados correctamente")
+
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo guardar en el JSON maestro:\n{e}")
