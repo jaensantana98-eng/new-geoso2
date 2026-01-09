@@ -4,6 +4,7 @@ import json
 import os
 import webbrowser
 from PIL import Image, ImageTk
+from collections import OrderedDict
 
 class EntidadesWindow(tk.Toplevel):
     def __init__(self, mode="create", filepath=None):
@@ -194,30 +195,26 @@ class PreviewTab(tk.Frame):
         index_json = "geoso2-web-template/json/index.json"
 
         try:
-            # Cargar JSON maestro
             if os.path.exists(index_json):
                 with open(index_json, "r", encoding="utf-8") as f:
-                    colaboradores = json.load(f)
+                    maestro = json.load(f, object_pairs_hook=OrderedDict)
             else:
-                colaboradores = {}
+                maestro = OrderedDict()
 
-            colaboradores.setdefault("colaboradores", [])
+            maestro.setdefault("index_page", OrderedDict())
+            maestro["index_page"].setdefault("colaboradores", [])
 
-            # Convertir formato desde la interfaz al formato del index.json
-            nuevas_entidades = []
             for item in datos["entidades"]:
-                nuevas_entidades.append({
+                maestro["index_page"]["colaboradores"].append({
                     "nombre": item["nombre"],
                     "imagen": item["imagen"],
                     "link": item["enlace"]
                 })
 
-            colaboradores["index_page"]["colaboradores"] = nuevas_entidades
-            # Guardar JSON maestro
             with open(index_json, "w", encoding="utf-8") as f:
-                json.dump(colaboradores, f, indent=4, ensure_ascii=False)
+                json.dump(maestro, f, indent=4, ensure_ascii=False)
 
-            messagebox.showinfo("Guardado", "Colaboradores actualizados correctamente")
+            messagebox.showinfo("Guardado", "Colaboradores añadidos correctamente")
 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo guardar en el JSON maestro:\n{e}")

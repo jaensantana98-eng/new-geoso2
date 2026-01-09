@@ -5,6 +5,7 @@ import os
 import datetime
 import webbrowser
 from PIL import Image
+from collections import OrderedDict
 
 # -----------------------------
 # Ventana del editor con pestañas
@@ -262,13 +263,33 @@ class PreviewTab(tk.Frame):
         self.text_area.insert(tk.END, preview)
 
     def save_json(self):
+
         datos = self.controller.state.copy()
-        datos["fecha"] = datetime.datetime.now().strftime("%d-%m-%Y")
-        ruta = filedialog.asksaveasfilename(defaultextension=".json", filetypes=[("JSON files", "*.json")], initialdir="data")
-        if ruta:
-            try:
-                with open(ruta, "w", encoding="utf-8") as f:
-                    json.dump(datos, f, indent=4, ensure_ascii=False)
-                messagebox.showinfo("Guardado", f"Archivo JSON guardado en {ruta}")
-            except Exception as e:
-                messagebox.showerror("Error", f"No se pudo guardar el JSON:\n{e}")
+        index_json = "geoso2-web-template/json/index.json"
+
+        try:
+            if os.path.exists(index_json):
+                with open(index_json, "r", encoding="utf-8") as f:
+                    maestro = json.load(f, object_pairs_hook=OrderedDict)
+            else:
+                maestro = OrderedDict()
+
+            maestro.setdefault("index_page", OrderedDict())
+            maestro["index_page"].setdefault("noticias", [])
+
+            nueva = OrderedDict()
+            nueva["titulo"] = datos.get("titulo", "")
+            nueva["imagen"] = datos.get("portada", "")
+            nueva["descripcion"] = datos.get("cuerpo", "")
+            nueva["link"] = datos.get("enlace", {}).get("url", "")
+            nueva["link_text"] = datos.get("enlace", {}).get("texto", "")
+
+            maestro["index_page"]["noticias"].append(nueva)
+
+            with open(index_json, "w", encoding="utf-8") as f:
+                json.dump(maestro, f, indent=4, ensure_ascii=False)
+
+            messagebox.showinfo("Guardado", "Noticia añadida correctamente")
+
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo guardar la noticia:\n{e}")

@@ -5,6 +5,7 @@ import os
 import datetime
 import webbrowser
 from PIL import Image
+from collections import OrderedDict
 
 class EditorWindow(tk.Toplevel):
     def __init__(self, mode="create", filepath=None):
@@ -275,17 +276,54 @@ class PreviewTab(tk.Frame):
         self.text_area.insert(tk.END, preview)
 
     def save_json(self):
+
         datos = self.controller.state.copy()
-        datos["fecha"] = datetime.datetime.now().strftime("%d-%m-%Y")
-        ruta = filedialog.asksaveasfilename(
-            defaultextension=".json",
-            filetypes=[("JSON files", "*.json")],
-            initialdir="data"
-        )
-        if ruta:
-            try:
-                with open(ruta, "w", encoding="utf-8") as f:
-                    json.dump(datos, f, indent=4, ensure_ascii=False)
-                messagebox.showinfo("Guardado", f"Archivo JSON guardado en {ruta}")
-            except Exception as e:
-                messagebox.showerror("Error", f"No se pudo guardar el JSON:\n{e}")
+        index_json = "geoso2-web-template/json/quienes-somos.json"
+
+        try:
+            if os.path.exists(index_json):
+                with open(index_json, "r", encoding="utf-8") as f:
+                    maestro = json.load(f, object_pairs_hook=OrderedDict)
+            else:
+                maestro = OrderedDict()
+
+            maestro.setdefault("index_page", OrderedDict())
+            maestro["index_page"].setdefault("quienes_somos", OrderedDict())
+
+            qs = maestro["quienes_somos"]
+            
+            qs.setdefault("secciones", [])
+            for s in datos.get("secciones", []):
+                qs["secciones"].append({
+                    "pregunta": s["pregunta"],
+                    "respuesta": s["respuesta"]
+                })
+
+            qs.setdefault("investigadores", [])
+            for inv in datos.get("investigadores", []):
+                qs["investigadores"].append({
+                    "nombre": inv["nombre"],
+                    "imagen": inv["imagen"],
+                    "bio": inv["cuerpo"],
+                    "link": inv["enlace"]["url"],
+                    "link_text": inv["enlace"]["texto"]
+                })
+
+            qs.setdefault("colaboradores", [])
+            for col in datos.get("colaboradores", []):
+                qs["colaboradores"].append({
+                    "nombre": col["nombre"],
+                    "imagen": col["imagen"],
+                    "bio": col["cuerpo"],
+                    "link": col["enlace"]["url"],
+                    "link_text": col["enlace"]["texto"]
+                })
+
+            with open(index_json, "w", encoding="utf-8") as f:
+                json.dump(maestro, f, indent=4, ensure_ascii=False)
+
+            messagebox.showinfo("Guardado", "Sección 'Quiénes somos' actualizada correctamente")
+
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo guardar la sección:\n{e}")
+

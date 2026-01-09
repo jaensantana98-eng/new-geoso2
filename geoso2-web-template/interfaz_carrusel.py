@@ -4,7 +4,7 @@ import json
 import os
 import webbrowser
 from PIL import Image, ImageTk
-
+from collections import OrderedDict
 class CarruselWindow(tk.Toplevel):
     def __init__(self, mode="create", filepath=None):
         super().__init__()
@@ -198,25 +198,24 @@ class PreviewTab(tk.Frame):
         try:
             if os.path.exists(index_json):
                 with open(index_json, "r", encoding="utf-8") as f:
-                    carrusel = json.load(f)
+                    maestro = json.load(f, object_pairs_hook=OrderedDict)
             else:
-                carrusel = {}
-            
-            carrusel.setdefault("carousel", [])
+                maestro = OrderedDict()
 
-            nuevo_carrusel = []
-            for i, item in enumerate(datos["carrusel"], start=1):
-                nuevo_carrusel.append({
+            maestro.setdefault("index_page", OrderedDict())
+            maestro["index_page"].setdefault("carousel", [])
+
+            for item in datos["carrusel"]:
+                maestro["index_page"]["carousel"].append({
                     "src": item["imagen"],
-                    "alt": f"Imagen {i}",
+                    "alt": f"Imagen {len(maestro['index_page']['carousel']) + 1}",
                     "link": item["enlace"]
                 })
-            carrusel["index_page"]["carousel"] = nuevo_carrusel
-
+                
             with open(index_json, "w", encoding="utf-8") as f:
-                json.dump(carrusel, f, indent=4, ensure_ascii=False)
+                json.dump(maestro, f, indent=4, ensure_ascii=False)
+
             messagebox.showinfo("Éxito", "El carrusel se ha actualizado correctamente.")
 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo actualizar el carrusel:\n{e}")
-            
