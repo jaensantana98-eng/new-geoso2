@@ -403,7 +403,7 @@ class PreviewTab(tk.Frame):
         ruta = filedialog.asksaveasfilename(
             defaultextension=".json",
             filetypes=[("JSON files", "*.json")],
-            initialdir="data"
+            initialdir="geoso2-web-template/json"
         )
         if ruta:
             try:
@@ -530,7 +530,7 @@ class PreviewTab(tk.Frame):
         }
 
         # Ruta de plantillas
-        env = Environment(loader=FileSystemLoader("templates"))
+        env = Environment(loader=FileSystemLoader("geoso2-web-template/templates"))
 
         # Plantilla de noticias (debes adaptarla para usar datos.noticias)
         template = env.get_template("noticias.html")
@@ -542,7 +542,7 @@ class PreviewTab(tk.Frame):
         ruta = filedialog.asksaveasfilename(
             defaultextension=".html",
             filetypes=[("HTML files", "*.html")],
-            initialdir="data/output"
+            initialdir="geoso2-web-template/output"
         )
 
         if ruta:

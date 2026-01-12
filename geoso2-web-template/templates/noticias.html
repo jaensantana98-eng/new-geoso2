@@ -8,13 +8,34 @@
   <div class="marco2"><h3><strong>Noticias</strong></h3></div>
   <br><br>
 
-  {% for noticia in noticias %}
+  {% for noticia in datos.noticias %}
     <div class="imagenizq-texto">
-      <img src="{{ noticia.imagen }}" alt="{{ noticia.alt }}" class="imagenizq img-marco">
+
+      {% if noticia.portada_base64 %}
+        <img src="data:image/jpeg;base64,{{ noticia.portada_base64 }}" class="imagenizq img-marco">
+      {% else %}
+        <img src="{{ noticia.portada }}" class="imagenizq img-marco">
+      {% endif %}
+
       <div>
-        <h3><strong>{{ noticia.titulo }}</strong></h3>
-        <p style="color:rgba(235, 245, 255, 0.775);">{{ noticia.descripcion }}</p>
-        <a href="{{ noticia.link }}" class="btn btn-primary" target="_blank">Leer más</a><br><br>
+        <h3><strong>
+          {% if noticia.enlace.usar_en_titulo and noticia.enlace.url %}
+            <a href="{{ noticia.enlace.url }}" target="_blank">{{ noticia.titulo }}</a>
+          {% else %}
+            {{ noticia.titulo }}
+          {% endif %}
+        </strong></h3>
+
+        <p style="color:rgba(235, 245, 255, 0.775);">
+          {{ noticia.cuerpo }}
+        </p>
+
+        {% if noticia.enlace.texto and noticia.enlace.url %}
+          <a href="{{ noticia.enlace.url }}" class="btn btn-primary" target="_blank">
+            {{ noticia.enlace.texto }}
+          </a>
+        {% endif %}
+        <br><br>
       </div>
     </div>
     <hr>
