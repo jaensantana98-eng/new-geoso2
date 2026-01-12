@@ -538,17 +538,14 @@ class PreviewTab(tk.Frame):
         # Renderizar HTML
         html_output = template.render(datos=datos)
 
-        # Guardar archivo final
-        ruta = filedialog.asksaveasfilename(
-            defaultextension=".html",
-            filetypes=[("HTML files", "*.html")],
-            initialdir="geoso2-web-template/output"
-        )
+        output_dir = "geoso2-web-template/output"
+        os.makedirs(output_dir, exist_ok=True)
+        output_path = os.path.join(output_dir, "noticias.html")
 
-        if ruta:
-            try:
-                with open(ruta, "w", encoding="utf-8") as f:
-                    f.write(html_output)
-                messagebox.showinfo("Éxito", f"Archivo HTML generado en:\n{ruta}")
-            except Exception as e:
-                messagebox.showerror("Error", f"No se pudo generar el archivo:\n{e}")
+        # Guardar archivo automáticamente
+        try:
+            with open(output_path, "w", encoding="utf-8") as f:
+                f.write(html_output)
+            messagebox.showinfo("Éxito", f"Archivo HTML generado en:\n{output_path}")
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo generar el archivo:\n{e}")

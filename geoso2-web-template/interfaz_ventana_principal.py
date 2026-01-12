@@ -266,7 +266,7 @@ class MainApp(tk.Tk):
         filepath = filedialog.askopenfilename(
             title=f"Selecciona el JSON de {section_name}",
             filetypes=[("JSON files", "*.json")],
-            initialdir="data"
+            initialdir="geoso2-web-template/json"
         )
 
         if not filepath or not os.path.exists(filepath):
