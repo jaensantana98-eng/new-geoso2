@@ -20,18 +20,7 @@ class AgendaWindow(tk.Toplevel):
 
         # Estado del documento: ahora múltiples eventos en "agenda"
         self.state = {
-            "portada": "",
-            "titulo": "",
-            "fecha del evento": "",
-            "hora": "",
-            "lugar": "",
-            "descripcion": "",
-            "enlace": {
-                "texto": "",
-                "url": "",
-                "usar_en_titulo": True,
-                "usar_en_portada": True
-            },
+            "agenda": []  # lista de eventos
         }
 
         # Asegurar carpeta de imágenes
@@ -114,14 +103,18 @@ class DatosTab(tk.Frame):
         self.entry_fecha_evento = ttk.Entry(frm)
         self.entry_fecha_evento.grid(row=2, column=1, sticky="ew", pady=6)
 
-        ttk.Label(frm, text="Lugar:").grid(row=5, column=0, sticky="w", pady=6)
+        ttk.Label(frm, text="Hora:").grid(row=3, column=0, sticky="w", pady=6)
+        self.entry_hora = ttk.Entry(frm)
+        self.entry_hora.grid(row=3, column=1, sticky="ew", pady=6)
+
+        ttk.Label(frm, text="Lugar:").grid(row=4, column=0, sticky="w", pady=6)
         self.entry_lugar = ttk.Entry(frm)
         self.entry_lugar.grid(row=4, column=1, sticky="ew", pady=6)
 
-        ttk.Label(frm, text="Descripción:").grid(row=6, column=0, sticky="nw", pady=6)
+        ttk.Label(frm, text="Cuerpo:").grid(row=5, column=0, sticky="nw", pady=6)
         cuerpo_frame = ttk.Frame(frm)
         cuerpo_frame.grid(row=5, column=1, sticky="nsew", pady=6)
-        self.text_cuerpo = tk.Text(cuerpo_frame, wrap="word", height=15)
+        self.text_cuerpo = tk.Text(cuerpo_frame, wrap="word")
         self.text_cuerpo.pack(side="left", fill="both", expand=True)
         scroll_cuerpo = ttk.Scrollbar(cuerpo_frame, orient="vertical", command=self.text_cuerpo.yview)
         scroll_cuerpo.pack(side="right", fill="y")
@@ -161,14 +154,7 @@ class DatosTab(tk.Frame):
         frm.columnconfigure(1, weight=1)
         frm.rowconfigure(5, weight=1)
 
-        # Actualizar estado al escribir
-        self.entry_portada.bind("<KeyRelease>", self.update_state)
-        self.text_titulo.bind("<KeyRelease>", self.update_state)
-        self.entry_fecha.bind("<KeyRelease>", self.update_state)
-        self.entry_lugar.bind("<KeyRelease>", self.update_state)
-        self.text_cuerpo.bind("<KeyRelease>", self.update_state)
-        self.entry_enlace_texto.bind("<KeyRelease>", self.update_state)
-        self.entry_enlace_url.bind("<KeyRelease>", self.update_state)
+        # --- Botones de gestión de eventos ---
 
         btn_frame = ttk.Frame(frm)
         btn_frame.grid(row=9, column=0, columnspan=3, pady=10)
@@ -207,7 +193,7 @@ class DatosTab(tk.Frame):
 
         try:
             nombre = os.path.basename(ruta)
-            destino = os.path.join("", nombre)
+            destino = os.path.join("data/img", nombre)
 
             with Image.open(ruta) as img:
                 img = img.convert("RGB")
@@ -251,16 +237,17 @@ class DatosTab(tk.Frame):
 
     # ---------- CRUD de eventos ----------
 
-    def update_state(self, event=None):
-        self.controller.state["titulo"] = self.text_titulo.get("1.0", tk.END).strip()
-        self.controller.state["fecha del evento"] = self.entry_fecha.get().strip()
-        self.controller.state["lugar"] = self.entry_lugar.get().strip()
-        self.controller.state["portada"] = self.entry_portada.get().strip()
-        self.controller.state["descripcion"] = self.text_cuerpo.get("1.0", tk.END).strip()
-        self.controller.state["enlace"]["texto"] = self.entry_enlace_texto.get().strip()
-        self.controller.state["enlace"]["url"] = self.entry_enlace_url.get().strip()
-        self.controller.state["enlace"]["usar_en_titulo"] = self.var_link_titulo.get()
-        self.controller.state["enlace"]["usar_en_portada"] = self.var_link_portada.get()
+    def add_item(self):
+        portada = self.entry_portada.get().strip()
+        titulo = self.text_titulo.get("1.0", tk.END).strip()
+        fecha_evento = self.entry_fecha_evento.get().strip()
+        hora = self.entry_hora.get().strip()
+        lugar = self.entry_lugar.get().strip()
+        cuerpo = self.text_cuerpo.get("1.0", tk.END).strip()
+        enlace_texto = self.entry_enlace_texto.get().strip()
+        enlace_url = self.entry_enlace_url.get().strip()
+        usar_en_titulo = self.var_link_titulo.get()
+        usar_en_portada = self.var_link_portada.get()
 
         if not titulo:
             messagebox.showwarning("Aviso", "Debes introducir al menos un título para el evento.")
@@ -330,7 +317,7 @@ class DatosTab(tk.Frame):
         self.entry_lugar.insert(0, item.get("lugar", ""))
 
         self.text_cuerpo.delete("1.0", tk.END)
-        self.text_cuerpo.insert("1.0", datos.get("descripcion", ""))
+        self.text_cuerpo.insert("1.0", item.get("cuerpo", ""))
 
         enlace = item.get("enlace", {})
         self.entry_enlace_texto.delete(0, tk.END)
@@ -428,35 +415,152 @@ class PreviewTab(tk.Frame):
         self.text_area.insert(tk.END, preview)
 
     def save_json(self):
-        datos = self.controller.state.copy()
+        datos = {
+            "agenda": self.controller.state.get("agenda", []),
+            "fecha": datetime.datetime.now().strftime("%d-%m-%Y")
+        }
+        ruta = filedialog.asksaveasfilename(
+            defaultextension=".json",
+            filetypes=[("JSON files", "*.json")],
+            initialdir="data"
+        )
+        if ruta:
+            try:
+                with open(ruta, "w", encoding="utf-8") as f:
+                    json.dump(datos, f, indent=4, ensure_ascii=False)
+                messagebox.showinfo("Guardado", f"Archivo JSON guardado en {ruta}")
+            except Exception as e:
+                messagebox.showerror("Error", f"No se pudo guardar el JSON:\n{e}")
 
-        index_json = "geoso2-web-template/json/index.json"
-        try:
-            if os.path.exists(index_json):
-                with open(index_json, "r", encoding="utf-8") as f:
-                    agenda = json.load(f)
-            else:
-                agenda = {}
-            
-            agenda.setdefault("index_page", {})
-            agenda["index_page"].setdefault("agenda", [])
+    def preview_web(self):
+        datos = {
+            "agenda": self.controller.state.get("agenda", []),
+            "fecha": datetime.datetime.now().strftime("%d-%m-%Y")
+        }
 
-            nuevo_id = f"evento{len(agenda['index_page']['agenda']) + 1}"
-            nuevo_evento = {
-                "id": nuevo_id,
-                "titulo": datos.get("titulo", ""),
-                "descripcion": datos.get("descripcion", ""),
-                "fecha": f"Fecha: {datos.get('fecha del evento', '')} Hora: {datos.get('hora', '')}",
-                "lugar": f"Lugar: {datos.get('lugar', '')}",
-                "imagen": datos.get("portada", ""),
-                "link": datos.get("enlace", {}).get("url", ""),
-                "texto_link": datos.get("enlace", {}).get("texto", "")
-            }
+        bloques = ""
+        for ev in datos["agenda"]:
+            cuerpo_html = ev.get("cuerpo", "").replace("\n", "<br>")
 
-            agenda["index_page"]["agenda"].append(nuevo_evento)
-            with open(index_json, "w", encoding="utf-8") as f:
-                json.dump(agenda, f, indent=4, ensure_ascii=False)
-            messagebox.showinfo("Éxito", "El JSON de la agenda se ha guardado correctamente.")
-        
-        except Exception as e:
-            messagebox.showerror("Error", f"No se pudo guardar el JSON:\n{e}")
+            portada_src = ""
+            if ev.get("portada_base64"):
+                portada_src = f"data:image/jpeg;base64,{ev['portada_base64']}"
+
+            enlace_info = ev.get("enlace", {})
+            enlace_url = enlace_info.get("url", "").strip()
+            enlace_texto = enlace_info.get("texto", "").strip()
+            usar_en_titulo = enlace_info.get("usar_en_titulo", True)
+            usar_en_portada = enlace_info.get("usar_en_portada", True)
+
+            titulo_html = ev.get("titulo", "")
+            if enlace_url and usar_en_titulo:
+                titulo_html = f'<a href="{enlace_url}" target="_blank">{titulo_html}</a>'
+
+            portada_html = ""
+            if portada_src:
+                img_tag = f'<img src="{portada_src}" alt="Portada">'
+                if enlace_url and usar_en_portada:
+                    img_tag = f'<a href="{enlace_url}" target="_blank">{img_tag}</a>'
+                portada_html = img_tag
+
+            enlace_inferior_html = ""
+            if enlace_url and enlace_texto:
+                enlace_inferior_html = f'<p><a href="{enlace_url}" target="_blank">{enlace_texto}</a></p>'
+
+            bloques += f"""
+            <div class="evento">
+                <div class="contenedor">
+                    <div class="portada">
+                        {portada_html}
+                    </div>
+                    <div class="contenido">
+                        <h3>{titulo_html}</h3>
+                        <p><strong>Fecha del evento:</strong> {ev.get('fecha del evento', '')}</p>
+                        <p><strong>Hora:</strong> {ev.get('hora', '')}</p>
+                        <p><strong>Lugar:</strong> {ev.get('lugar', '')}</p>
+                        <div>{cuerpo_html}</div>
+                        {enlace_inferior_html}
+                        <p><small>Fecha de generación: {datos['fecha']}</small></p>
+                    </div>
+                </div>
+                <hr>
+            </div>
+            """
+
+        html = f"""
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <title>Agenda</title>
+            <style>
+                body {{
+                    font-family: Segoe UI, sans-serif;
+                    margin: 40px auto;
+                    max-width: 900px;
+                    line-height: 1.6;
+                }}
+                .contenedor {{
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 20px;
+                    margin-bottom: 20px;
+                }}
+                .portada {{
+                    max-width: 300px;
+                    flex-shrink: 0;
+                }}
+                .contenido {{
+                    flex-grow: 1;
+                }}
+                img {{
+                    width: 100%;
+                    height: auto;
+                    display: block;
+                }}
+                h3 a {{
+                    color: inherit;
+                    text-decoration: none;
+                }}
+                h3 a:hover {{
+                    text-decoration: underline;
+                }}
+            </style>
+        </head>
+        <body>
+            <h1>Agenda</h1>
+            {bloques}
+        </body>
+        </html>
+        """
+
+        temp_html = "data/preview_temp_agenda.html"
+        with open(temp_html, "w", encoding="utf-8") as f:
+            f.write(html)
+
+        webbrowser.open_new_tab(f"file:///{os.path.abspath(temp_html)}")
+
+    def generate_html(self):
+        datos = {
+            "agenda": self.controller.state.get("agenda", []),
+            "fecha": datetime.datetime.now().strftime("%d-%m-%Y")
+        }
+
+        env = Environment(loader=FileSystemLoader("templates"))
+        template = env.get_template("agenda.html")
+
+        html_output = template.render(datos=datos)
+
+        ruta = filedialog.asksaveasfilename(
+            defaultextension=".html",
+            filetypes=[("HTML files", "*.html")],
+            initialdir="data/output"
+        )
+
+        if ruta:
+            try:
+                with open(ruta, "w", encoding="utf-8") as f:
+                    f.write(html_output)
+                messagebox.showinfo("Éxito", f"Archivo HTML generado en:\n{ruta}")
+            except Exception as e:
+                messagebox.showerror("Error", f"No se pudo generar el archivo:\n{e}")
