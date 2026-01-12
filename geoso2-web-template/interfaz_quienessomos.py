@@ -5,6 +5,9 @@ import os
 import datetime
 import webbrowser
 from PIL import Image
+import base64
+import copy
+from jinja2 import Environment, FileSystemLoader
 from collections import OrderedDict
 
 class EditorWindow(tk.Toplevel):

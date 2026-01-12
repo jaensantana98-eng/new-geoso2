@@ -5,6 +5,11 @@ import os
 import webbrowser
 from PIL import Image, ImageTk
 from collections import OrderedDict
+import copy
+import base64
+from jinja2 import Environment, FileSystemLoader
+
+
 class CarruselWindow(tk.Toplevel):
     def __init__(self, mode="create", filepath=None):
         super().__init__()

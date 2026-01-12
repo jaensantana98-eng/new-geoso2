@@ -7,6 +7,8 @@ import interfaz_entidades_colaboradoras
 import interfaz_quienessomos
 import interfaz_pagina_web
 import interfaz_publicaciones
+import interfaz_rafagas
+import interfaz_proyectos
 import os
 
 # -----------------------------

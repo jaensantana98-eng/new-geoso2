@@ -4,6 +4,9 @@ import json
 import os
 import webbrowser
 from PIL import Image, ImageTk
+import copy
+import base64
+from jinja2 import Environment, FileSystemLoader
 from collections import OrderedDict
 
 class EntidadesWindow(tk.Toplevel):
