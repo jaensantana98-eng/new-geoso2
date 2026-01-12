@@ -1,21 +1,20 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>GEOSO2v2</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="./styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  </head>
-  <body>
-  <div id="navbar"></div>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <div class="container-fluid">
+<head>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <meta charset="utf-8">
+  <title>Inicio</title>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body class="page-wrapper">
+   <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+  <div class="container navbar-wrapper">
 
     <!-- Logo -->
     <a class="navbar-brand navbar-brand-logo" href="./index.html">
-      <img src="../logo/GEOSO2-cabecera.svg" alt="GEOSO2" class="navbar-logo">
+      <img src="../imput/logos/GEOSO2-cabecera.svg" alt="GEOSO2" class="navbar-logo">
     </a>
     <span class="research-group-text">
       Grupo de Investigación Geoespacial y<br>Dinámicas Territoriales para la Sostenibilidad
@@ -32,6 +31,7 @@
     <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
 
       <!-- Enlaces -->
+    <div class="text-center">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
           <a class="nav-link" href="./rafagas.html">
@@ -69,7 +69,14 @@
             <span class="menu-text">¿QUIÉNES SOMOS?</span>
           </a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://blogs.upm.es/alcorque/">
+            <i class="fa-solid fa-tree"></i>
+            <span class="menu-text">ALCORQUE</span>
+          </a>
+        </li>
       </ul>
+    </div>
 
       <!-- Icono lupa -->
       <button type="button" class="btn btn-link p-0 ms-3 text-decoration-none search-trigger" aria-label="Abrir buscador">
@@ -77,169 +84,175 @@
       </button>
     </div> 
   </div>
+  </div>
 </nav>
 
 <!-- Buscador fuera del navbar -->
 <div class="search-container">
   <form class="search-form" role="search" autocomplete="off">
-    <div class="container-fluid d-flex align-items-center">
+    <div class="container d-flex align-items-center">
       <input class="form-control search-input" type="search" placeholder="Buscar" aria-label="Buscar">
     </div>
   </form>
 </div>
 
-    <!-- Contenido principal -->
-    <div class="main-content">
-      
-
-      <!-- Carrusel de imágenes -->
-      <div id="miCarrusel" class="carousel slide" data-bs-ride="carousel">
-        <div class="carousel-indicators">
-          
-            <button type="button" data-bs-target="#miCarrusel" data-bs-slide-to="0"
-                    class="active"></button>
-          
-            <button type="button" data-bs-target="#miCarrusel" data-bs-slide-to="1"
-                    class=""></button>
-          
-            <button type="button" data-bs-target="#miCarrusel" data-bs-slide-to="2"
-                    class=""></button>
-          
-            <button type="button" data-bs-target="#miCarrusel" data-bs-slide-to="3"
-                    class=""></button>
-          
-            <button type="button" data-bs-target="#miCarrusel" data-bs-slide-to="4"
-                    class=""></button>
-          
-            <button type="button" data-bs-target="#miCarrusel" data-bs-slide-to="5"
-                    class=""></button>
-          
-        </div>
-
-        <div class="carousel-inner">
-          
-            <div class="carousel-item active">
-              <img src="img/foto1.jpg" class="d-block w-100" alt="Imagen 1">
-            </div>
-          
-            <div class="carousel-item ">
-              <img src="img/foto2.png" class="d-block w-100" alt="Imagen 2">
-            </div>
-          
-            <div class="carousel-item ">
-              <img src="img/foto3.png" class="d-block w-100" alt="Imagen 3">
-            </div>
-          
-            <div class="carousel-item ">
-              <img src="img/foto4.jpg" class="d-block w-100" alt="Imagen 4">
-            </div>
-          
-            <div class="carousel-item ">
-              <img src="img/foto5.jpg" class="d-block w-100" alt="Imagen 5">
-            </div>
-          
-            <div class="carousel-item ">
-              <img src="img/foto6.jpg" class="d-block w-100" alt="Imagen 6">
-            </div>
-          
-        </div>
-
-        <button class="carousel-control-prev" type="button" data-bs-target="#miCarrusel" data-bs-slide="prev">
-          <span class="carousel-control-prev-icon"></span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#miCarrusel" data-bs-slide="next">
-          <span class="carousel-control-next-icon"></span>
-        </button>
+  <main>
+    
+<br>
+<br>
+<div id="miCarrusel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
+  <div class="carousel-inner">
+    
+      <div class="carousel-item active">
+        
+          <a href="https://12jcm.ingegraf.es/" target="_blank">
+            <img src="../imput/img/carrusel/foto1.jpg" alt="Imagen 1" class="d-block w-100">
+          </a>
+        
       </div>
+    
+      <div class="carousel-item ">
+        
+          <a href="../imput/img/carrusel/INTED_2024_ppt.pdf" target="_blank">
+            <img src="../imput/img/carrusel/foto2.png" alt="Imagen 2" class="d-block w-100">
+          </a>
+        
+      </div>
+    
+      <div class="carousel-item ">
+        
+          <a href="../output/rafagas01.html" target="_blank">
+            <img src="../imput/img/carrusel/foto3.png" alt="Imagen 3" class="d-block w-100">
+          </a>
+        
+      </div>
+    
+      <div class="carousel-item ">
+        
+          <a href="../imput/img/carrusel/geoso2_eelisa_taller_zyl_2025_v3_pdf" target="_blank">
+            <img src="../imput/img/carrusel/foto4.jpg" alt="Imagen 4" class="d-block w-100">
+          </a>
+        
+      </div>
+    
+      <div class="carousel-item ">
+        
+          <a href="../imput/img/carrusel/GEOSO2_FICHA_INCIO_CARRUSEL_COMUNICACION_CUD24.pdf" target="_blank">
+            <img src="../imput/img/carrusel/foto5.jpg" alt="Imagen 5" class="d-block w-100">
+          </a>
+        
+      </div>
+    
+      <div class="carousel-item ">
+        
+          <a href="GEOSO2_FICHA_INCIO_CARRUSEL_DEFENSATESISCAROLINA_presentacion.pdf" target="_blank">
+            <img src="../imput/img/carrusel/foto6.jpg" alt="Imagen 6" class="d-block w-100">
+          </a>
+        
+      </div>
+    
+  </div>
 
-      <br><br>
-<div class="container mt-4">
-  <div class="row">
-    <div class="col-md-6">
-      <a href="noticias.html" class="link-reset">
-      <div class="marco">Noticias</div>
+  <button class="carousel-control-prev" type="button" data-bs-target="#miCarrusel" data-bs-slide="prev">
+    <span class="carousel-control-prev-icon"></span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#miCarrusel" data-bs-slide="next">
+    <span class="carousel-control-next-icon"></span>
+  </button>
+</div>
+<hr>
+   <h3>Noticias</h3>
+
+
+  <div class="imagenizq-texto">
+    <a href="noticia01.html">
+      <img src="../imput/img/noticias/20240907/images/01.jpg" alt="Investigadores y alumnos de la UPM visitan la Universidad de Bertoua en su viaje de campo a poblaciones baka de Camerún.">
+    </a>
+
+    <div><br>
+      <a style="text-decoration: none; color: white;" href="noticia01.html">
+        <h4>Investigadores y alumnos de la UPM visitan la Universidad de Bertoua en su viaje de campo a poblaciones baka de Camerún.</h4>
       </a>
-      <hr>
-      <div class="imagenizq-texto">
-        <img src="../imput/img/noticias/01/01.jpg" alt="Noticia 1" class="imagenizq img-marco">
-        <div>
-          <h3><strong>Investigadores y alumnos de la UPM visitan la Universidad de Bertoua en su viaje de campo a poblaciones baka de Camerún.</strong></h3>
-          <p style="color:rgba(235, 245, 255, 0.775);">Se han reunido con investigadores del Institut superieur d’agriculture, du boit, de l’eau et de l’environnemet, 
-            poniendo en común diversas experiencias y actividades en temas como: detección remota aplicada a deforestación, 
-            inundaciones y cambios en el uso del suelo, transformación y comercialización de productos forestales no leñosos, etc.</p>
-          <a href="noticia01.html" class="btn btn-primary">Leer más</a><br><br>
-        </div>
-      </div>
-      <br><br>
-      <div class="imagenizq-texto">
-        <img src="../imput/img/noticias/02/20240223_01.jpg" alt="Noticia 2" class="imagenizq img-marco">
-        <div>
-          <h3 ><strong>El proyecto Sen4Stat ofrece productos "Earth Observation" EO: prototipo y casos de uso en España.</strong></h3>
-          <p style="color:rgba(235, 245, 255, 0.775);">El prototipo español del proyecto Sen4Stat integra datos EO y datos terrestres, y tiene como objetivo reducir los costos 
-            de estudio manteniendo la precisión y mejorando la puntualidad de las estimaciones de superficie de cultivo y producción.</p>
-          <a href="https://www.esa-sen4stat.org/user-stories/spain-cycle-1-demo/" target="_blank" class="btn btn-primary">Leer más</a><br><br>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-6">
-      <a href="agenda.html" class="link-reset">
-      <div class="marco">Agenda</div>
-      </a>
-      <hr>
-      <div class="imagenizq-texto">
-        <img src="../imput/img/agenda/01/01.png" alt="Evento 1" class="imagenizq img-marco">
-          <div>
-            <h3><strong>TALLER: Iniciación a AutoCAD 2D.</strong></h3>
-            <p style="color:rgba(235, 245, 255, 0.775);">
-              Fecha: lunes 16, 23 y 30 septiembre 2024<br>
-                Hora: 15:30h<br>
-                Lugar: ETSI Montes, Forestal y del Medio Natural. Edif. Forestales. Aula de Proyectos.<br><br>
-                Con el objetivo de facilitar el acceso a una herramienta de diseño gráfico general y de amplio uso, se ha programado un taller de 6 horas de duración en el que se explicarán algunos conceptos básicos, se darán indicaciones de trabajo con CAD 2D y se aplicará todo lo aprendido.
-                Gratuito para estudiantes E.T.S.I. Montes Forestal y del Medio Natural previa inscripción hasta completar aforo. Otros casos consultar.
-                </p>
-            <a href="https://docs.google.com/forms/d/e/1FAIpQLScW5okR_w5-ntzXSDghb-__urGFhEN4wpPZXVWXQVTrTa12fA/viewform?pli=1" class="btn btn-primary">Ver detalles</a><br><br>
-          </div>
-      </div>
+
+      <p>Se han reunido con investigadores del Institut superieur d’agriculture, du boit, de l’eau et de l’environnemet, poniendo en común diversas experiencias y actividades en temas como: detección remota aplicada a deforestación, inundaciones y cambios en el uso del suelo, transformación y comercialización de productos forestales no leñosos, etc.</p>
+
+      <a href="noticia01.html">Leer más</a>
     </div>
   </div>
-  <hr>
-    <div class="marco2">Entidades colaboradoras</div>
 
-      <div class="container my-4">
-        <div class="row text-center align-items-center">
-          <div class="col">
-            <a href="https://zercaylejos.org/" target="_blank">
-              <img src="../imput/img/colaboradores/zercaylejos/Original.png" class="img-fluid" alt="Zerca y Lejos">
-            </a>
-          </div>
-          <div class="col">
-            <a href="https://nediage.eu/" target="_blank">
-              <img src="../imput/img/colaboradores/nediage/nediage_logo_black.png" class="img-fluid" alt="Nediage">
-            </a>
-          </div>
-          <div class="col">
-            <a href="https://www.leftcape.com/" target="_blank">
-              <img src="../imput/img/colaboradores/left_cape/left_cape_logo_01.png" class="img-fluid" alt="Left Cape">
-            </a>
-          </div>
-          <div class="col">
-            <a href="https://srmconsulting.es/" target="_blank">
-              <img src="../imput/img/colaboradores/SRM/SRM_logo.png" class="img-fluid" alt="SRM Consulting">
-            </a>
-          </div>
-          <div class="col">
-            <a href="https://altitum.com/" target="_blank">
-              <img src="../imput/img/colaboradores/ALTITUM/Altitum_horizontal.png" class="img-fluid" alt="Altitum">
-            </a>
-          </div>
-      </div>
+  <div class="imagenizq-texto">
+    <a href="https://www.esa-sen4stat.org/user-stories/spain-cycle-1-demo/">
+      <img src="../imput/img/noticias/20240223/20240223_01.jpg" alt="El proyecto Sen4Stat ofrece productos \"Earth Observation\" EO: prototipo y casos de uso en España.">
+    </a>
+
+    <div><br>
+      <a style="text-decoration: none; color: white;" href="https://www.esa-sen4stat.org/user-stories/spain-cycle-1-demo/">
+        <h4>El proyecto Sen4Stat ofrece productos \"Earth Observation\" EO: prototipo y casos de uso en España.</h4>
+      </a>
+
+      <p>El prototipo español del proyecto Sen4Stat integra datos EO y datos terrestres, y tiene como objetivo reducir los costos de estudio manteniendo la precisión y mejorando la puntualidad de las estimaciones de superficie de cultivo y producción.</p>
+
+      <a href="https://www.esa-sen4stat.org/user-stories/spain-cycle-1-demo/">Leer más</a>
     </div>
+  </div>
+
+  </div>
+<hr>
+<br>
+    <h3>Agenda</h3>
+    
+  <div class="col-md-4 text-center imagenizq-texto">
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLScW5okR_w5-ntzXSDghb-__urGFhEN4wpPZXVWXQVTrTa12fA/viewform?pli=1"><img src="../imput/img/agenda/20240906/01.png" style="width:200px"></a>
+    </div>
+    <div><br>
+      <a style="color: white; font-weight:700; text-decoration:none;" href="https://docs.google.com/forms/d/e/1FAIpQLScW5okR_w5-ntzXSDghb-__urGFhEN4wpPZXVWXQVTrTa12fA/viewform?pli=1"><h4>TALLER: Iniciación a AutoCAD 2D.</h4></a>
+      <p>Con el objetivo de facilitar el acceso a una herramienta de diseño gráfico general y de amplio uso, se ha programado un taller de 6 horas de duración en el que se explicarán algunos conceptos básicos, se darán indicaciones de trabajo con CAD 2D y se aplicará todo lo aprendido. Gratuito para estudiantes E.T.S.I. Montes Forestal y del Medio Natural previa inscripción hasta completar aforo. Otros casos consultar.</p>
+      <a href="https://docs.google.com/forms/d/e/1FAIpQLScW5okR_w5-ntzXSDghb-__urGFhEN4wpPZXVWXQVTrTa12fA/viewform?pli=1">Leer Más</a>
+    </div>
+  </div>
+    
+  </div>
 </div>
 
-      
+<hr><br>
+<h3>Entidades colaboradoras</h3>
+<div class="row text-center">
+  
+    <div class="col">
+      <a href="https://zercaylejos.org/" target="_blank">
+        <img src="../imput/img/colaboradores/zercaylejos/Original.png" alt="Zerca y Lejos" class="img-fluid">
+      </a>
     </div>
-      
-      <footer class="footer">
+  
+    <div class="col">
+      <a href="https://nediage.eu/" target="_blank">
+        <img src="../imput/img/colaboradores/nediage/nediage_logo_black.png" alt="Nediage" class="img-fluid">
+      </a>
+    </div>
+  
+    <div class="col">
+      <a href="https://www.leftcape.com/" target="_blank">
+        <img src="../imput/img/colaboradores/left_cape/left_cape_logo_01.png" alt="Left Cape" class="img-fluid">
+      </a>
+    </div>
+  
+    <div class="col">
+      <a href="https://srmconsulting.es/" target="_blank">
+        <img src="../imput/img/colaboradores/SRM/SRM_logo.png" alt="SRM Consulting" class="img-fluid">
+      </a>
+    </div>
+  
+    <div class="col">
+      <a href="https://altitum.com/" target="_blank">
+        <img src="../imput/img/colaboradores/ALTITUM/Altitum_horizontal.png" alt="Altitum" class="img-fluid">
+      </a>
+    </div>
+  
+</div>
+
+  </main>
+
+  <footer class="footer">
         <div class=" container nav-footer">
           <div class="nav-footer-left">
             <p><a href="https://www.upm.es"><img src="https://www.geoso2.es/logos/UPM/UPM-Escudo_con_leyenda.svg"
@@ -256,33 +269,6 @@
             </p>
         </div>
       </footer>
-      
-    <!-- Scripts -->
-    <script>
-      const searchTrigger = document.querySelector('.search-trigger');
-      const searchForm = document.querySelector('.search-form');
-      const searchInput = document.querySelector('.search-input');
-
-      searchTrigger.addEventListener('click', (event) => {
-        event.stopPropagation();
-        searchForm.classList.toggle('active');
-        if (searchForm.classList.contains('active')) {
-          setTimeout(() => searchInput.focus(), 350);
-        }
-      });
-
-      document.addEventListener('click', (event) => {
-        if (!searchForm.contains(event.target) && !searchTrigger.contains(event.target)) {
-          searchForm.classList.remove('active');
-        }
-      });
-
-      document.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape') {
-          searchForm.classList.remove('active');
-        }
-      });
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-  </body>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
 </html>
