@@ -344,30 +344,33 @@ class PreviewTab(tk.Frame):
         webbrowser.open_new_tab(f"file:///{os.path.abspath(temp_html)}")
 
     def generate_html(self):
-        datos = self.controller.state.copy()
+        # Datos para la plantilla
+        datos = {
+            "carrusel": self.controller.state.get("carrusel", []),
+        }
 
-        # Ruta de plantillas
-        env = Environment(loader=FileSystemLoader("templates"))
+        # Cargar plantilla desde /templates
+        env = Environment(loader=FileSystemLoader("geoso2-web-template/templates"))
 
-        # Seleccionar plantilla según el editor
-        # Puedes cambiar esto dinámicamente si quieres
+        # Plantilla del carrusel
         template = env.get_template("carrusel.html")
 
         # Renderizar HTML
         html_output = template.render(datos=datos)
 
-        # Guardar archivo final
-        ruta = filedialog.asksaveasfilename(
-            defaultextension=".html",
-            filetypes=[("HTML files", "*.html")],
-            initialdir="data/output"
-        )
+        # Carpeta de salida
+        output_dir = "geoso2-web-template/output"
+        os.makedirs(output_dir, exist_ok=True)
 
-        if ruta:
-            try:
-                with open(ruta, "w", encoding="utf-8") as f:
-                    f.write(html_output)
-                messagebox.showinfo("Éxito", f"Archivo HTML generado en:\n{ruta}")
-            except Exception as e:
-                messagebox.showerror("Error", f"No se pudo generar el archivo:\n{e}")
+        # Nombre fijo del archivo
+        output_path = os.path.join(output_dir, "carrusel.html")
+
+        # Guardar archivo automáticamente
+        try:
+            with open(output_path, "w", encoding="utf-8") as f:
+                f.write(html_output)
+            messagebox.showinfo("Éxito", f"Archivo HTML generado en:\n{output_path}")
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo generar el archivo:\n{e}")
+
 
