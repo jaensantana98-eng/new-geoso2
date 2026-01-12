@@ -12,15 +12,15 @@ from jinja2 import Environment, FileSystemLoader
 # -----------------------------
 # Ventana del editor con pestañas
 # -----------------------------
-class AgendaWindow(tk.Toplevel):
+class EditorWindow(tk.Toplevel):
     def __init__(self, mode="create", filepath=None):
         super().__init__()
-        self.title("Editor de Agenda")
+        self.title("Editor de Noticias")
         self.geometry("980x640")
 
-        # Estado del documento: ahora múltiples eventos en "agenda"
+        # Estado del documento: ahora múltiples noticias
         self.state = {
-            "agenda": []  # lista de eventos
+            "noticias": []  # lista de noticias
         }
 
         # Asegurar carpeta de imágenes
@@ -32,18 +32,15 @@ class AgendaWindow(tk.Toplevel):
                 with open(filepath, "r", encoding="utf-8") as f:
                     datos = json.load(f)
 
-                # Nuevo formato: ya trae lista de agenda
-                if isinstance(datos.get("agenda"), list):
-                    self.state["agenda"] = datos["agenda"]
+                # Nuevo formato: ya trae lista de noticias
+                if isinstance(datos.get("noticias"), list):
+                    self.state["noticias"] = datos["noticias"]
                 else:
-                    # Formato antiguo: una sola entrada en la raíz
-                    evento_unico = {
+                    # Formato antiguo: una sola noticia en la raíz
+                    noticia_unica = {
                         "portada": datos.get("portada", ""),
                         "portada_base64": datos.get("portada_base64", ""),
                         "titulo": datos.get("titulo", ""),
-                        "fecha del evento": datos.get("fecha del evento", ""),
-                        "hora": datos.get("hora", ""),
-                        "lugar": datos.get("lugar", ""),
                         "cuerpo": datos.get("cuerpo", ""),
                         "enlace": datos.get("enlace", {
                             "texto": "",
@@ -52,8 +49,9 @@ class AgendaWindow(tk.Toplevel):
                             "usar_en_portada": True
                         })
                     }
-                    if evento_unico["titulo"] or evento_unico["cuerpo"]:
-                        self.state["agenda"].append(evento_unico)
+                    # Solo la añadimos si tiene algo mínimamente relleno
+                    if noticia_unica["titulo"] or noticia_unica["cuerpo"]:
+                        self.state["noticias"].append(noticia_unica)
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo cargar el JSON:\n{e}")
 
@@ -75,14 +73,14 @@ class AgendaWindow(tk.Toplevel):
 
 
 # -----------------------------
-# Pestaña: Datos (múltiples eventos)
+# Pestaña: Datos (múltiples noticias)
 # -----------------------------
 class DatosTab(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
         self.controller = controller
 
-        # Para guardar temporalmente la portada_base64 del evento en edición
+        # Para guardar temporalmente la portada_base64 de la noticia en edición
         self.portada_base64_actual = ""
 
         frm = ttk.Frame(self)
@@ -95,25 +93,13 @@ class DatosTab(tk.Frame):
         self.entry_portada.grid(row=0, column=1, sticky="ew", pady=6)
         ttk.Button(frm, text="Buscar", command=self.select_portada).grid(row=0, column=2, padx=8)
 
-        ttk.Label(frm, text="Título del documento:").grid(row=1, column=0, sticky="w", pady=6)
+        ttk.Label(frm, text="Título de la noticia:").grid(row=1, column=0, sticky="w", pady=6)
         self.text_titulo = tk.Text(frm, wrap="word", height=2)
         self.text_titulo.grid(row=1, column=1, sticky="ew", pady=6)
 
-        ttk.Label(frm, text="Fecha del evento:").grid(row=2, column=0, sticky="w", pady=6)
-        self.entry_fecha_evento = ttk.Entry(frm)
-        self.entry_fecha_evento.grid(row=2, column=1, sticky="ew", pady=6)
-
-        ttk.Label(frm, text="Hora:").grid(row=3, column=0, sticky="w", pady=6)
-        self.entry_hora = ttk.Entry(frm)
-        self.entry_hora.grid(row=3, column=1, sticky="ew", pady=6)
-
-        ttk.Label(frm, text="Lugar:").grid(row=4, column=0, sticky="w", pady=6)
-        self.entry_lugar = ttk.Entry(frm)
-        self.entry_lugar.grid(row=4, column=1, sticky="ew", pady=6)
-
-        ttk.Label(frm, text="Cuerpo:").grid(row=5, column=0, sticky="nw", pady=6)
+        ttk.Label(frm, text="Cuerpo:").grid(row=2, column=0, sticky="nw", pady=6)
         cuerpo_frame = ttk.Frame(frm)
-        cuerpo_frame.grid(row=5, column=1, sticky="nsew", pady=6)
+        cuerpo_frame.grid(row=2, column=1, sticky="nsew", pady=6)
         self.text_cuerpo = tk.Text(cuerpo_frame, wrap="word")
         self.text_cuerpo.pack(side="left", fill="both", expand=True)
         scroll_cuerpo = ttk.Scrollbar(cuerpo_frame, orient="vertical", command=self.text_cuerpo.yview)
@@ -121,19 +107,19 @@ class DatosTab(tk.Frame):
         self.text_cuerpo.config(yscrollcommand=scroll_cuerpo.set)
 
         # Enlace
-        ttk.Label(frm, text="Texto del enlace:").grid(row=6, column=0, sticky="w", pady=6)
+        ttk.Label(frm, text="Texto del enlace:").grid(row=3, column=0, sticky="w", pady=6)
         self.entry_enlace_texto = ttk.Entry(frm)
-        self.entry_enlace_texto.grid(row=6, column=1, sticky="ew", pady=6)
+        self.entry_enlace_texto.grid(row=3, column=1, sticky="ew", pady=6)
 
-        ttk.Label(frm, text="URL del enlace:").grid(row=7, column=0, sticky="w", pady=6)
+        ttk.Label(frm, text="URL del enlace:").grid(row=4, column=0, sticky="w", pady=6)
         self.entry_enlace_url = ttk.Entry(frm)
-        self.entry_enlace_url.grid(row=7, column=1, sticky="ew", pady=6)
-
+        self.entry_enlace_url.grid(row=4, column=1, sticky="ew", pady=6)
+        
         ttk.Button(
             frm,
             text="Probar enlace",
             command=self.probar_enlace
-        ).grid(row=7, column=2, padx=8)
+        ).grid(row=4, column=2, padx=8)
 
         # Checkbuttons para usar enlace en título/portada
         self.var_link_titulo = tk.BooleanVar(value=True)
@@ -143,21 +129,21 @@ class DatosTab(tk.Frame):
             frm,
             text="Usar este enlace en el título",
             variable=self.var_link_titulo
-        ).grid(row=8, column=0, sticky="w", pady=(6, 0))
+        ).grid(row=5, column=0, sticky="w", pady=(6, 0))
 
         ttk.Checkbutton(
             frm,
             text="Usar este enlace en la portada",
             variable=self.var_link_portada
-        ).grid(row=8, column=1, sticky="w")
+        ).grid(row=5, column=1, sticky="w")
 
         frm.columnconfigure(1, weight=1)
-        frm.rowconfigure(5, weight=1)
+        frm.rowconfigure(2, weight=1)
 
-        # --- Botones de gestión de eventos ---
+        # --- Botones de gestión de noticias ---
 
         btn_frame = ttk.Frame(frm)
-        btn_frame.grid(row=9, column=0, columnspan=3, pady=10)
+        btn_frame.grid(row=6, column=0, columnspan=3, pady=10)
 
         ttk.Button(btn_frame, text="Añadir", command=self.add_item).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Editar", command=self.edit_item).pack(side="left", padx=5)
@@ -165,22 +151,20 @@ class DatosTab(tk.Frame):
         ttk.Button(btn_frame, text="Subir", command=self.move_up).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Bajar", command=self.move_down).pack(side="left", padx=5)
 
-        # --- Tabla de eventos ---
+        # --- Tabla de noticias ---
 
         self.tree = ttk.Treeview(
             frm,
-            columns=("Imagen", "Título", "Fecha", "Lugar", "Enlace"),
+            columns=("Imagen", "Título", "Enlace"),
             show="headings",
             height=10
         )
-        self.tree.grid(row=10, column=0, columnspan=3, sticky="nsew")
+        self.tree.grid(row=7, column=0, columnspan=3, sticky="nsew")
         self.tree.heading("Imagen", text="Imagen")
         self.tree.heading("Título", text="Título")
-        self.tree.heading("Fecha", text="Fecha evento")
-        self.tree.heading("Lugar", text="Lugar")
         self.tree.heading("Enlace", text="Enlace")
 
-        frm.rowconfigure(10, weight=1)
+        frm.rowconfigure(7, weight=1)
 
     # ---------- Gestión de imagen de portada ----------
     def select_portada(self):
@@ -196,18 +180,25 @@ class DatosTab(tk.Frame):
             destino = os.path.join("data/img", nombre)
 
             with Image.open(ruta) as img:
+                # Convertir a RGB para evitar problemas de formato
                 img = img.convert("RGB")
+
+                # Mantener proporción dentro de 300x300
                 img.thumbnail((300, 300), Image.LANCZOS)
 
+                # Crear lienzo 300x300 con fondo blanco
                 canvas = Image.new("RGB", (300, 300), "white")
                 x = (300 - img.width) // 2
                 y = (300 - img.height) // 2
                 canvas.paste(img, (x, y))
+
+                # La imagen final es el canvas
                 canvas.save(destino, quality=90)
 
             self.entry_portada.delete(0, tk.END)
             self.entry_portada.insert(0, destino)
 
+            # Guardar base64 solo para la noticia actual (no en el estado global directamente)
             with open(destino, "rb") as img_file:
                 b64 = base64.b64encode(img_file.read()).decode("utf-8")
                 self.portada_base64_actual = b64
@@ -226,23 +217,26 @@ class DatosTab(tk.Frame):
             messagebox.showwarning("Aviso", "No hay ninguna URL para probar.")
             return
 
-        if not url.startswith(("http://", "https://")):
-            messagebox.showerror("Error", "La URL debe empezar por http:// o https://")
-            return
-
         try:
-            webbrowser.open_new_tab(url)
+            # Si es un archivo HTML dentro del proyecto
+            if url.endswith(".html"):
+                ruta_absoluta = os.path.abspath(url)
+                if os.path.exists(ruta_absoluta):
+                    webbrowser.open_new_tab(f"file:///{ruta_absoluta}")
+                else:
+                    messagebox.showerror("Error", f"No se encontró el archivo HTML:\n{ruta_absoluta}")
+            elif url.startswith(("http://", "https://")):
+                webbrowser.open_new_tab(url)
+            else:
+                messagebox.showerror("Error", "El enlace debe ser una URL válida o un archivo .html del proyecto.")
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo abrir el enlace:\n{e}")
 
-    # ---------- CRUD de eventos ----------
+    # ---------- CRUD de noticias ----------
 
     def add_item(self):
         portada = self.entry_portada.get().strip()
         titulo = self.text_titulo.get("1.0", tk.END).strip()
-        fecha_evento = self.entry_fecha_evento.get().strip()
-        hora = self.entry_hora.get().strip()
-        lugar = self.entry_lugar.get().strip()
         cuerpo = self.text_cuerpo.get("1.0", tk.END).strip()
         enlace_texto = self.entry_enlace_texto.get().strip()
         enlace_url = self.entry_enlace_url.get().strip()
@@ -250,16 +244,13 @@ class DatosTab(tk.Frame):
         usar_en_portada = self.var_link_portada.get()
 
         if not titulo:
-            messagebox.showwarning("Aviso", "Debes introducir al menos un título para el evento.")
+            messagebox.showwarning("Aviso", "Debes introducir al menos un título para la noticia.")
             return
 
-        evento = {
+        noticia = {
             "portada": portada,
             "portada_base64": self.portada_base64_actual,
             "titulo": titulo,
-            "fecha del evento": fecha_evento,
-            "hora": hora,
-            "lugar": lugar,
             "cuerpo": cuerpo,
             "enlace": {
                 "texto": enlace_texto,
@@ -269,15 +260,12 @@ class DatosTab(tk.Frame):
             }
         }
 
-        self.controller.state["agenda"].append(evento)
+        self.controller.state["noticias"].append(noticia)
         self.refresh_table()
 
-        # Limpiar campos
+        # Limpiar campos para siguiente noticia
         self.entry_portada.delete(0, tk.END)
         self.text_titulo.delete("1.0", tk.END)
-        self.entry_fecha_evento.delete(0, tk.END)
-        self.entry_hora.delete(0, tk.END)
-        self.entry_lugar.delete(0, tk.END)
         self.text_cuerpo.delete("1.0", tk.END)
         self.entry_enlace_texto.delete(0, tk.END)
         self.entry_enlace_url.delete(0, tk.END)
@@ -290,7 +278,7 @@ class DatosTab(tk.Frame):
         if not selected:
             return
         index = self.tree.index(selected[0])
-        del self.controller.state["agenda"][index]
+        del self.controller.state["noticias"][index]
         self.refresh_table()
 
     def edit_item(self):
@@ -299,22 +287,14 @@ class DatosTab(tk.Frame):
             return
 
         index = self.tree.index(selected[0])
-        item = self.controller.state["agenda"][index]
+        item = self.controller.state["noticias"][index]
 
+        # Rellenar campos con la noticia seleccionada
         self.entry_portada.delete(0, tk.END)
         self.entry_portada.insert(0, item.get("portada", ""))
 
         self.text_titulo.delete("1.0", tk.END)
         self.text_titulo.insert("1.0", item.get("titulo", ""))
-
-        self.entry_fecha_evento.delete(0, tk.END)
-        self.entry_fecha_evento.insert(0, item.get("fecha del evento", ""))
-
-        self.entry_hora.delete(0, tk.END)
-        self.entry_hora.insert(0, item.get("hora", ""))
-
-        self.entry_lugar.delete(0, tk.END)
-        self.entry_lugar.insert(0, item.get("lugar", ""))
 
         self.text_cuerpo.delete("1.0", tk.END)
         self.text_cuerpo.insert("1.0", item.get("cuerpo", ""))
@@ -331,7 +311,8 @@ class DatosTab(tk.Frame):
 
         self.portada_base64_actual = item.get("portada_base64", "")
 
-        del self.controller.state["agenda"][index]
+        # Eliminar la noticia de la lista; se volverá a guardar al pulsar "Añadir"
+        del self.controller.state["noticias"][index]
         self.refresh_table()
 
     def move_up(self):
@@ -340,7 +321,7 @@ class DatosTab(tk.Frame):
             return
         index = self.tree.index(selected[0])
         if index > 0:
-            arr = self.controller.state["agenda"]
+            arr = self.controller.state["noticias"]
             arr[index - 1], arr[index] = arr[index], arr[index - 1]
             self.refresh_table()
             self.tree.selection_set(self.tree.get_children()[index - 1])
@@ -350,30 +331,31 @@ class DatosTab(tk.Frame):
         if not selected:
             return
         index = self.tree.index(selected[0])
-        arr = self.controller.state["agenda"]
+        arr = self.controller.state["noticias"]
         if index < len(arr) - 1:
             arr[index + 1], arr[index] = arr[index], arr[index + 1]
             self.refresh_table()
             self.tree.selection_set(self.tree.get_children()[index + 1])
 
     def refresh_table(self):
+        # Vaciar tabla
         for item_id in self.tree.get_children():
             self.tree.delete(item_id)
-        for ev in self.controller.state["agenda"]:
+        # Rellenar
+        for n in self.controller.state["noticias"]:
             self.tree.insert(
                 "",
                 tk.END,
                 values=(
-                    ev.get("portada", ""),
-                    ev.get("titulo", ""),
-                    ev.get("fecha del evento", ""),
-                    ev.get("lugar", ""),
-                    ev.get("enlace", {}).get("url", "")
+                    n.get("portada", ""),
+                    n.get("titulo", ""),
+                    n.get("enlace", {}).get("url", "")
                 )
             )
 
     def set_data(self, datos):
-        self.controller.state["agenda"] = datos.get("agenda", [])
+        # Cargar lista de noticias al abrir en modo edición
+        self.controller.state["noticias"] = datos.get("noticias", [])
         self.refresh_table()
 
 
@@ -391,24 +373,23 @@ class PreviewTab(tk.Frame):
         ttk.Button(toolbar, text="Actualizar preview", command=self.update_preview).pack(side="left")
         ttk.Button(toolbar, text="Guardar JSON", command=self.save_json).pack(side="left", padx=8)
         ttk.Button(toolbar, text="Previsualizar en web", command=self.preview_web).pack(side="left", padx=8)
-        ttk.Button(toolbar, text="Generar HTML", command=self.generate_html).pack(side="right", padx=8)
-
-        info = ttk.Label(toolbar, text="Revisa el JSON antes de guardar.")
-        info.pack(side="left", padx=16)
+        ttk.Button(toolbar, text="Generar archivo HTML", command=self.generate_html).pack(side="right", padx=8)
 
         self.text_area = tk.Text(self, wrap="word")
         self.text_area.pack(fill="both", expand=True, padx=16, pady=10)
 
     def update_preview(self):
+        # Construir datos para preview
         datos = {
-            "agenda": [],
+            "noticias": [],
             "fecha": datetime.datetime.now().strftime("%d-%m-%Y")
         }
 
-        for ev in self.controller.state.get("agenda", []):
-            copia = ev.copy()
+        for n in self.controller.state.get("noticias", []):
+            copia = n.copy()
+            # Quitar la clave base64 para el JSON de preview
             copia.pop("portada_base64", None)
-            datos["agenda"].append(copia)
+            datos["noticias"].append(copia)
 
         preview = json.dumps(datos, indent=4, ensure_ascii=False)
         self.text_area.delete("1.0", tk.END)
@@ -416,7 +397,7 @@ class PreviewTab(tk.Frame):
 
     def save_json(self):
         datos = {
-            "agenda": self.controller.state.get("agenda", []),
+            "noticias": self.controller.state.get("noticias", []),
             "fecha": datetime.datetime.now().strftime("%d-%m-%Y")
         }
         ruta = filedialog.asksaveasfilename(
@@ -434,28 +415,31 @@ class PreviewTab(tk.Frame):
 
     def preview_web(self):
         datos = {
-            "agenda": self.controller.state.get("agenda", []),
+            "noticias": self.controller.state.get("noticias", []),
             "fecha": datetime.datetime.now().strftime("%d-%m-%Y")
         }
 
+        # Construir HTML de todas las noticias
         bloques = ""
-        for ev in datos["agenda"]:
-            cuerpo_html = ev.get("cuerpo", "").replace("\n", "<br>")
+        for n in datos["noticias"]:
+            cuerpo_html = n.get("cuerpo", "").replace("\n", "<br>")
 
             portada_src = ""
-            if ev.get("portada_base64"):
-                portada_src = f"data:image/jpeg;base64,{ev['portada_base64']}"
+            if n.get("portada_base64"):
+                portada_src = f"data:image/jpeg;base64,{n['portada_base64']}"
 
-            enlace_info = ev.get("enlace", {})
+            enlace_info = n.get("enlace", {})
             enlace_url = enlace_info.get("url", "").strip()
             enlace_texto = enlace_info.get("texto", "").strip()
             usar_en_titulo = enlace_info.get("usar_en_titulo", True)
             usar_en_portada = enlace_info.get("usar_en_portada", True)
 
-            titulo_html = ev.get("titulo", "")
+            # Título (con o sin enlace)
+            titulo_html = n.get("titulo", "")
             if enlace_url and usar_en_titulo:
                 titulo_html = f'<a href="{enlace_url}" target="_blank">{titulo_html}</a>'
 
+            # Portada (con o sin enlace)
             portada_html = ""
             if portada_src:
                 img_tag = f'<img src="{portada_src}" alt="Portada">'
@@ -463,24 +447,22 @@ class PreviewTab(tk.Frame):
                     img_tag = f'<a href="{enlace_url}" target="_blank">{img_tag}</a>'
                 portada_html = img_tag
 
+            # Enlace inferior
             enlace_inferior_html = ""
             if enlace_url and enlace_texto:
                 enlace_inferior_html = f'<p><a href="{enlace_url}" target="_blank">{enlace_texto}</a></p>'
 
             bloques += f"""
-            <div class="evento">
+            <div class="noticia">
                 <div class="contenedor">
                     <div class="portada">
                         {portada_html}
                     </div>
                     <div class="contenido">
                         <h3>{titulo_html}</h3>
-                        <p><strong>Fecha del evento:</strong> {ev.get('fecha del evento', '')}</p>
-                        <p><strong>Hora:</strong> {ev.get('hora', '')}</p>
-                        <p><strong>Lugar:</strong> {ev.get('lugar', '')}</p>
                         <div>{cuerpo_html}</div>
                         {enlace_inferior_html}
-                        <p><small>Fecha de generación: {datos['fecha']}</small></p>
+                        <p><small>Fecha: {datos['fecha']}</small></p>
                     </div>
                 </div>
                 <hr>
@@ -492,7 +474,7 @@ class PreviewTab(tk.Frame):
         <html lang="es">
         <head>
             <meta charset="UTF-8">
-            <title>Agenda</title>
+            <title>Noticias</title>
             <style>
                 body {{
                     font-family: Segoe UI, sans-serif;
@@ -528,29 +510,35 @@ class PreviewTab(tk.Frame):
             </style>
         </head>
         <body>
-            <h1>Agenda</h1>
+            <h1>Noticias</h1>
             {bloques}
         </body>
         </html>
         """
 
-        temp_html = "data/preview_temp_agenda.html"
+        temp_html = "data/preview_temp_noticias.html"
         with open(temp_html, "w", encoding="utf-8") as f:
             f.write(html)
 
         webbrowser.open_new_tab(f"file:///{os.path.abspath(temp_html)}")
 
     def generate_html(self):
+        # Datos para la plantilla
         datos = {
-            "agenda": self.controller.state.get("agenda", []),
+            "noticias": self.controller.state.get("noticias", []),
             "fecha": datetime.datetime.now().strftime("%d-%m-%Y")
         }
 
+        # Ruta de plantillas
         env = Environment(loader=FileSystemLoader("templates"))
-        template = env.get_template("agenda.html")
 
+        # Plantilla de noticias (debes adaptarla para usar datos.noticias)
+        template = env.get_template("noticias.html")
+
+        # Renderizar HTML
         html_output = template.render(datos=datos)
 
+        # Guardar archivo final
         ruta = filedialog.asksaveasfilename(
             defaultextension=".html",
             filetypes=[("HTML files", "*.html")],
