@@ -4,11 +4,9 @@ import json
 import os
 import webbrowser
 from PIL import Image, ImageTk
-from collections import OrderedDict
-import copy
 import base64
+import copy
 from jinja2 import Environment, FileSystemLoader
-
 
 class CarruselWindow(tk.Toplevel):
     def __init__(self, mode="create", filepath=None):
@@ -221,30 +219,155 @@ class PreviewTab(tk.Frame):
 
     def save_json(self):
         datos = self.controller.state.copy()
+        ruta = filedialog.asksaveasfilename(defaultextension=".json",
+                                            filetypes=[("JSON files", "*.json")],
+                                            initialdir="data")
+        if ruta:
+            try:
+                with open(ruta, "w", encoding="utf-8") as f:
+                    json.dump(datos, f, indent=4, ensure_ascii=False)
+                messagebox.showinfo("Guardado", f"Archivo JSON guardado en {ruta}")
+            except Exception as e:
+                messagebox.showerror("Error", f"No se pudo guardar el JSON:\n{e}")
 
-        index_json = "geoso2-web-template/json/index.json"
+    def preview_web(self):
+        datos = self.controller.state.copy()
 
-        try:
-            if os.path.exists(index_json):
-                with open(index_json, "r", encoding="utf-8") as f:
-                    maestro = json.load(f, object_pairs_hook=OrderedDict)
-            else:
-                maestro = OrderedDict()
+        # Construir slides
+        slides = ""
+        for item in datos["carrusel"]:
+            img_src = ""
+            if item.get("imagen_base64"):
+                img_src = f"data:image/jpeg;base64,{item['imagen_base64']}"
 
-            maestro.setdefault("index_page", OrderedDict())
-            maestro["index_page"].setdefault("carousel", [])
+            img_html = f'<img src="{img_src}" class="slide-img">' if img_src else ""
 
-            for item in datos["carrusel"]:
-                maestro["index_page"]["carousel"].append({
-                    "src": item["imagen"],
-                    "alt": f"Imagen {len(maestro['index_page']['carousel']) + 1}",
-                    "link": item["enlace"]
-                })
-                
-            with open(index_json, "w", encoding="utf-8") as f:
-                json.dump(maestro, f, indent=4, ensure_ascii=False)
+            # Imagen clicable
+            if item.get("enlace"):
+                img_html = f'<a href="{item["enlace"]}" target="_blank">{img_html}</a>'
 
-            messagebox.showinfo("Éxito", "El carrusel se ha actualizado correctamente.")
+            slides += f'<div class="slide">{img_html}</div>'
+        
+        # HTML del carrusel
+        html = f"""
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <title>Carrusel</title>
+            <style>
+                body {{
+                    font-family: Segoe UI, sans-serif;
+                    margin: 40px auto;
+                    max-width: 900px;
+                    text-align: center;
+                }}
 
-        except Exception as e:
-            messagebox.showerror("Error", f"No se pudo actualizar el carrusel:\n{e}")
+                .carrusel {{
+                    position: relative;
+                    width: 100%;
+                    height: 400px;
+                    overflow: hidden;
+                }}
+
+                .slides {{
+                    display: flex;
+                    width: 100%;
+                    height: 100%;
+                    transition: transform 0.5s ease;
+                }}
+
+                .slide {{
+                    min-width: 100%;
+                    height: 100%;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }}
+
+                .slide-img {{
+                    max-width: 100%;
+                    max-height: 100%;
+                    object-fit: contain;
+                }}
+
+                .btn {{
+                    position: absolute;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    background: rgba(0,0,0,0.5);
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    cursor: pointer;
+                    font-size: 20px;
+                }}
+
+                .prev {{ left: 10px; }}
+                .next {{ right: 10px; }}
+            </style>
+        </head>
+        <body>
+
+            <h1>Carrusel</h1>
+
+            <div class="carrusel">
+                <div class="slides" id="slides">
+                    {slides}
+                </div>
+
+                <button class="btn prev" onclick="move(-1)">❮</button>
+                <button class="btn next" onclick="move(1)">❯</button>
+            </div>
+
+            <script>
+                let index = 0;
+                function move(dir) {{
+                    const slides = document.getElementById("slides");
+                    const total = slides.children.length;
+                    index = (index + dir + total) % total;
+                    slides.style.transform = "translateX(" + (-index * 100) + "%)";
+                }}
+
+                const intervalo = 2000;
+                setInterval(() => move(1), intervalo);
+            </script>
+
+        </body>
+        </html>
+        """
+
+        temp_html = "data/preview_carrusel.html"
+        with open(temp_html, "w", encoding="utf-8") as f:
+            f.write(html)
+
+        webbrowser.open_new_tab(f"file:///{os.path.abspath(temp_html)}")
+
+    def generate_html(self):
+        datos = self.controller.state.copy()
+
+        # Ruta de plantillas
+        env = Environment(loader=FileSystemLoader("templates"))
+
+        # Seleccionar plantilla según el editor
+        # Puedes cambiar esto dinámicamente si quieres
+        template = env.get_template("carrusel.html")
+
+        # Renderizar HTML
+        html_output = template.render(datos=datos)
+
+        # Guardar archivo final
+        ruta = filedialog.asksaveasfilename(
+            defaultextension=".html",
+            filetypes=[("HTML files", "*.html")],
+            initialdir="data/output"
+        )
+
+        if ruta:
+            try:
+                with open(ruta, "w", encoding="utf-8") as f:
+                    f.write(html_output)
+                messagebox.showinfo("Éxito", f"Archivo HTML generado en:\n{ruta}")
+            except Exception as e:
+                messagebox.showerror("Error", f"No se pudo generar el archivo:\n{e}")
+

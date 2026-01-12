@@ -8,7 +8,6 @@ from PIL import Image
 import base64
 import copy
 from jinja2 import Environment, FileSystemLoader
-from collections import OrderedDict
 
 class EditorWindow(tk.Toplevel):
     def __init__(self, mode="create", filepath=None):
@@ -315,54 +314,134 @@ class PreviewTab(tk.Frame):
 
 
     def save_json(self):
-
         datos = self.controller.state.copy()
-        index_json = "geoso2-web-template/json/quienes-somos.json"
+        datos["fecha"] = datetime.datetime.now().strftime("%d-%m-%Y")
+        ruta = filedialog.asksaveasfilename(
+            defaultextension=".json",
+            filetypes=[("JSON files", "*.json")],
+            initialdir="data"
+        )
+        if ruta:
+            try:
+                with open(ruta, "w", encoding="utf-8") as f:
+                    json.dump(datos, f, indent=4, ensure_ascii=False)
+                messagebox.showinfo("Guardado", f"Archivo JSON guardado en {ruta}")
+            except Exception as e:
+                messagebox.showerror("Error", f"No se pudo guardar el JSON:\n{e}")
 
-        try:
-            if os.path.exists(index_json):
-                with open(index_json, "r", encoding="utf-8") as f:
-                    maestro = json.load(f, object_pairs_hook=OrderedDict)
-            else:
-                maestro = OrderedDict()
+    def preview_web(self):
+        datos = self.controller.state.copy()
+        datos["fecha"] = datetime.datetime.now().strftime("%d-%m-%Y")
 
-            maestro.setdefault("index_page", OrderedDict())
-            maestro["index_page"].setdefault("quienes_somos", OrderedDict())
+        # Construir HTML de personas
+        def render_personas(lista):
+            bloques = ""
+            for p in lista:
+                img_src = ""
+                if p.get("imagen_base64"):
+                    img_src = f"data:image/jpeg;base64,{p['imagen_base64']}"
 
-            qs = maestro["quienes_somos"]
-            
-            qs.setdefault("secciones", [])
-            for s in datos.get("secciones", []):
-                qs["secciones"].append({
-                    "pregunta": s["pregunta"],
-                    "respuesta": s["respuesta"]
-                })
+                # Imagen con o sin enlace
+                img_html = f'<img src="{img_src}" alt="{p["nombre"]}">' if img_src else ""
 
-            qs.setdefault("investigadores", [])
-            for inv in datos.get("investigadores", []):
-                qs["investigadores"].append({
-                    "nombre": inv["nombre"],
-                    "imagen": inv["imagen"],
-                    "bio": inv["cuerpo"],
-                    "link": inv["enlace"]["url"],
-                    "link_text": inv["enlace"]["texto"]
-                })
+                if p.get("enlace", {}).get("url") and p["enlace"].get("usar_en_imagen"):
+                    img_html = f'<a href="{p["enlace"]["url"]}" target="_blank">{img_html}</a>'
 
-            qs.setdefault("colaboradores", [])
-            for col in datos.get("colaboradores", []):
-                qs["colaboradores"].append({
-                    "nombre": col["nombre"],
-                    "imagen": col["imagen"],
-                    "bio": col["cuerpo"],
-                    "link": col["enlace"]["url"],
-                    "link_text": col["enlace"]["texto"]
-                })
+                # Nombre con o sin enlace
+                nombre_html = p["nombre"]
+                if p.get("enlace", {}).get("url") and p["enlace"].get("usar_en_nombre"):
+                    nombre_html = f'<a href="{p["enlace"]["url"]}" target="_blank">{nombre_html}</a>'
 
-            with open(index_json, "w", encoding="utf-8") as f:
-                json.dump(maestro, f, indent=4, ensure_ascii=False)
+                cuerpo_html = p["cuerpo"].replace("\n", "<br>")
 
-            messagebox.showinfo("Guardado", "Sección 'Quiénes somos' actualizada correctamente")
+                # Texto del enlace
+                enlace_html = ""
+                if p.get("enlace", {}).get("texto") and p["enlace"].get("url"):
+                    enlace_html = f'<p><a href="{p["enlace"]["url"]}" target="_blank">{p["enlace"]["texto"]}</a></p>'
 
-        except Exception as e:
-            messagebox.showerror("Error", f"No se pudo guardar la sección:\n{e}")
+                bloques += f"""
+                <div class="persona">
+                    <div class="foto">{img_html}</div>
+                    <div class="info">
+                        <h3>{nombre_html}</h3>
+                        <p>{cuerpo_html}</p>
+                        {enlace_html}
+                    </div>
+                </div>
+                """
+            return bloques
 
+
+        html = f"""
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <title>Investigadores y Colaboradores</title>
+            <style>
+                body {{
+                    font-family: Segoe UI, sans-serif;
+                    margin: 40px auto;
+                    max-width: 900px;
+                    line-height: 1.6;
+                }}
+                .persona {{
+                    display: flex;
+                    gap: 20px;
+                    margin-bottom: 30px;
+                }}
+                .persona img {{
+                    width: 150px;
+                    height: auto;
+                    border-radius: 6px;
+                }}
+                .info {{
+                    flex-grow: 1;
+                }}
+            </style>
+        </head>
+        <body>
+            <h1>Investigadores</h1>
+            {render_personas(datos["investigadores"])}
+
+            <h1>Colaboradores</h1>
+            {render_personas(datos["colaboradores"])}
+
+            <p><small>Fecha: {datos['fecha']}</small></p>
+        </body>
+        </html>
+        """
+
+        temp_html = "data/preview_personas.html"
+        with open(temp_html, "w", encoding="utf-8") as f:
+            f.write(html)
+
+        webbrowser.open_new_tab(f"file:///{os.path.abspath(temp_html)}")
+
+    def generate_html(self):
+        datos = self.controller.state.copy()
+
+        # Ruta de plantillas
+        env = Environment(loader=FileSystemLoader("templates"))
+
+        # Seleccionar plantilla según el editor
+        # Puedes cambiar esto dinámicamente si quieres
+        template = env.get_template("quienes-somos.html")
+
+        # Renderizar HTML
+        html_output = template.render(datos=datos)
+
+        # Guardar archivo final
+        ruta = filedialog.asksaveasfilename(
+            defaultextension=".html",
+            filetypes=[("HTML files", "*.html")],
+            initialdir="data/output"
+        )
+
+        if ruta:
+            try:
+                with open(ruta, "w", encoding="utf-8") as f:
+                    f.write(html_output)
+                messagebox.showinfo("Éxito", f"Archivo HTML generado en:\n{ruta}")
+            except Exception as e:
+                messagebox.showerror("Error", f"No se pudo generar el archivo:\n{e}")
