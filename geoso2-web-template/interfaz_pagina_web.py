@@ -5,6 +5,7 @@ import os
 import datetime
 import webbrowser
 from PIL import Image
+from jinja2 import Environment, FileSystemLoader
 
 class paginaWindow(tk.Toplevel):
     def __init__(self, mode="create", filepath=None):
@@ -324,6 +325,8 @@ class PreviewTab(tk.Frame):
 
         ttk.Button(toolbar, text="Actualizar preview", command=self.update_preview).pack(side="left")
         ttk.Button(toolbar, text="Guardar JSON", command=self.save_json).pack(side="left", padx=8)
+        ttk.Button(toolbar, text="Previsualizar en web", command=self.preview_web).pack(side="left", padx=8)
+        ttk.Button(toolbar, text="Generar HTML", command=self.generate_html).pack(side="right", padx=8)
 
         self.text_area = tk.Text(self, wrap="word")
         self.text_area.pack(fill="both", expand=True, padx=16, pady=10)
@@ -347,3 +350,128 @@ class PreviewTab(tk.Frame):
                 messagebox.showinfo("Éxito", "El JSON se ha guardado correctamente.")
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo guardar el JSON:\n{e}")
+
+    def preview_web(self):
+        datos = self.controller.state.copy()
+        datos["fecha"] = datetime.datetime.now().strftime("%d-%m-%Y")
+        datos["portada_base64"] = self.controller.state.get("portada_base64", "")
+
+        # Convertir saltos de línea del cuerpo a <br>
+        cuerpo_html = datos["cuerpo"].replace("\n", "<br>")
+
+        portada_src = ""
+        if datos.get("portada_base64"):
+            portada_src = f"data:image/jpeg;base64,{datos['portada_base64']}"
+
+        # Enlace y flags
+        enlace_url = datos.get("enlace", {}).get("url", "").strip()
+        enlace_texto = datos.get("enlace", {}).get("texto", "").strip()
+        usar_en_titulo = datos.get("enlace", {}).get("usar_en_titulo", True)
+        usar_en_portada = datos.get("enlace", {}).get("usar_en_portada", True)
+
+        # Título (con o sin enlace)
+        titulo_html = datos["titulo"]
+        if enlace_url and usar_en_titulo:
+            titulo_html = f'<a href="{enlace_url}" target="_blank">{titulo_html}</a>'
+
+        # Portada (con o sin enlace)
+        portada_html = ""
+        if portada_src:
+            img_tag = f'<img src="{portada_src}" alt="Portada">'
+            if enlace_url and usar_en_portada:
+                img_tag = f'<a href="{enlace_url}" target="_blank">{img_tag}</a>'
+            portada_html = img_tag
+
+        # Enlace inferior (solo si hay texto y URL)
+        enlace_inferior_html = ""
+        if enlace_url and enlace_texto:
+            enlace_inferior_html = f'<p><a href="{enlace_url}" target="_blank">{enlace_texto}</a></p>'
+
+        html = f"""
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <title>{datos['titulo']}</title>
+            <style>
+                body {{
+                    font-family: Segoe UI, sans-serif;
+                    margin: 40px auto;
+                    max-width: 900px;
+                    line-height: 1.6;
+                }}
+                .contenedor {{
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 20px;
+                }}
+                .portada {{
+                    max-width: 300px;
+                    flex-shrink: 0;
+                }}
+                .contenido {{
+                    flex-grow: 1;
+                }}
+                img {{
+                    width: 100%;
+                    height: auto;
+                    display: block;
+                }}
+                h3 a {{
+                    color: inherit;
+                    text-decoration: none;
+                }}
+                h3 a:hover {{
+                    text-decoration: underline;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="contenedor">
+                <div class="portada">
+                    {portada_html}
+                </div>
+                <div class="contenido">
+                    <h3>{titulo_html}</h3>
+                    <div>{cuerpo_html}</div>
+                    {enlace_inferior_html}
+                    <p><small>Fecha: {datos['fecha']}</small></p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+
+        temp_html = "data/preview_temp.html"
+        with open(temp_html, "w", encoding="utf-8") as f:
+            f.write(html)
+
+        webbrowser.open_new_tab(f"file:///{os.path.abspath(temp_html)}")
+
+    def generate_html(self):
+        datos = self.controller.state.copy()
+
+        # Ruta de plantillas
+        env = Environment(loader=FileSystemLoader("templates"))
+
+        # Seleccionar plantilla según el editor
+        # Puedes cambiar esto dinámicamente si quieres
+        template = env.get_template("noticia01.html")
+
+        # Renderizar HTML
+        html_output = template.render(datos=datos)
+
+        # Guardar archivo final
+        ruta = filedialog.asksaveasfilename(
+            defaultextension=".html",
+            filetypes=[("HTML files", "*.html")],
+            initialdir="data/output"
+        )
+
+        if ruta:
+            try:
+                with open(ruta, "w", encoding="utf-8") as f:
+                    f.write(html_output)
+                messagebox.showinfo("Éxito", f"Archivo HTML generado en:\n{ruta}")
+            except Exception as e:
+                messagebox.showerror("Error", f"No se pudo generar el archivo:\n{e}")

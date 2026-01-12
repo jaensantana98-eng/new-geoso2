@@ -6,6 +6,8 @@ import interfaz_carrusel
 import interfaz_entidades_colaboradoras
 import interfaz_quienessomos
 import interfaz_pagina_web
+import interfaz_rafagas
+import interfaz_proyectos
 import os
 
 # -----------------------------
@@ -154,14 +156,14 @@ class MainApp(tk.Tk):
         filepath = self.seleccionar_json(mode, "Ráfagas")
         if mode == "edit" and not filepath:
             return
-        interfaz_noticias.EditorWindow(mode=mode, filepath=filepath)
+        interfaz_rafagas.EditorWindow(mode=mode, filepath=filepath)
 
     def abrir_proyectos(self, mode, parent_win):
         parent_win.destroy()
         filepath = self.seleccionar_json(mode, "Proyectos")
         if mode == "edit" and not filepath:
             return
-        interfaz_noticias.EditorWindow(mode=mode, filepath=filepath)
+        interfaz_proyectos.ProyectosWindow(mode=mode, filepath=filepath)
 
     def abrir_quienes_somos(self, mode, parent_win):
         parent_win.destroy()

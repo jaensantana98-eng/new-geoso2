@@ -1,0 +1,12 @@
+{
+    "portada": "data/img/img1 copia.png",
+    "titulo": "Noticia de prueba",
+    "cuerpo": "Esta es una noticia de prueba.\nAqui probaré si funcionan correctamente los parametros, si se guarda y si se puede editar correctamente.\n\nEsta es una noticia de prueba.\nAqui probaré si funcionan correctamente los parametros, si se guarda y si se puede editar correctamente.\n\nEsta es una noticia de prueba.\nAqui probaré si funcionan correctamente los parametros, si se guarda y si se puede editar correctamente.\n\nEsta es una noticia de prueba.\nAqui probaré si funcionan correctamente los parametros, si se guarda y si se puede editar correctamente.\nEsta es una noticia de prueba.\nAqui probaré si funcionan correctamente los parametros, si se guarda y si se puede editar correctamente.Esta es una noticia de prueba.\nAqui probaré si funcionan correctamente los parametros, si se guarda y si se puede editar correctamente.Esta es una noticia de prueba.\nAqui probaré si funcionan correctamente los parametros, si se guarda y si se puede editar correctamente.Esta es una noticia de prueba.\nAqui probaré si funcionan correctamente los parametros, si se guarda y si se puede editar correctamente.Esta es una noticia de prueba.\nAqui probaré si funcionan correctamente los parametros, si se guarda y si se puede editar correctamente.Esta es una noticia de prueba.\nAqui probaré si funcionan correctamente los parametros, si se guarda y si se puede editar correctamente.Esta es una noticia de prueba.Esta es una noticia de prueba.",
+    "enlace": {
+        "texto": "leer mas",
+        "url": "https://geoso2.es",
+        "usar_en_titulo": true,
+        "usar_en_portada": true
+    },
+    "fecha": "08-01-2026"
+}

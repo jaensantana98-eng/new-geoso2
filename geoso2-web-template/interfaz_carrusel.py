@@ -4,6 +4,9 @@ import json
 import os
 import webbrowser
 from PIL import Image, ImageTk
+import base64
+import copy
+from jinja2 import Environment, FileSystemLoader
 
 class CarruselWindow(tk.Toplevel):
     def __init__(self, mode="create", filepath=None):
@@ -122,13 +125,28 @@ class DatosTab(ttk.Frame):
     def add_item(self):
         imagen = self.entry_imagen.get().strip()
         enlace = self.entry_enlace.get().strip()
+
         if not imagen or not enlace:
             messagebox.showwarning("Aviso", "Debes seleccionar una imagen y escribir un enlace.")
             return
-        self.controller.state["carrusel"].append({"imagen": imagen, "enlace": enlace})
+
+        # Convertir imagen a base64
+        try:
+            with open(imagen, "rb") as img_file:
+                b64 = base64.b64encode(img_file.read()).decode("utf-8")
+        except:
+            b64 = ""
+
+        self.controller.state["carrusel"].append({
+            "imagen": imagen,
+            "imagen_base64": b64,
+            "enlace": enlace
+        })
+
         self.refresh_table()
         self.entry_imagen.delete(0, tk.END)
         self.entry_enlace.delete(0, tk.END)
+
 
     def delete_item(self):
         selected = self.tree.selection()
@@ -177,6 +195,8 @@ class PreviewTab(tk.Frame):
 
         ttk.Button(toolbar, text="Actualizar preview", command=self.update_preview).pack(side="left")
         ttk.Button(toolbar, text="Guardar JSON", command=self.save_json).pack(side="left", padx=8)
+        ttk.Button(toolbar, text="Previsualizar en web", command=self.preview_web).pack(side="left", padx=8)
+        ttk.Button(toolbar, text="Generar archivo HTML", command=self.generate_html).pack(side="right", padx=8)
 
         info = ttk.Label(toolbar, text="Revisa el JSON antes de guardar.")
         info.pack(side="left", padx=16)
@@ -184,11 +204,18 @@ class PreviewTab(tk.Frame):
         self.text_area = tk.Text(self, wrap="word")
         self.text_area.pack(fill="both", expand=True, padx=16, pady=10)
 
+
     def update_preview(self):
-        datos = self.controller.state.copy()
+        datos = copy.deepcopy(self.controller.state)
+
+        # Eliminar base64 del preview
+        for item in datos.get("carrusel", []):
+            item.pop("imagen_base64", None)
+
         preview = json.dumps(datos, indent=4, ensure_ascii=False)
         self.text_area.delete("1.0", tk.END)
         self.text_area.insert(tk.END, preview)
+
 
     def save_json(self):
         datos = self.controller.state.copy()
@@ -202,3 +229,145 @@ class PreviewTab(tk.Frame):
                 messagebox.showinfo("Guardado", f"Archivo JSON guardado en {ruta}")
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo guardar el JSON:\n{e}")
+
+    def preview_web(self):
+        datos = self.controller.state.copy()
+
+        # Construir slides
+        slides = ""
+        for item in datos["carrusel"]:
+            img_src = ""
+            if item.get("imagen_base64"):
+                img_src = f"data:image/jpeg;base64,{item['imagen_base64']}"
+
+            img_html = f'<img src="{img_src}" class="slide-img">' if img_src else ""
+
+            # Imagen clicable
+            if item.get("enlace"):
+                img_html = f'<a href="{item["enlace"]}" target="_blank">{img_html}</a>'
+
+            slides += f'<div class="slide">{img_html}</div>'
+        
+        # HTML del carrusel
+        html = f"""
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <title>Carrusel</title>
+            <style>
+                body {{
+                    font-family: Segoe UI, sans-serif;
+                    margin: 40px auto;
+                    max-width: 900px;
+                    text-align: center;
+                }}
+
+                .carrusel {{
+                    position: relative;
+                    width: 100%;
+                    height: 400px;
+                    overflow: hidden;
+                }}
+
+                .slides {{
+                    display: flex;
+                    width: 100%;
+                    height: 100%;
+                    transition: transform 0.5s ease;
+                }}
+
+                .slide {{
+                    min-width: 100%;
+                    height: 100%;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }}
+
+                .slide-img {{
+                    max-width: 100%;
+                    max-height: 100%;
+                    object-fit: contain;
+                }}
+
+                .btn {{
+                    position: absolute;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    background: rgba(0,0,0,0.5);
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    cursor: pointer;
+                    font-size: 20px;
+                }}
+
+                .prev {{ left: 10px; }}
+                .next {{ right: 10px; }}
+            </style>
+        </head>
+        <body>
+
+            <h1>Carrusel</h1>
+
+            <div class="carrusel">
+                <div class="slides" id="slides">
+                    {slides}
+                </div>
+
+                <button class="btn prev" onclick="move(-1)">❮</button>
+                <button class="btn next" onclick="move(1)">❯</button>
+            </div>
+
+            <script>
+                let index = 0;
+                function move(dir) {{
+                    const slides = document.getElementById("slides");
+                    const total = slides.children.length;
+                    index = (index + dir + total) % total;
+                    slides.style.transform = "translateX(" + (-index * 100) + "%)";
+                }}
+
+                const intervalo = 2000;
+                setInterval(() => move(1), intervalo);
+            </script>
+
+        </body>
+        </html>
+        """
+
+        temp_html = "data/preview_carrusel.html"
+        with open(temp_html, "w", encoding="utf-8") as f:
+            f.write(html)
+
+        webbrowser.open_new_tab(f"file:///{os.path.abspath(temp_html)}")
+
+    def generate_html(self):
+        datos = self.controller.state.copy()
+
+        # Ruta de plantillas
+        env = Environment(loader=FileSystemLoader("templates"))
+
+        # Seleccionar plantilla según el editor
+        # Puedes cambiar esto dinámicamente si quieres
+        template = env.get_template("carrusel.html")
+
+        # Renderizar HTML
+        html_output = template.render(datos=datos)
+
+        # Guardar archivo final
+        ruta = filedialog.asksaveasfilename(
+            defaultextension=".html",
+            filetypes=[("HTML files", "*.html")],
+            initialdir="data/output"
+        )
+
+        if ruta:
+            try:
+                with open(ruta, "w", encoding="utf-8") as f:
+                    f.write(html_output)
+                messagebox.showinfo("Éxito", f"Archivo HTML generado en:\n{ruta}")
+            except Exception as e:
+                messagebox.showerror("Error", f"No se pudo generar el archivo:\n{e}")
+

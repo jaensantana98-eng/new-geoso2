@@ -5,6 +5,9 @@ import os
 import datetime
 import webbrowser
 from PIL import Image
+import base64
+import copy
+from jinja2 import Environment, FileSystemLoader
 
 class EditorWindow(tk.Toplevel):
     def __init__(self, mode="create", filepath=None):
@@ -141,24 +144,46 @@ class PersonasTab(ttk.Frame):
         self.refresh_table()
 
     def select_imagen(self):
-        ruta = filedialog.askopenfilename(filetypes=[("Imagen", "*.png;*.jpg;*.jpeg;*.gif")])
+        ruta = filedialog.askopenfilename(
+            filetypes=[("Imagen", "*.png;*.jpg;*.jpeg;*.gif")]
+        )
+
         if not ruta:
             return
+
         try:
             nombre = os.path.basename(ruta)
             destino = os.path.join("data/img", nombre)
+
             with Image.open(ruta) as img:
+                # Convertir a RGB para evitar problemas de formato
                 img = img.convert("RGB")
+
+                # Mantener proporción dentro de 300x300
                 img.thumbnail((300, 300), Image.LANCZOS)
+
+                # Crear lienzo 300x300 con fondo blanco
                 canvas = Image.new("RGB", (300, 300), "white")
                 x = (300 - img.width) // 2
                 y = (300 - img.height) // 2
                 canvas.paste(img, (x, y))
+
+                # La imagen final es el canvas
                 canvas.save(destino, quality=90)
+
             self.entry_imagen.delete(0, tk.END)
             self.entry_imagen.insert(0, destino)
+            self.controller.state["imagen"] = destino
+
+            with open(destino, "rb") as img_file:
+                b64 = base64.b64encode(img_file.read()).decode("utf-8")
+                self.controller.state["imagen_base64"] = b64
+
         except Exception as e:
-            messagebox.showerror("Error", f"No se pudo procesar la imagen:\n{e}")
+            messagebox.showerror(
+                "Error",
+                f"No se pudo procesar la imagen de portada:\n{e}"
+            )
 
     def probar_enlace(self):
         url = self.entry_enlace_url.get().strip()
@@ -188,6 +213,7 @@ class PersonasTab(ttk.Frame):
 
         item = {
             "imagen": imagen,
+            "imagen_base64": self.controller.state.get("imagen_base64", ""),
             "nombre": nombre,
             "cuerpo": cuerpo,
             "enlace": {
@@ -260,6 +286,8 @@ class PreviewTab(tk.Frame):
 
         ttk.Button(toolbar, text="Actualizar preview", command=self.update_preview).pack(side="left")
         ttk.Button(toolbar, text="Guardar JSON", command=self.save_json).pack(side="left", padx=8)
+        ttk.Button(toolbar, text="Previsualizar en web", command=self.preview_web).pack(side="left", padx=8)
+        ttk.Button(toolbar, text="Generar HTML", command=self.generate_html).pack(side="right", padx=8)
 
         info = ttk.Label(toolbar, text="Revisa el JSON antes de guardar.")
         info.pack(side="left", padx=16)
@@ -268,11 +296,22 @@ class PreviewTab(tk.Frame):
         self.text_area.pack(fill="both", expand=True, padx=16, pady=10)
 
     def update_preview(self):
-        datos = self.controller.state.copy()
+        # Copia profunda para no modificar el estado real
+        datos = copy.deepcopy(self.controller.state)
         datos["fecha"] = datetime.datetime.now().strftime("%d-%m-%Y")
+
+        # Eliminar claves internas que no deben aparecer en el preview
+        for persona in datos.get("investigadores", []):
+            persona.pop("imagen_base64", None)
+
+        for persona in datos.get("colaboradores", []):
+            persona.pop("imagen_base64", None)
+
         preview = json.dumps(datos, indent=4, ensure_ascii=False)
         self.text_area.delete("1.0", tk.END)
         self.text_area.insert(tk.END, preview)
+
+
 
     def save_json(self):
         datos = self.controller.state.copy()
@@ -289,3 +328,120 @@ class PreviewTab(tk.Frame):
                 messagebox.showinfo("Guardado", f"Archivo JSON guardado en {ruta}")
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo guardar el JSON:\n{e}")
+
+    def preview_web(self):
+        datos = self.controller.state.copy()
+        datos["fecha"] = datetime.datetime.now().strftime("%d-%m-%Y")
+
+        # Construir HTML de personas
+        def render_personas(lista):
+            bloques = ""
+            for p in lista:
+                img_src = ""
+                if p.get("imagen_base64"):
+                    img_src = f"data:image/jpeg;base64,{p['imagen_base64']}"
+
+                # Imagen con o sin enlace
+                img_html = f'<img src="{img_src}" alt="{p["nombre"]}">' if img_src else ""
+
+                if p.get("enlace", {}).get("url") and p["enlace"].get("usar_en_imagen"):
+                    img_html = f'<a href="{p["enlace"]["url"]}" target="_blank">{img_html}</a>'
+
+                # Nombre con o sin enlace
+                nombre_html = p["nombre"]
+                if p.get("enlace", {}).get("url") and p["enlace"].get("usar_en_nombre"):
+                    nombre_html = f'<a href="{p["enlace"]["url"]}" target="_blank">{nombre_html}</a>'
+
+                cuerpo_html = p["cuerpo"].replace("\n", "<br>")
+
+                # Texto del enlace
+                enlace_html = ""
+                if p.get("enlace", {}).get("texto") and p["enlace"].get("url"):
+                    enlace_html = f'<p><a href="{p["enlace"]["url"]}" target="_blank">{p["enlace"]["texto"]}</a></p>'
+
+                bloques += f"""
+                <div class="persona">
+                    <div class="foto">{img_html}</div>
+                    <div class="info">
+                        <h3>{nombre_html}</h3>
+                        <p>{cuerpo_html}</p>
+                        {enlace_html}
+                    </div>
+                </div>
+                """
+            return bloques
+
+
+        html = f"""
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <title>Investigadores y Colaboradores</title>
+            <style>
+                body {{
+                    font-family: Segoe UI, sans-serif;
+                    margin: 40px auto;
+                    max-width: 900px;
+                    line-height: 1.6;
+                }}
+                .persona {{
+                    display: flex;
+                    gap: 20px;
+                    margin-bottom: 30px;
+                }}
+                .persona img {{
+                    width: 150px;
+                    height: auto;
+                    border-radius: 6px;
+                }}
+                .info {{
+                    flex-grow: 1;
+                }}
+            </style>
+        </head>
+        <body>
+            <h1>Investigadores</h1>
+            {render_personas(datos["investigadores"])}
+
+            <h1>Colaboradores</h1>
+            {render_personas(datos["colaboradores"])}
+
+            <p><small>Fecha: {datos['fecha']}</small></p>
+        </body>
+        </html>
+        """
+
+        temp_html = "data/preview_personas.html"
+        with open(temp_html, "w", encoding="utf-8") as f:
+            f.write(html)
+
+        webbrowser.open_new_tab(f"file:///{os.path.abspath(temp_html)}")
+
+    def generate_html(self):
+        datos = self.controller.state.copy()
+
+        # Ruta de plantillas
+        env = Environment(loader=FileSystemLoader("templates"))
+
+        # Seleccionar plantilla según el editor
+        # Puedes cambiar esto dinámicamente si quieres
+        template = env.get_template("quienes-somos.html")
+
+        # Renderizar HTML
+        html_output = template.render(datos=datos)
+
+        # Guardar archivo final
+        ruta = filedialog.asksaveasfilename(
+            defaultextension=".html",
+            filetypes=[("HTML files", "*.html")],
+            initialdir="data/output"
+        )
+
+        if ruta:
+            try:
+                with open(ruta, "w", encoding="utf-8") as f:
+                    f.write(html_output)
+                messagebox.showinfo("Éxito", f"Archivo HTML generado en:\n{ruta}")
+            except Exception as e:
+                messagebox.showerror("Error", f"No se pudo generar el archivo:\n{e}")
