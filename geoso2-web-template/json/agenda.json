@@ -12,17 +12,6 @@
             "texto_link": "Ver detalles"
         },
         {
-            "titulo": "MÁSTER: Jardines históricos y servicios ecosistémicos de la infraestructura verde. Módulo IV: Jardines Botánicos.",
-            "descripcion": "Los Jardines Botánicos tienen como objetivo promover el conocimiento, la conservación y el disfrute de plantas, desarrollar investigaciones científicas con objeto de incrementar el conocimiento sobre la diversidad vegetal.",
-            "fecha": "15 marzo 2024",
-            "hora": "",
-            "lugar": "Semipresencial, las clases se desarrollarán en el Real Jardín Botánico de Madrid.",
-            "imagen": "imput/img/noticias/01/01.jpg",
-            "alt": "Evento 2",
-            "link": "https://blogs.upm.es/masterjardineshistoricosseiv/modulo-iv/",
-            "texto_link": "Leer más"
-        },
-        {
             "titulo": "TALLER: Teledetección y SIG aplicados a la cooperación internacional. Cambios de usos de suelo.",
             "descripcion": "Con el tema “Mapeo de territorios inundados en la Reserva del río Dja. Camerún”. Se realizará el próximo taller organizado por GEOSO2 y Zerca y Lejos ONGD para mejorar las condiciones de vida de la etnia baka.",
             "fecha": "24 abril 2024",
@@ -32,6 +21,17 @@
             "alt": "Evento 1",
             "link": "https://www.esa-sen4stat.org/user-stories/spain-cycle-1-demo/",
             "texto_link": "Leer más"
+        },
+        {
+            "imagen": "imput/img/noticias/01/01.jpg",
+            "alt": "Evento 2",
+            "titulo": "MÁSTER: Jardines históricos y servicios ecosistémicos de la infraestructura verde. Módulo IV: Jardines Botánicos.",
+            "descripcion": "Los Jardines Botánicos tienen como objetivo promover el conocimiento, la conservación y el disfrute de plantas, desarrollar investigaciones científicas con objeto de incrementar el conocimiento sobre la diversidad vegetal.",
+            "fecha": "15 marzo 2024",
+            "hora": "",
+            "lugar": "Semipresencial, las clases se desarrollarán en el Real Jardín Botánico de Madrid.",
+            "link": "https://blogs.upm.es/masterjardineshistoricosseiv/modulo-iv/",
+            "texto_link": "Leer"
         }
     ]
 }
