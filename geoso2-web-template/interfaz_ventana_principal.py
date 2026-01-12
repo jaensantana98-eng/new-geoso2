@@ -6,8 +6,7 @@ import interfaz_carrusel
 import interfaz_entidades_colaboradoras
 import interfaz_quienessomos
 import interfaz_pagina_web
-import interfaz_rafagas
-import interfaz_proyectos
+import interfaz_publicaciones
 import os
 
 # -----------------------------
@@ -128,6 +127,12 @@ class MainApp(tk.Tk):
             width=20,
             command=lambda: self.abrir_quienes_somos(mode, win)
         ).pack(pady=4)
+        ttk.Button(
+            frm,
+            text="Publicaciones",
+            width=20,
+            command=lambda: self.abrir_publicaciones(mode, win)
+        ).pack(pady=4)
 
         ttk.Separator(frm).pack(fill="x", pady=8)
 
@@ -171,6 +176,23 @@ class MainApp(tk.Tk):
         if mode == "edit" and not filepath:
             return
         interfaz_quienessomos.EditorWindow(mode=mode, filepath=filepath)
+    
+    def abrir_publicaciones(self, mode, parent_win):
+        parent_win.destroy()
+        filepath = self.seleccionar_json(mode, "Publicaciones")
+        if mode == "edit":
+            filepath = filedialog.askopenfilename(
+                title="Selecciona el JSON de Publicaciones",
+                filetypes=[("JSON files", "*.json")],
+                initialdir="data"
+            )
+            if not filepath or not os.path.exists(filepath):
+                messagebox.showwarning(
+                    "Aviso",
+                    "No se seleccionó ningún archivo válido."
+                )
+            return
+        interfaz_publicaciones.PublicacionesWindow(mode=mode, filepath=filepath)
 
     def abrir_agenda(self, mode, parent_win):
         parent_win.destroy()

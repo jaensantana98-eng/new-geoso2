@@ -5,9 +5,7 @@ import os
 import datetime
 import webbrowser
 from PIL import Image
-import base64
-from jinja2 import Environment, FileSystemLoader
-
+from collections import OrderedDict
 
 # -----------------------------
 # Ventana del editor con pestañas
@@ -396,159 +394,33 @@ class PreviewTab(tk.Frame):
         self.text_area.insert(tk.END, preview)
 
     def save_json(self):
-        datos = {
-            "noticias": self.controller.state.get("noticias", []),
-            "fecha": datetime.datetime.now().strftime("%d-%m-%Y")
-        }
-        ruta = filedialog.asksaveasfilename(
-            defaultextension=".json",
-            filetypes=[("JSON files", "*.json")],
-            initialdir="data"
-        )
-        if ruta:
-            try:
-                with open(ruta, "w", encoding="utf-8") as f:
-                    json.dump(datos, f, indent=4, ensure_ascii=False)
-                messagebox.showinfo("Guardado", f"Archivo JSON guardado en {ruta}")
-            except Exception as e:
-                messagebox.showerror("Error", f"No se pudo guardar el JSON:\n{e}")
 
-    def preview_web(self):
-        datos = {
-            "noticias": self.controller.state.get("noticias", []),
-            "fecha": datetime.datetime.now().strftime("%d-%m-%Y")
-        }
+        datos = self.controller.state.copy()
+        index_json = "geoso2-web-template/json/index.json"
 
-        # Construir HTML de todas las noticias
-        bloques = ""
-        for n in datos["noticias"]:
-            cuerpo_html = n.get("cuerpo", "").replace("\n", "<br>")
+        try:
+            if os.path.exists(index_json):
+                with open(index_json, "r", encoding="utf-8") as f:
+                    maestro = json.load(f, object_pairs_hook=OrderedDict)
+            else:
+                maestro = OrderedDict()
 
-            portada_src = ""
-            if n.get("portada_base64"):
-                portada_src = f"data:image/jpeg;base64,{n['portada_base64']}"
+            maestro.setdefault("index_page", OrderedDict())
+            maestro["index_page"].setdefault("noticias", [])
 
-            enlace_info = n.get("enlace", {})
-            enlace_url = enlace_info.get("url", "").strip()
-            enlace_texto = enlace_info.get("texto", "").strip()
-            usar_en_titulo = enlace_info.get("usar_en_titulo", True)
-            usar_en_portada = enlace_info.get("usar_en_portada", True)
+            nueva = OrderedDict()
+            nueva["titulo"] = datos.get("titulo", "")
+            nueva["imagen"] = datos.get("portada", "")
+            nueva["descripcion"] = datos.get("cuerpo", "")
+            nueva["link"] = datos.get("enlace", {}).get("url", "")
+            nueva["link_text"] = datos.get("enlace", {}).get("texto", "")
 
-            # Título (con o sin enlace)
-            titulo_html = n.get("titulo", "")
-            if enlace_url and usar_en_titulo:
-                titulo_html = f'<a href="{enlace_url}" target="_blank">{titulo_html}</a>'
+            maestro["index_page"]["noticias"].append(nueva)
 
-            # Portada (con o sin enlace)
-            portada_html = ""
-            if portada_src:
-                img_tag = f'<img src="{portada_src}" alt="Portada">'
-                if enlace_url and usar_en_portada:
-                    img_tag = f'<a href="{enlace_url}" target="_blank">{img_tag}</a>'
-                portada_html = img_tag
+            with open(index_json, "w", encoding="utf-8") as f:
+                json.dump(maestro, f, indent=4, ensure_ascii=False)
 
-            # Enlace inferior
-            enlace_inferior_html = ""
-            if enlace_url and enlace_texto:
-                enlace_inferior_html = f'<p><a href="{enlace_url}" target="_blank">{enlace_texto}</a></p>'
+            messagebox.showinfo("Guardado", "Noticia añadida correctamente")
 
-            bloques += f"""
-            <div class="noticia">
-                <div class="contenedor">
-                    <div class="portada">
-                        {portada_html}
-                    </div>
-                    <div class="contenido">
-                        <h3>{titulo_html}</h3>
-                        <div>{cuerpo_html}</div>
-                        {enlace_inferior_html}
-                        <p><small>Fecha: {datos['fecha']}</small></p>
-                    </div>
-                </div>
-                <hr>
-            </div>
-            """
-
-        html = f"""
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-            <meta charset="UTF-8">
-            <title>Noticias</title>
-            <style>
-                body {{
-                    font-family: Segoe UI, sans-serif;
-                    margin: 40px auto;
-                    max-width: 900px;
-                    line-height: 1.6;
-                }}
-                .contenedor {{
-                    display: flex;
-                    align-items: flex-start;
-                    gap: 20px;
-                    margin-bottom: 20px;
-                }}
-                .portada {{
-                    max-width: 300px;
-                    flex-shrink: 0;
-                }}
-                .contenido {{
-                    flex-grow: 1;
-                }}
-                img {{
-                    width: 100%;
-                    height: auto;
-                    display: block;
-                }}
-                h3 a {{
-                    color: inherit;
-                    text-decoration: none;
-                }}
-                h3 a:hover {{
-                    text-decoration: underline;
-                }}
-            </style>
-        </head>
-        <body>
-            <h1>Noticias</h1>
-            {bloques}
-        </body>
-        </html>
-        """
-
-        temp_html = "data/preview_temp_noticias.html"
-        with open(temp_html, "w", encoding="utf-8") as f:
-            f.write(html)
-
-        webbrowser.open_new_tab(f"file:///{os.path.abspath(temp_html)}")
-
-    def generate_html(self):
-        # Datos para la plantilla
-        datos = {
-            "noticias": self.controller.state.get("noticias", []),
-            "fecha": datetime.datetime.now().strftime("%d-%m-%Y")
-        }
-
-        # Ruta de plantillas
-        env = Environment(loader=FileSystemLoader("templates"))
-
-        # Plantilla de noticias (debes adaptarla para usar datos.noticias)
-        template = env.get_template("noticias.html")
-
-        # Renderizar HTML
-        html_output = template.render(datos=datos)
-
-        # Guardar archivo final
-        ruta = filedialog.asksaveasfilename(
-            defaultextension=".html",
-            filetypes=[("HTML files", "*.html")],
-            initialdir="data/output"
-        )
-
-        if ruta:
-            try:
-                with open(ruta, "w", encoding="utf-8") as f:
-                    f.write(html_output)
-                messagebox.showinfo("Éxito", f"Archivo HTML generado en:\n{ruta}")
-            except Exception as e:
-                messagebox.showerror("Error", f"No se pudo generar el archivo:\n{e}")
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo guardar la noticia:\n{e}")

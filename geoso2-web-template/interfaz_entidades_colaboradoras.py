@@ -4,9 +4,7 @@ import json
 import os
 import webbrowser
 from PIL import Image, ImageTk
-import base64
-import copy
-from jinja2 import Environment, FileSystemLoader
+from collections import OrderedDict
 
 class EntidadesWindow(tk.Toplevel):
     def __init__(self, mode="create", filepath=None):
@@ -56,29 +54,34 @@ class DatosTab(ttk.Frame):
         frm.pack(fill="both", expand=True, padx=10, pady=10)
 
         # --- Campos de entrada ---
-        ttk.Label(frm, text="Imagen:").grid(row=0, column=0, sticky="w", pady=6)
-        self.entry_imagen = ttk.Entry(frm)
-        self.entry_imagen.grid(row=0, column=1, sticky="ew", pady=6)
-        ttk.Button(frm, text="Buscar", command=self.select_imagen).grid(row=0, column=2, padx=8)
+        ttk.Label(frm, text="Nombre:").grid(row=0, column=0, sticky="w", pady=6)
+        self.entry_nombre = ttk.Entry(frm)
+        self.entry_nombre.grid(row=0, column=1, sticky="ew", pady=6)
 
-        ttk.Label(frm, text="Enlace:").grid(row=1, column=0, sticky="w")
+        ttk.Label(frm, text="Imagen:").grid(row=1, column=0, sticky="w", pady=6)
+        self.entry_imagen = ttk.Entry(frm)
+        self.entry_imagen.grid(row=1, column=1, sticky="ew", pady=6)
+        ttk.Button(frm, text="Buscar", command=self.select_imagen).grid(row=1, column=2, padx=8)
+
+        ttk.Label(frm, text="Enlace:").grid(row=2, column=0, sticky="w")
         self.entry_enlace = ttk.Entry(frm)
-        self.entry_enlace.grid(row=1, column=1, sticky="ew", padx=5, pady=5)
-        ttk.Button(frm, text="Probar enlace", command=self.probar_enlace).grid(row=1, column=2, padx=8)
+        self.entry_enlace.grid(row=2, column=1, sticky="ew", padx=5, pady=5)
+        ttk.Button(frm, text="Probar enlace", command=self.probar_enlace).grid(row=2, column=2, padx=8)
 
         frm.columnconfigure(1, weight=1)
 
         # --- Botones de gestión ---
         btn_frame = ttk.Frame(frm)
-        btn_frame.grid(row=2, column=0, columnspan=3, pady=10)
+        btn_frame.grid(row=3, column=0, columnspan=3, pady=10)
 
         ttk.Button(btn_frame, text="Añadir", command=self.add_item).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Eliminar", command=self.delete_item).pack(side="left", padx=5)
 
         # --- Tabla Treeview ---
-        self.tree = ttk.Treeview(frm, columns=("Imagen", "Enlace"), show="headings", height=12)
-        self.tree.grid(row=3, column=0, columnspan=3, sticky="nsew")
+        self.tree = ttk.Treeview(frm, columns=("Nombre", "Imagen", "Enlace"), show="headings", height=12)
+        self.tree.grid(row=4, column=0, columnspan=3, sticky="nsew")
 
+        self.tree.heading("Nombre", text="Nombre")
         self.tree.heading("Imagen", text="Imagen")
         self.tree.heading("Enlace", text="Enlace")
 
@@ -116,27 +119,16 @@ class DatosTab(ttk.Frame):
             messagebox.showerror("Error", f"No se pudo abrir el enlace:\n{e}")
 
     def add_item(self):
+        Nombre = self.entry_nombre.get().strip()
         imagen = self.entry_imagen.get().strip()
         enlace = self.entry_enlace.get().strip()
 
         if not imagen or not enlace:
             messagebox.showwarning("Aviso", "Debes seleccionar una imagen y escribir un enlace.")
             return
-
-        # Convertir imagen a base64
-        try:
-            with open(imagen, "rb") as img_file:
-                b64 = base64.b64encode(img_file.read()).decode("utf-8")
-        except:
-            b64 = ""
-
-        self.controller.state["entidades"].append({
-            "imagen": imagen,
-            "imagen_base64": b64,
-            "enlace": enlace
-        })
-
+        self.controller.state["entidades"].append({"nombre": Nombre, "imagen": imagen, "enlace": enlace})
         self.refresh_table()
+        self.entry_nombre.delete(0, tk.END)
         self.entry_imagen.delete(0, tk.END)
         self.entry_enlace.delete(0, tk.END)
 
@@ -211,106 +203,29 @@ class PreviewTab(tk.Frame):
 
     def save_json(self):
         datos = self.controller.state.copy()
-        ruta = filedialog.asksaveasfilename(defaultextension=".json",
-                                            filetypes=[("JSON files", "*.json")],
-                                            initialdir="data")
-        if ruta:
-            try:
-                with open(ruta, "w", encoding="utf-8") as f:
-                    json.dump(datos, f, indent=4, ensure_ascii=False)
-                messagebox.showinfo("Guardado", f"Archivo JSON guardado en {ruta}")
-            except Exception as e:
-                messagebox.showerror("Error", f"No se pudo guardar el JSON:\n{e}")
+        index_json = "geoso2-web-template/json/index.json"
 
-    def preview_web(self):
-        datos = self.controller.state.copy()
+        try:
+            if os.path.exists(index_json):
+                with open(index_json, "r", encoding="utf-8") as f:
+                    maestro = json.load(f, object_pairs_hook=OrderedDict)
+            else:
+                maestro = OrderedDict()
 
-        # Construir HTML de entidades
-        bloques = ""
-        for e in datos["entidades"]:
-            img_src = ""
-            if e.get("imagen_base64"):
-                img_src = f"data:image/jpeg;base64,{e['imagen_base64']}"
+            maestro.setdefault("index_page", OrderedDict())
+            maestro["index_page"].setdefault("colaboradores", [])
 
-            img_html = f'<img src="{img_src}" alt="Entidad">' if img_src else ""
+            for item in datos["entidades"]:
+                maestro["index_page"]["colaboradores"].append({
+                    "nombre": item["nombre"],
+                    "imagen": item["imagen"],
+                    "link": item["enlace"]
+                })
 
-            # Imagen clicable
-            if e.get("enlace"):
-                img_html = f'<a href="{e["enlace"]}" target="_blank">{img_html}</a>'
+            with open(index_json, "w", encoding="utf-8") as f:
+                json.dump(maestro, f, indent=4, ensure_ascii=False)
 
-            bloques += f"""
-            <div class="entidad">
-                {img_html}
-            </div>
-            """
+            messagebox.showinfo("Guardado", "Colaboradores añadidos correctamente")
 
-        html = f"""
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-            <meta charset="UTF-8">
-            <title>Entidades Colaboradoras</title>
-            <style>
-                body {{
-                    font-family: Segoe UI, sans-serif;
-                    margin: 40px auto;
-                    max-width: 1000px;
-                    text-align: center;
-                }}
-                .fila {{
-                    display: flex;
-                    flex-wrap: wrap;
-                    justify-content: center;
-                    gap: 20px;
-                }}
-                .entidad img {{
-                    width: 120px;
-                    height: 120px;
-                    object-fit: contain;
-                    border-radius: 6px;
-                }}
-            </style>
-        </head>
-        <body>
-            <h1>Entidades Colaboradoras</h1>
-
-            <div class="fila">
-                {bloques}
-            </div>
-        </body>
-        </html>
-        """
-
-        temp_html = "data/preview_entidades.html"
-        with open(temp_html, "w", encoding="utf-8") as f:
-            f.write(html)
-
-        webbrowser.open_new_tab(f"file:///{os.path.abspath(temp_html)}")
-
-    def generate_html(self):
-        datos = self.controller.state.copy()
-
-        # Ruta de plantillas
-        env = Environment(loader=FileSystemLoader("templates"))
-
-        # Seleccionar plantilla según el editor
-        # Puedes cambiar esto dinámicamente si quieres
-        template = env.get_template("noticias.html")
-
-        # Renderizar HTML
-        html_output = template.render(datos=datos)
-
-        # Guardar archivo final
-        ruta = filedialog.asksaveasfilename(
-            defaultextension=".html",
-            filetypes=[("HTML files", "*.html")],
-            initialdir="data/output"
-        )
-
-        if ruta:
-            try:
-                with open(ruta, "w", encoding="utf-8") as f:
-                    f.write(html_output)
-                messagebox.showinfo("Éxito", f"Archivo HTML generado en:\n{ruta}")
-            except Exception as e:
-                messagebox.showerror("Error", f"No se pudo generar el archivo:\n{e}")
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo guardar en el JSON maestro:\n{e}")

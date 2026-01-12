@@ -1,277 +1,280 @@
-{"publicaciones": {
-    "2024": [
-    {
-      "autores": "Echavarria-Caballero, C., Dominguez-Gomez, J. A., Gonzalez-Garcia, C., Dominguez-Perez, R., & Garcia-Garcia, M. J.",
-      "titulo": "Warming inland water in peninsular Spain revealed by landsat 5 analysis",
-      "tipo": "Article",
-      "revista": "GEOCARTO INTERNATIONAL",
-      "volumen": "39(1)",
-      "link": "https://doi.org/10.1080/10106049.2024.2371923",
-      "num": ""
+{
+    "publicaciones": {
+        "2024": [
+        {
+        "autores": "Echavarria-Caballero, C., Dominguez-Gomez, J. A., Gonzalez-Garcia, C., Dominguez-Perez, R., & Garcia-Garcia, M. J.",
+        "titulo": "Warming inland water in peninsular Spain revealed by landsat 5 analysis",
+        "tipo": "Article",
+        "revista": "GEOCARTO INTERNATIONAL",
+        "volumen": "39(1)",
+        "link": "https://doi.org/10.1080/10106049.2024.2371923",
+        "num": ""
     }
-],
-"2023": [
-    {
-        "autores":"Ambrosio, L., Iglesias, L., Marín, C., & Deffense, N.",
-        "titulo":"Integration of remote sensing data into national statistical office sampling designs for agriculture",
-        "tipo":"Article",
-        "revista":"Statistical Journal of the IAOS",
-        "volumen":"39(2)",
-        "link":"https://doi.org/10.3233/SJI-220116",
-        "num":"473-489"
+        ],
+        "2023": [
+            {
+                "autores": "Ambrosio, L., Iglesias, L., Marín, C., & Deffense, N.",
+                "titulo": "Integration of remote sensing data into national statistical office sampling designs for agriculture",
+                "tipo": "Article",
+                "revista": "Statistical Journal of the IAOS",
+                "volumen": "39(2)",
+                "link": "https://doi.org/10.3233/SJI-220116",
+                "num": "473-489"
+            },
+            {
+                "autores": "Fernández-Hernández, M., Calvo, A., Iglesias, L., Castedo, R., Ortega, J. J., Diaz-Honrubia, A. J., Mora, P., & Costamagna, E.",
+                "titulo": "Anthropic Action on Historical Shoreline Changes and Future Estimates Using GIS: Guadarmar Del Segura (Spain) ",
+                "tipo": "Article",
+                "revista": "Applied Sciences (Switzerland)",
+                "volumen": "13(17)",
+                "link": "https://doi.org/10.3390/app13179792",
+                "num": ""
+            },
+            {
+                "autores": "Hueso, A., González-García, C., Atencia, L. K., Nowack, J. C., & Gómez-Del-campo, M.",
+                "titulo": "Methodology of stem water potential measurement on hedgerow olive orchards",
+                "tipo": "Article",
+                "revista": "Spanish Journal of Agricultural Research",
+                "volumen": "21(1)",
+                "link": "https://doi.org/10.5424/sjar/2023211-19595",
+                "num": ""
+            },
+            {
+                "autores": "Rosado-Garcia, M. J., Crespo Delgado, D., & Garcia-Garcia, M. J.",
+                "titulo": "New Alcántara Bridge in Spain",
+                "tipo": "Article",
+                "revista": " Heritage and Society",
+                "volumen": "16(2)",
+                "link": "https://doi.org/10.1080/2159032X.2023.2185339",
+                "num": "134-156"
+            },
+            {
+                "autores": "Rosado-Garcia, M. J., Garcia-Garcia, M. J., & Gonçalves, A.",
+                "titulo": "The perception of artistic values within civil engineering. A survey from the Iberian Peninsula",
+                "tipo": "Article",
+                "revista": "Cogent Engineering",
+                "volumen": "10(1)",
+                "link": "https://doi.org/10.1080/23311916.2023.2245198",
+                "num": ""
+            },
+            {
+                "autores": "Sánchez Iglesias, F., & Fernández López, A.",
+                "titulo": " Evaluating Structural Details’ Influence on Elastic Wave Propagation for Composite Structures via Ray Tracing",
+                "tipo": "Article",
+                "revista": "Sensors",
+                "volumen": "23(16)",
+                "link": "https://doi.org/10.3390/s23167220",
+                "num": ""
+            }
+        ],
+        "2022": [
+            {
+                "autores": "Ayuga-Téllez, E., García-Iruela, A., Rielo, J. C., & González-García, C.",
+                "titulo": "Actions for Monitoring the Gonipterus Pest in Eucalyptus on the Cantabrian Coast",
+                "tipo": "Article",
+                "revista": "Agronomy",
+                "volumen": "12(7)",
+                "link": "https://doi.org/10.3390/agronomy12071692",
+                "num": ""
+            },
+            {
+                "autores": "Desrues, T., & Arranz, A. V.",
+                "titulo": "Lógicas de género y participación en el movimiento asociativo marroquı́:?‘ Son las asociaciones un eslabón para la igualdad?",
+                "tipo": "",
+                "revista": "Cambio, crisis y movilizaciones en el Mediterráneo Occidental",
+                "volumen": "",
+                "link": "",
+                "num": "409-431"
+            },
+            {
+                "autores": "Desrues, T., Arranz, A. V., & El Bour, H.",
+                "titulo": "Does gender matter within the Tunisian civil society organizations following the “Arab Spring”? The division of labor and responsibilities among young activists; [¿Importa el género en las organizaciones de la sociedad civil tunecina tras la “primavera árabe”? La división del trabajo y las responsabilidades entre los jóvenes activistas]",
+                "tipo": "Article",
+                "revista": "Generos",
+                "volumen": "11(3)",
+                "link": "https://doi.org/10.17583/GENEROS.10339",
+                "num": "233-262"
+            },
+            {
+                "autores": "Echavarría-Caballero, C., Domínguez-Gómez, J. A., González-García, C., & García-García, M. J.",
+                "titulo": "Water quality spatial-temporal analysis of gravel pit ponds in the southeast regional park Madrid (Spain) from 1984 to 2009.",
+                "tipo": "Article",
+                "revista": "Geocarto International",
+                "volumen": "37(25)",
+                "link": "https://doi.org/10.1080/10106049.2022.2037736",
+                "num": "10636-10658"
+            },
+            {
+                "autores": "Muñoz, A. V., Sonsoles Dieste.",
+                "titulo": " Cambio, crisis y movilizaciones en el Mediterráneo Occidental",
+                "tipo": "",
+                "revista": "Revista CIDOB d’Afers Internacionals",
+                "volumen": "",
+                "link": "https://www.comares.com/libro/cambio-crisis-y-movilizaciones-en-el-mediterraneo-occidental_146391/",
+                "num": "247-249"
+            },
+            {
+                "autores": "Rosado-García, M. J., & García-García, M. J.",
+                "titulo": " Engineering as a common territory of art, science, and technology. A phenomenological response; (La ingeniería como territorio común del arte, la ciencia y la tecnología. Una respuesta fenomenológica)",
+                "tipo": "Article",
+                "revista": "Arbor",
+                "volumen": "198(806)",
+                "link": "https://doi.org/10.3989/ARBOR.2022.806014",
+                "num": ""
+            },
+            {
+                "autores": "Rosado-García, M. J., & García-García, M. J.",
+                "titulo": " Why the work of engineering is not considered a work of art? Unpublished interview with Julio Martínez Calzón; [¿Por qué no se considera la obra de ingeniería una obra de arte? Entrevista inédita a Julio Martínez Calzón] ",
+                "tipo": "Article",
+                "revista": "Informes de la Construccion",
+                "volumen": "74(567)",
+                "link": "https://doi.org/10.3989/ic.90020",
+                "num": ""
+            },
+            {
+                "autores": "Rosado-García, M. J., Kubus, R., & García-García, M. J.",
+                "titulo": "The Artistic Vanguards and the Bridges: Innovation and Transversality of Engineering and Other Arts",
+                "tipo": "Article",
+                "revista": "Pertanika Journal of Social Sciences and Humanities",
+                "volumen": "30(4)",
+                "link": "https://doi.org/10.47836/pjssh.30.4.29",
+                "num": "2037-2058"
+            }
+        ],
+        "2021": [
+            {
+                "autores": "Desrues, T., & Velasco Arranz, A.",
+                "titulo": " Associations and young people during the Tunisian transition: pluralism, socialisation, and democratic legitimation?",
+                "tipo": "Article",
+                "revista": "Journal of North African Studies",
+                "volumen": "26(2)",
+                "link": "https://doi.org/10.1080/13629387.2019.1665286",
+                "num": "251-271"
+            },
+            {
+                "autores": "Mukadi, P. M., & González-García, C.",
+                "titulo": "Time series analysis of climatic variables in peninsular spain. Trends and forecasting models for data between 20th and 21st centuries",
+                "tipo": "Article",
+                "revista": "Climate",
+                "volumen": "9(7)",
+                "link": "https://doi.org/10.3390/cli9070119",
+                "num": ""
+            },
+            {
+                "autores": "Rosado-García, M. J., Kubus, R., Argüelles-Bustillo, R., & García-García, M. J.",
+                "titulo": "A new european bauhaus for a culture of transversality and sustainability",
+                "tipo": "Article",
+                "revista": "Sustainability (Switzerland)",
+                "volumen": "13(21)",
+                "link": "https://doi.org/10.3390/su132111844",
+                "num": ""
+            },
+            {
+                "autores": "Sánchez-Medina, A., Ayuga-Téllez, E., Grande-Ortiz, M. A., González-García, C., & García-Abril, A.",
+                "titulo": "Iterative method of discriminant analysis to classify beech (Fagus sylvatica L.) forest",
+                "tipo": "Article",
+                "revista": " Forests",
+                "volumen": "12(8)",
+                "link": "https://doi.org/10.3390/f12081128",
+                "num": ""
+            },
+            {
+                "autores": "Semper, J. V. O., Lizasoain, I., Abaurrea, J., González-García, C., & Ayuga-Téllez, E.",
+                "titulo": "What kind of school organizational decisions serve to enhance sustainable personal and social growth?",
+                "tipo": "Article",
+                "revista": " Sustainability (Switzerland)",
+                "volumen": "13(17)",
+                "link": "https://doi.org/10.3390/su13179995",
+                "num": ""
+            },
+            {
+                "autores": "Tornos, L., Domínguez, J. A., Moyano, M. C., Recuero, L., Cicuéndez, V., García-García, M. J., & Palacios-Orueta, A.",
+                "titulo": "Assessment of the sasi spectral shape index time series for mapping rice ecosystems in the mediterranean region",
+                "tipo": "Article",
+                "revista": "Agronomy",
+                "volumen": "11(7)",
+                "link": "https://doi.org/10.3390/agronomy11071365",
+                "num": ""
+            }
+        ],
+        "2020": [
+            {
+                "autores": "Garcia-Garcia, M. J., Christien, L., García-Escalona, E., & González-García, C.",
+                "titulo": "Sensitivity of green spaces to the process of urban planning. Three case studies of Madrid (Spain)",
+                "tipo": "Article",
+                "revista": "Cities",
+                "volumen": "100",
+                "link": "https://doi.org/10.1016/j.cities.2020.102655",
+                "num": ""
+            },
+            {
+                "autores": "García-Ventura, C., Bermejo, A., González-García, C., Ángeles Grande-Ortíz, M., Ayuga-Téllez, E., De Medina-Garrido, Á. S., & Ramírez-Montoro, J. J.",
+                "titulo": "Analysis of differences in the choice of the economic value of urban trees in madrid when displayed in situ and in photographs",
+                "tipo": "Article",
+                "revista": " Agronomy",
+                "volumen": "10(2)",
+                "link": "https://doi.org/10.3390/agronomy10020311",
+                "num": ""
+            },
+            {
+                "autores": "Pedrero, A., Navacerrada, M. Á., Prida, D. de la, Iglesias, L., & Díaz-Chyla, A",
+                "titulo": "On the accuracy of the sound absorption measurement with an impedance gun",
+                "tipo": "Article",
+                "revista": "Applied Acoustics",
+                "volumen": "158",
+                "link": "https://doi.org/10.1016/j.apacoust.2019.107039",
+                "num": ""
+            },
+            {
+                "autores": "Sánchez Iglesias, F., & Fernández López, A.",
+                "titulo": "Rayleigh damping parameters estimation using hammer impact tests",
+                "tipo": "Article",
+                "revista": " Mechanical Systems and Signal Processing",
+                "volumen": "135",
+                "link": "https://doi.org/10.1016/j.ymssp.2019.106391",
+                "num": ""
+            }
+        ],
+        "2019": [
+            {
+                "autores": "Echavarría-Caballero, C., Domínguez-Gómez, J. A., González-García, C., & García-García, M. J.",
+                "titulo": "Assessment of Landsat 5 Images Atmospherically Corrected with LEDAPS in Water Quality Time Series",
+                "tipo": "Article",
+                "revista": " Canadian Journal of Remote Sensing",
+                "volumen": "45(5)",
+                "link": "https://doi.org/10.1080/07038992.2019.1674136",
+                "num": "691-706"
+            },
+            {
+                "autores": "González-Gómez, K., Iglesias, L., Rodríguez-Solano, R., & Castro, M.",
+                "titulo": "Framework for 3D point cloud modelling aimed at road sight distance estimations",
+                "tipo": "Article",
+                "revista": "Remote Sensing",
+                "volumen": "11(23)",
+                "link": "https://doi.org/10.3390/rs11232730",
+                "num": ""
+            },
+            {
+                "autores": "Iglesias, L., De Santos-Berbel, C., Pascual, V., & Castro, M.",
+                "titulo": "Using small unmanned aerial vehicle in 3D modeling of highways with tree-covered roadsides to estimate sight distance",
+                "tipo": "Note",
+                "revista": "Remote Sensing",
+                "volumen": "11(22)",
+                "link": "https://doi.org/10.3390/rs11222625",
+                "num": ""
+            },
+            {
+                "autores": "Villanueva, J. R. E., Martínez, L. I., & Montiel, J. I. P.",
+                "titulo": "DEM generation from fixed-wing UAV imaging and LiDAR-derived ground control points for flood estimations",
+                "tipo": "Article",
+                "revista": "Sensors",
+                "volumen": "19(14)",
+                "link": "https://doi.org/10.3390/s19143205",
+                "num": ""
+            }
+        ]
     },
-    {
-        "autores":"Fernández-Hernández, M., Calvo, A., Iglesias, L., Castedo, R., Ortega, J. J., Diaz-Honrubia, A. J., Mora, P., & Costamagna, E.",
-        "titulo":"Anthropic Action on Historical Shoreline Changes and Future Estimates Using GIS: Guadarmar Del Segura (Spain) ",
-        "tipo":"Article",
-        "revista":"Applied Sciences (Switzerland)",
-        "volumen":"13(17)",
-        "link":"https://doi.org/10.3390/app13179792",
-        "num":""
-    },
-    {
-        "autores":"Hueso, A., González-García, C., Atencia, L. K., Nowack, J. C., & Gómez-Del-campo, M.",
-        "titulo":"Methodology of stem water potential measurement on hedgerow olive orchards",
-        "tipo":"Article",
-        "revista":"Spanish Journal of Agricultural Research",
-        "volumen":"21(1)",
-        "link":"https://doi.org/10.5424/sjar/2023211-19595",
-        "num":""
-    },
-    {
-        "autores":"Rosado-Garcia, M. J., Crespo Delgado, D., & Garcia-Garcia, M. J.",
-        "titulo":"New Alcántara Bridge in Spain",
-        "tipo":"Article",
-        "revista":" Heritage and Society",
-        "volumen":"16(2)",
-        "link":"https://doi.org/10.1080/2159032X.2023.2185339",
-        "num":"134-156"
-    },
-    {
-        "autores":"Rosado-Garcia, M. J., Garcia-Garcia, M. J., & Gonçalves, A.",
-        "titulo":"The perception of artistic values within civil engineering. A survey from the Iberian Peninsula",
-        "tipo":"Article",
-        "revista":"Cogent Engineering",
-        "volumen":"10(1)",
-        "link":"https://doi.org/10.1080/23311916.2023.2245198",
-        "num":""
-    },
-    {
-        "autores":"Sánchez Iglesias, F., & Fernández López, A.",
-        "titulo":" Evaluating Structural Details’ Influence on Elastic Wave Propagation for Composite Structures via Ray Tracing",
-        "tipo":"Article",
-        "revista":"Sensors",
-        "volumen":"23(16)",
-        "link":"https://doi.org/10.3390/s23167220",
-        "num":""
+    "index_page": {
+        "publicaciones": {}
     }
-],
-"2022": [
-    {
-        "autores":"Ayuga-Téllez, E., García-Iruela, A., Rielo, J. C., & González-García, C.",
-        "titulo":"Actions for Monitoring the Gonipterus Pest in Eucalyptus on the Cantabrian Coast",
-        "tipo":"Article",
-        "revista":"Agronomy",
-        "volumen":"12(7)",
-        "link":"https://doi.org/10.3390/agronomy12071692",
-        "num":""
-    },
-    {
-        "autores":"Desrues, T., & Arranz, A. V.",
-        "titulo":"Lógicas de género y participación en el movimiento asociativo marroquı́:?‘ Son las asociaciones un eslabón para la igualdad?",
-        "tipo":"",
-        "revista":"Cambio, crisis y movilizaciones en el Mediterráneo Occidental",
-        "volumen":"",
-        "link":"",
-        "num":"409-431"
-    },
-    {
-        "autores":"Desrues, T., Arranz, A. V., & El Bour, H.",
-        "titulo":"Does gender matter within the Tunisian civil society organizations following the “Arab Spring”? The division of labor and responsibilities among young activists; [¿Importa el género en las organizaciones de la sociedad civil tunecina tras la “primavera árabe”? La división del trabajo y las responsabilidades entre los jóvenes activistas]",
-        "tipo":"Article",
-        "revista":"Generos",
-        "volumen":"11(3)",
-        "link":"https://doi.org/10.17583/GENEROS.10339",
-        "num":"233-262"
-    },
-    {
-        "autores":"Echavarría-Caballero, C., Domínguez-Gómez, J. A., González-García, C., & García-García, M. J.",
-        "titulo":"Water quality spatial-temporal analysis of gravel pit ponds in the southeast regional park Madrid (Spain) from 1984 to 2009.",
-        "tipo":"Article",
-        "revista":"Geocarto International",
-        "volumen":"37(25)",
-        "link":"https://doi.org/10.1080/10106049.2022.2037736",
-        "num":"10636-10658"
-    },
-    {
-        "autores":"Muñoz, A. V., Sonsoles Dieste.",
-        "titulo":" Cambio, crisis y movilizaciones en el Mediterráneo Occidental",
-        "tipo":"",
-        "revista":"Revista CIDOB d’Afers Internacionals",
-        "volumen":"",
-        "link":"https://www.comares.com/libro/cambio-crisis-y-movilizaciones-en-el-mediterraneo-occidental_146391/",
-        "num":"247-249"
-    },
-    {
-        "autores":"Rosado-García, M. J., & García-García, M. J.",
-        "titulo":" Engineering as a common territory of art, science, and technology. A phenomenological response; (La ingeniería como territorio común del arte, la ciencia y la tecnología. Una respuesta fenomenológica)",
-        "tipo":"Article",
-        "revista":"Arbor",
-        "volumen":"198(806)",
-        "link":"https://doi.org/10.3989/ARBOR.2022.806014",
-        "num":""
-    },
-    {
-        "autores":"Rosado-García, M. J., & García-García, M. J.",
-        "titulo":" Why the work of engineering is not considered a work of art? Unpublished interview with Julio Martínez Calzón; [¿Por qué no se considera la obra de ingeniería una obra de arte? Entrevista inédita a Julio Martínez Calzón] ",
-        "tipo":"Article",
-        "revista":"Informes de la Construccion",
-        "volumen":"74(567)",
-        "link":"https://doi.org/10.3989/ic.90020",
-        "num":""
-    },
-    {
-        "autores":"Rosado-García, M. J., Kubus, R., & García-García, M. J.",
-        "titulo":"The Artistic Vanguards and the Bridges: Innovation and Transversality of Engineering and Other Arts",
-        "tipo":"Article",
-        "revista":"Pertanika Journal of Social Sciences and Humanities",
-        "volumen":"30(4)",
-        "link":"https://doi.org/10.47836/pjssh.30.4.29",
-        "num":"2037-2058"
-    }
-],
-"2021": [
-    {
-        "autores":"Desrues, T., & Velasco Arranz, A.",
-        "titulo":" Associations and young people during the Tunisian transition: pluralism, socialisation, and democratic legitimation?",
-        "tipo":"Article",
-        "revista":"Journal of North African Studies",
-        "volumen":"26(2)",
-        "link":"https://doi.org/10.1080/13629387.2019.1665286",
-        "num":"251-271"
-    },
-    {
-        "autores":"Mukadi, P. M., & González-García, C.",
-        "titulo":"Time series analysis of climatic variables in peninsular spain. Trends and forecasting models for data between 20th and 21st centuries",
-        "tipo":"Article",
-        "revista":"Climate",
-        "volumen":"9(7)",
-        "link":"https://doi.org/10.3390/cli9070119",
-        "num":""
-    },
-    {
-        "autores": "Rosado-García, M. J., Kubus, R., Argüelles-Bustillo, R., & García-García, M. J.",
-        "titulo":"A new european bauhaus for a culture of transversality and sustainability",
-        "tipo":"Article",
-        "revista":"Sustainability (Switzerland)",
-        "volumen":"13(21)",
-        "link":"https://doi.org/10.3390/su132111844",
-        "num":""
-    },
-    {
-        "autores":"Sánchez-Medina, A., Ayuga-Téllez, E., Grande-Ortiz, M. A., González-García, C., & García-Abril, A.",
-        "titulo":"Iterative method of discriminant analysis to classify beech (Fagus sylvatica L.) forest",
-        "tipo":"Article",
-        "revista":" Forests",
-        "volumen":"12(8)",
-        "link":"https://doi.org/10.3390/f12081128",
-        "num":""
-    },
-    {
-        "autores":"Semper, J. V. O., Lizasoain, I., Abaurrea, J., González-García, C., & Ayuga-Téllez, E.",
-        "titulo":"What kind of school organizational decisions serve to enhance sustainable personal and social growth?",
-        "tipo":"Article",
-        "revista":" Sustainability (Switzerland)",
-        "volumen":"13(17)",
-        "link":"https://doi.org/10.3390/su13179995",
-        "num":""
-    },
-    {
-        "autores":"Tornos, L., Domínguez, J. A., Moyano, M. C., Recuero, L., Cicuéndez, V., García-García, M. J., & Palacios-Orueta, A.",
-        "titulo":"Assessment of the sasi spectral shape index time series for mapping rice ecosystems in the mediterranean region",
-        "tipo":"Article",
-        "revista":"Agronomy",
-        "volumen":"11(7)",
-        "link":"https://doi.org/10.3390/agronomy11071365",
-        "num":""
-    }
-],
-"2020": [
-    {
-        "autores":"Garcia-Garcia, M. J., Christien, L., García-Escalona, E., & González-García, C.",
-        "titulo":"Sensitivity of green spaces to the process of urban planning. Three case studies of Madrid (Spain)",
-        "tipo":"Article",
-        "revista":"Cities",
-        "volumen":"100",
-        "link":"https://doi.org/10.1016/j.cities.2020.102655",
-        "num":""
-    },
-    {
-        "autores":"García-Ventura, C., Bermejo, A., González-García, C., Ángeles Grande-Ortíz, M., Ayuga-Téllez, E., De Medina-Garrido, Á. S., & Ramírez-Montoro, J. J.",
-        "titulo":"Analysis of differences in the choice of the economic value of urban trees in madrid when displayed in situ and in photographs",
-        "tipo":"Article",
-        "revista":" Agronomy",
-        "volumen":"10(2)",
-        "link":"https://doi.org/10.3390/agronomy10020311",
-        "num":""
-    },
-    {
-        "autores":"Pedrero, A., Navacerrada, M. Á., Prida, D. de la, Iglesias, L., & Díaz-Chyla, A",
-        "titulo":"On the accuracy of the sound absorption measurement with an impedance gun",
-        "tipo":"Article",
-        "revista":"Applied Acoustics",
-        "volumen":"158",
-        "link":"https://doi.org/10.1016/j.apacoust.2019.107039",
-        "num":""
-    },
-    {
-        "autores":"Sánchez Iglesias, F., & Fernández López, A.",
-        "titulo":"Rayleigh damping parameters estimation using hammer impact tests",
-        "tipo":"Article",
-        "revista":" Mechanical Systems and Signal Processing",
-        "volumen":"135",
-        "link":"https://doi.org/10.1016/j.ymssp.2019.106391",
-        "num":""
-    }
-],
-"2019": [
-    {
-        "autores":"Echavarría-Caballero, C., Domínguez-Gómez, J. A., González-García, C., & García-García, M. J.",
-        "titulo":"Assessment of Landsat 5 Images Atmospherically Corrected with LEDAPS in Water Quality Time Series",
-        "tipo":"Article",
-        "revista":" Canadian Journal of Remote Sensing",
-        "volumen":"45(5)",
-        "link":"https://doi.org/10.1080/07038992.2019.1674136",
-        "num":"691-706"
-    },
-    {
-        "autores":"González-Gómez, K., Iglesias, L., Rodríguez-Solano, R., & Castro, M.",
-        "titulo":"Framework for 3D point cloud modelling aimed at road sight distance estimations",
-        "tipo":"Article",
-        "revista":"Remote Sensing",
-        "volumen":"11(23)",
-        "link":"https://doi.org/10.3390/rs11232730",
-        "num":""
-    },
-    {
-        "autores":"Iglesias, L., De Santos-Berbel, C., Pascual, V., & Castro, M.",
-        "titulo":"Using small unmanned aerial vehicle in 3D modeling of highways with tree-covered roadsides to estimate sight distance",
-        "tipo":"Note",
-        "revista":"Remote Sensing",
-        "volumen":"11(22)",
-        "link":"https://doi.org/10.3390/rs11222625",
-        "num":""
-    },
-    {
-        "autores":"Villanueva, J. R. E., Martínez, L. I., & Montiel, J. I. P.",
-        "titulo":"DEM generation from fixed-wing UAV imaging and LiDAR-derived ground control points for flood estimations",
-        "tipo":"Article",
-        "revista":"Sensors",
-        "volumen":"19(14)",
-        "link":"https://doi.org/10.3390/s19143205",
-        "num":""
-    }
-]
-
-}
 }

@@ -27,26 +27,25 @@
   </button>
 </div>
 <hr>
-    <h3>Noticias</h3>
-    {% for noticia in index_page.noticias %}
-      <div class="imagenizq-texto">
-        <a href="/output/noticia01.html"><img src="{{ noticia.imagen }}" alt="{{ noticia.titulo }}"></a>
-        <div> <br>
-          <a style="text-decoration: none;color: white;" href="/output/noticia01.html"><h4>{{ noticia.titulo1 }}</h4></a>
-          <p>{{ noticia.descripcion }}</p>
-          <a href="{{ noticia.link }}">{{ noticia.link_text }}</a>
-        </div>
-      </div>
-      
-       <div class="imagenizq-texto">
-        <a href="{{ noticia.link2 }}"><img src="{{ noticia.imagen2 }}" alt="{{ noticia.titulo2 }}"></a>
-        <div> <br>
-          <a style="text-decoration: none;color: white;" href="{{ noticia.link2 }}"><h4>{{ noticia.titulo2 }}</h4></a>
-          <p>{{ noticia.descripcion2 }}</p>
-          <a href="{{ noticia.link2 }}">{{ noticia.link_text2 }}</a>
-        </div>
-      </div>
-    {% endfor %}
+   <h3>Noticias</h3>
+
+{% for noticia in index_page.noticias %}
+  <div class="imagenizq-texto">
+    <a href="{{ noticia.link }}">
+      <img src="{{ noticia.imagen }}" alt="{{ noticia.titulo }}">
+    </a>
+
+    <div><br>
+      <a style="text-decoration: none; color: white;" href="{{ noticia.link }}">
+        <h4>{{ noticia.titulo }}</h4>
+      </a>
+
+      <p>{{ noticia.descripcion }}</p>
+
+      <a href="{{ noticia.link }}">{{ noticia.link_text }}</a>
+    </div>
+  </div>
+{% endfor %}
   </div>
 <hr>
 <br>
