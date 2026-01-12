@@ -272,7 +272,7 @@ class PreviewTab(ttk.Frame):
 
     def save_json(self):
 
-        index_json = "geoso2-web-template/json/index.json"
+        index_json = "geoso2-web-template/json/publicaciones.json"
 
         try:
             # 1. Cargar JSON maestro
@@ -284,9 +284,9 @@ class PreviewTab(ttk.Frame):
 
             # 2. Asegurar estructura
             maestro.setdefault("index_page", OrderedDict())
-            maestro["index_page"].setdefault("publicaciones", OrderedDict())
+            maestro.setdefault("publicaciones", OrderedDict())
 
-            publicaciones_maestro = maestro["index_page"]["publicaciones"]
+            publicaciones_maestro = maestro["publicaciones"]
             publicaciones_editor = self.controller.state["publicaciones"]
 
             # 3. Fusionar año por año sin borrar nada

@@ -1,15 +1,15 @@
 {
     "publicaciones": {
         "2024": [
-            {
-                "autores": "prubea",
-                "titulo": "pruebaaaaa",
-                "tipo": "3",
-                "revista": "holaa",
-                "volumen": "7",
-                "num": "1",
-                "link": "upm.net"
-            }
+        {
+        "autores": "Echavarria-Caballero, C., Dominguez-Gomez, J. A., Gonzalez-Garcia, C., Dominguez-Perez, R., & Garcia-Garcia, M. J.",
+        "titulo": "Warming inland water in peninsular Spain revealed by landsat 5 analysis",
+        "tipo": "Article",
+        "revista": "GEOCARTO INTERNATIONAL",
+        "volumen": "39(1)",
+        "link": "https://doi.org/10.1080/10106049.2024.2371923",
+        "num": ""
+    }
         ],
         "2023": [
             {
