@@ -195,25 +195,19 @@ class MainApp(tk.Tk):
                 )
             return
         interfaz_publicaciones.PublicacionesWindow(mode=mode, filepath=filepath)
+    
+    def abrir_agenda(self, *args, **kwargs):
+    # Si te pasan una ventana para cerrar:
+        if args:
+            parent_win = args[0]
+            try:
+                parent_win.destroy()
+            except:
+                pass
 
-    def abrir_agenda(self, mode, parent_win):
-        parent_win.destroy()
+        interfaz_agenda.AgendaWindow()
 
-        filepath = None
-        if mode == "edit":
-            filepath = filedialog.askopenfilename(
-                title="Selecciona el JSON de Agenda",
-                filetypes=[("JSON files", "*.json")],
-                initialdir="data"
-            )
 
-            if not filepath or not os.path.exists(filepath):
-                messagebox.showwarning(
-                    "Aviso",
-                    "No se seleccionó ningún archivo válido."
-                )
-                return           
-        interfaz_agenda.AgendaWindow(mode=mode, filepath=filepath)
             
     def abrir_carrusel(self, mode, parent_win):
         parent_win.destroy()
