@@ -114,7 +114,7 @@ class DatosTab(tk.Frame):
         ttk.Label(frm, text="Cuerpo:").grid(row=5, column=0, sticky="nw", pady=6)
         cuerpo_frame = ttk.Frame(frm)
         cuerpo_frame.grid(row=5, column=1, sticky="nsew", pady=6)
-        self.text_cuerpo = tk.Text(cuerpo_frame, wrap="word")
+        self.text_cuerpo = tk.Text(cuerpo_frame, wrap="word", height=15)
         self.text_cuerpo.pack(side="left", fill="both", expand=True)
         scroll_cuerpo = ttk.Scrollbar(cuerpo_frame, orient="vertical", command=self.text_cuerpo.yview)
         scroll_cuerpo.pack(side="right", fill="y")
