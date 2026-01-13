@@ -3,31 +3,55 @@
 {% block title %}Ráfagas{% endblock %}
 
 {% block content %}
-{% for rafaga in rafagas %}
+
+<h1 class="my-4">Ráfagas</h1>
+
+{% for r in datos.rafagas %}
 <div class="container my-4">
   <div class="row align-items-center">
+
+    <!-- Portada -->
     <div class="col-md-4 text-center imagenizq-texto">
-      <a href="{{ rafaga.link }}"><img src="{{ rafaga.imagen }}" style="width:300px"></a>
+      {% if r.enlace.url and r.enlace.usar_en_portada %}
+        <a href="{{ r.enlace.url }}" target="_blank">
+          <img src="data:image/jpeg;base64,{{ r.portada_base64 }}" style="width:300px">
+        </a>
+      {% else %}
+        <img src="data:image/jpeg;base64,{{ r.portada_base64 }}" style="width:300px">
+      {% endif %}
     </div>
+
+    <!-- Contenido -->
     <div class="col-md-8">
-      <p><a style="color:#003366; font-weight:700; text-decoration:none;" href="{{ rafaga.link }}"><h4>{{ rafaga.titulo }}</h4></a></p>
-      <p>{{ rafaga.descripcion }}</p>
+
+      <!-- Título -->
+      {% if r.enlace.url and r.enlace.usar_en_titulo %}
+        <h4>
+          <a style="color:#003366; font-weight:700; text-decoration:none;"
+             href="{{ r.enlace.url }}" target="_blank">
+             {{ r.titulo }}
+          </a>
+        </h4>
+      {% else %}
+        <h4>{{ r.titulo }}</h4>
+      {% endif %}
+
+      <!-- Cuerpo -->
+      <p>{{ r.cuerpo | safe }}</p>
+
+      <!-- Enlace inferior -->
+      {% if r.enlace.url and r.enlace.texto %}
+        <p>
+          <a style="color:#003366" href="{{ r.enlace.url }}" target="_blank">
+            {{ r.enlace.texto }}
+          </a>
+        </p>
+      {% endif %}
+
     </div>
   </div>
 </div>
-  {% endfor %}
-  {% for rafaga in rafagas %}
-  <div class="container my-4">
-  <div class="row align-items-center">
-    <div class="col-md-4 text-center imagenizq-texto">
-      <a href="{{ rafaga.link2 }}"><img src="{{ rafaga.imagen2 }}" style="width:300px"></a>
-    </div>
-    <div class="col-md-8">
-      <p><a style="color:#003366; font-weight:700; text-decoration:none;" href="{{ rafaga.link2 }}"><h4>{{ rafaga.titulo2 }}</h4></a></p>
-      <p>{{ rafaga.descripcion2 }}</p>
-    </div>
-  </div>
-</div>
-</div>
-  {% endfor %}
+<hr>
+{% endfor %}
+
 {% endblock %}

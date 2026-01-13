@@ -345,7 +345,11 @@ class PreviewTab(tk.Frame):
             "fecha": datetime.datetime.now().strftime("%d-%m-%Y")
         }
 
-        ruta = filedialog.asksaveasfilename(defaultextension=".json", filetypes=[("JSON", "*.json")])
+        ruta = filedialog.asksaveasfilename(
+            defaultextension=".json",
+            filetypes=[("JSON files", "*.json")],
+            initialdir="geoso2-web-template/json"
+        )
         if ruta:
             with open(ruta, "w", encoding="utf-8") as f:
                 json.dump(datos, f, indent=4, ensure_ascii=False)
@@ -445,20 +449,31 @@ class PreviewTab(tk.Frame):
         webbrowser.open_new_tab(f"file:///{os.path.abspath(temp_html)}")
 
     def generate_html(self):
+        # Datos para la plantilla
         datos = {
-            "en_curso": self.controller.state["en_curso"],
-            "trabajos_academicos": self.controller.state["trabajos_academicos"],
-            "anteriores": self.controller.state["anteriores"],
+            "en_curso": self.controller.state.get("en_curso", []),
+            "trabajos_academicos": self.controller.state.get("trabajos_academicos", []),
+            "anteriores": self.controller.state.get("anteriores", []),
             "fecha": datetime.datetime.now().strftime("%d-%m-%Y")
         }
 
-        env = Environment(loader=FileSystemLoader("templates"))
+        # Ruta de plantillas
+        env = Environment(loader=FileSystemLoader("geoso2-web-template/templates"))
+
+        # Plantilla de proyectos (debes adaptarla para usar datos.proyectos)
         template = env.get_template("proyectos.html")
 
+        # Renderizar HTML
         html_output = template.render(datos=datos)
 
-        ruta = filedialog.asksaveasfilename(defaultextension=".html", filetypes=[("HTML", "*.html")])
-        if ruta:
-            with open(ruta, "w", encoding="utf-8") as f:
+        output_dir = "geoso2-web-template/output"
+        os.makedirs(output_dir, exist_ok=True)
+        output_path = os.path.join(output_dir, "proyectos.html")
+
+        # Guardar archivo automáticamente
+        try:
+            with open(output_path, "w", encoding="utf-8") as f:
                 f.write(html_output)
-            messagebox.showinfo("Éxito", "HTML generado correctamente")
+            messagebox.showinfo("Éxito", f"Archivo HTML generado en:\n{output_path}")
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo generar el archivo:\n{e}")
