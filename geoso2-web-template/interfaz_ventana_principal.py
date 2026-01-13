@@ -196,17 +196,12 @@ class MainApp(tk.Tk):
             return
         interfaz_publicaciones.PublicacionesWindow(mode=mode, filepath=filepath)
     
-    def abrir_agenda(self, *args, **kwargs):
-    # Si te pasan una ventana para cerrar:
-        if args:
-            parent_win = args[0]
-            try:
-                parent_win.destroy()
-            except:
-                pass
-
-        interfaz_agenda.AgendaWindow()
-
+    def abrir_agenda(self, mode, parent_win):
+        parent_win.destroy()
+        filepath = self.seleccionar_json(mode, "Agenda")
+        if mode == "edit" and not filepath:
+            return
+        interfaz_agenda.EditorWindow(mode=mode, filepath=filepath)
 
             
     def abrir_carrusel(self, mode, parent_win):
