@@ -1,137 +1,61 @@
 {% extends "index_base.html" %}
 {% block title %}¿Quiénes somos?{% endblock %}
-
 {% block content %}
 <br>
 <div class="marco2">
-  <h3>{{ quienes_somos.descripcion }}</h3>
+  <h3>Quiénes Somos</h3>
 </div>
 
 <br>
 <div class="text-center">
-  <img src="{{ quienes_somos.imagen_principal }}" alt="desarrollo sostenible" class="img-fluid" width="350" height="350">
+  <img src="../imput/img/quienes_somos/imagen_01.png" alt="desarrollo sostenible" class="img-fluid" width="350" height="350">
 </div>
-
-{% for secciones in quienes_somos.secciones %}
+  {% for secciones in quienes_somos.secciones %}
   <div class="marco2">
-    <p class="texto-justificado">{{ secciones.pregunta1 }} {{ secciones.respuesta1 }}</p>
-    <p class="texto-justificado">{{ secciones.pregunta2 }} {{ secciones.respuesta2 }}</p>
-    <p class="texto-justificado">{{ secciones.pregunta3 }} {{ secciones.respuesta3 }}</p>
-    <p class="texto-justificado">{{ secciones.pregunta4 }} {{ secciones.respuesta4 }}</p>
-    <p class="texto-justificado">{{ secciones.pregunta5 }} {{ secciones.respuesta5 }}</p>
-  </div>
-{% endfor %}
+    <p class="texto-justificado">{{ secciones.pregunta1}} {{ secciones.respuesta1}}</p>
 
+    <p class="texto-justificado">{{ secciones.pregunta2}} {{ secciones.respuesta2}}</p>
+
+    <p class="texto-justificado">{{ secciones.pregunta3}} {{ secciones.respuesta3}}</p>
+
+    <p class="texto-justificado">{{ secciones.pregunta4}} {{ secciones.respuesta4}}</p>
+
+    <p class="texto-justificado">{{ secciones.pregunta5}} {{ secciones.respuesta5}}</p>
+  </div>
+  {% endfor %}
 <div class="mx-3">
   <hr style="height: 4px; background: #ccc; margin: 16px 0;">
-
-  <!-- ============================
-       INVESTIGADORES
-  ============================= -->
   <div class="marco2"><h3><strong>Investigadores</strong></h3></div>
   <br><br>
-
-  {% for p in datos.investigadores %}
+  {% for investigadores in quienes_somos.investigadores %}
   <div class="container my-4">
-    <div class="row align-items-center">
-
-      <!-- Imagen -->
-      <div class="col-md-4 text-center imagenizq-texto">
-        {% if p.enlace.url and p.enlace.usar_en_imagen %}
-          <a href="{{ p.enlace.url }}" target="_blank">
-            <img src="data:image/jpeg;base64,{{ p.imagen_base64 }}" style="width:300px">
-          </a>
-        {% else %}
-          <img src="data:image/jpeg;base64,{{ p.imagen_base64 }}" style="width:300px">
-        {% endif %}
-      </div>
-
-      <!-- Contenido -->
-      <div class="col-md-8">
-
-        <!-- Nombre -->
-        {% if p.enlace.url and p.enlace.usar_en_nombre %}
-          <h4>
-            <a style="color:#003366; font-weight:700; text-decoration:none;"
-               href="{{ p.enlace.url }}" target="_blank">
-               {{ p.nombre }}
-            </a>
-          </h4>
-        {% else %}
-          <h4>{{ p.nombre }}</h4>
-        {% endif %}
-
-        <!-- Cuerpo -->
-        <p>{{ p.cuerpo | safe }}</p>
-
-        <!-- Enlace inferior -->
-        {% if p.enlace.url and p.enlace.texto %}
-          <p>
-            <a style="color:#003366" href="{{ p.enlace.url }}" target="_blank">
-              {{ p.enlace.texto }}
-            </a>
-          </p>
-        {% endif %}
-
-      </div>
+  <div class="row align-items-center">
+    <div class="col-md-4 text-center imagenizq-texto">
+      <a href="{{ investigadores.link }}"><img src="{{ investigadores.imagen }}" style="width:300px"></a>
+    </div>
+    <div class="col-md-8">
+      <p><a style="color:#003366; font-weight:700; text-decoration:none;" href="{{ investigadores.link }}"><h4>{{ investigadores.nombre }}</h4></a></p>
+      <p>{{ investigadores.bio }}</p>
+      <p><a style="color: #003366;" href="{{ investigadores.link }}">{{ investigadores.link_text }}</a></p>
     </div>
   </div>
+</div>
   {% endfor %}
-
   <hr>
-
-  <!-- ============================
-       COLABORADORES
-  ============================= -->
   <div class="marco2"><h3><strong>Colaboradores</strong></h3></div>
-  <br><br>
-
-  {% for p in datos.colaboradores %}
+  {% for colaboradores in quienes_somos.colaboradores %}
   <div class="container my-4">
-    <div class="row align-items-center">
-
-      <!-- Imagen -->
-      <div class="col-md-4 text-center imagenizq-texto">
-        {% if p.enlace.url and p.enlace.usar_en_imagen %}
-          <a href="{{ p.enlace.url }}" target="_blank">
-            <img src="data:image/jpeg;base64,{{ p.imagen_base64 }}" style="width:300px">
-          </a>
-        {% else %}
-          <img src="data:image/jpeg;base64,{{ p.imagen_base64 }}" style="width:300px">
-        {% endif %}
-      </div>
-
-      <!-- Contenido -->
-      <div class="col-md-8">
-
-        <!-- Nombre -->
-        {% if p.enlace.url and p.enlace.usar_en_nombre %}
-          <h4>
-            <a style="color:#003366; font-weight:700; text-decoration:none;"
-               href="{{ p.enlace.url }}" target="_blank">
-               {{ p.nombre }}
-            </a>
-          </h4>
-        {% else %}
-          <h4>{{ p.nombre }}</h4>
-        {% endif %}
-
-        <!-- Cuerpo -->
-        <p>{{ p.cuerpo | safe }}</p>
-
-        <!-- Enlace inferior -->
-        {% if p.enlace.url and p.enlace.texto %}
-          <p>
-            <a style="color:#003366" href="{{ p.enlace.url }}" target="_blank">
-              {{ p.enlace.texto }}
-            </a>
-          </p>
-        {% endif %}
-
-      </div>
+  <div class="row align-items-center">
+    <div class="col-md-4 text-center imagenizq-texto">
+      <a href="{{ colaboradores.link }}"><img src="{{ colaboradores.imagen }}" style="width:300px"></a>
+    </div>
+    <div class="col-md-8">
+      <p><a style="color:#003366; font-weight:700; text-decoration:none;" href="{{ colaboradores.link }}"><h4>{{ colaboradores.nombre }}</h4></a></p>
+      <p>{{ colaboradores.bio }}</p>
+      <p><a style="color: #003366;" href="{{ colaboradores.link }}">{{ colaboradores.link_text }}</a></p>
     </div>
   </div>
+</div>
   {% endfor %}
-
 </div>
 {% endblock %}

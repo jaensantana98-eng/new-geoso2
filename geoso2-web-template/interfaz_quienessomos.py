@@ -2,253 +2,211 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import json
 import os
-import datetime
 import webbrowser
-from PIL import Image
-import base64
-import copy
 from jinja2 import Environment, FileSystemLoader
 
-class EditorWindow(tk.Toplevel):
-    def __init__(self, mode="create", filepath=None):
-        super().__init__()
-        self.title("Editor Investigadores/Colaboradores")
-        self.geometry("980x640")
-
-        # Estado inicial
-        self.state = {
-            "investigadores": [],
-            "colaboradores": []
-        }
-
-        os.makedirs("data/img", exist_ok=True)
-
-        # Si es edición, cargar datos desde JSON
-        if mode == "edit" and filepath:
-            try:
-                with open(filepath, "r", encoding="utf-8") as f:
-                    datos = json.load(f)
-                for k in self.state.keys():
-                    if k in datos and isinstance(datos[k], list):
-                        self.state[k] = datos[k]
-            except Exception as e:
-                messagebox.showerror("Error", f"No se pudo cargar el JSON:\n{e}")
-
-        # Notebook
-        self.notebook = ttk.Notebook(self)
-        self.notebook.pack(fill="both", expand=True)
-
-        # Pestañas
-        self.tab_investigadores = PersonasTab(self.notebook, self, "investigadores")
-        self.tab_colaboradores = PersonasTab(self.notebook, self, "colaboradores")
-        self.tab_preview = PreviewTab(self.notebook, self)
-
-        self.notebook.add(self.tab_investigadores, text="Investigadores")
-        self.notebook.add(self.tab_colaboradores, text="Colaboradores")
-        self.notebook.add(self.tab_preview, text="Preview y Guardar")
-
-        # Refrescar si venimos de edición
-        self.tab_investigadores.refresh_table()
-        self.tab_colaboradores.refresh_table()
-        self.tab_preview.update_preview()
 
 
-class PersonasTab(ttk.Frame):
-    def __init__(self, parent, controller, key):
+
+# ============================================================
+#   PESTAÑA 2 — SECCIONES
+# ============================================================
+class SeccionesTab(tk.Frame):
+    def __init__(self, parent, controller):
         super().__init__(parent)
         self.controller = controller
-        self.key = key  # "investigadores" o "colaboradores"
 
         frm = ttk.Frame(self)
-        frm.pack(fill="both", expand=True, padx=10, pady=10)
+        frm.pack(fill="both", expand=True, padx=20, pady=20)
 
-        # Campos de entrada
-        ttk.Label(frm, text="Imagen:").grid(row=0, column=0, sticky="w", pady=6)
-        self.entry_imagen = ttk.Entry(frm)
-        self.entry_imagen.grid(row=0, column=1, sticky="ew", pady=6)
-        ttk.Button(frm, text="Buscar", command=self.select_imagen).grid(row=0, column=2, padx=8)
+        self.entries = {}
 
-        ttk.Label(frm, text="Nombre:").grid(row=1, column=0, sticky="w", pady=6)
-        self.entry_nombre = ttk.Entry(frm)
-        self.entry_nombre.grid(row=1, column=1, sticky="ew", pady=6)
+        for i in range(1, 6):
+            ttk.Label(frm, text=f"Pregunta {i}:").grid(row=(i - 1) * 2, column=0, sticky="w", pady=4)
+            e_p = ttk.Entry(frm)
+            e_p.grid(row=(i - 1) * 2, column=1, sticky="ew", pady=4)
 
-        ttk.Label(frm, text="Cuerpo:").grid(row=2, column=0, sticky="nw", pady=6)
-        cuerpo_frame = ttk.Frame(frm)
-        cuerpo_frame.grid(row=2, column=1, sticky="nsew", pady=6)
-        self.text_cuerpo = tk.Text(cuerpo_frame, wrap="word", height=6)
-        self.text_cuerpo.pack(side="left", fill="both", expand=True)
-        scroll_cuerpo = ttk.Scrollbar(cuerpo_frame, orient="vertical", command=self.text_cuerpo.yview)
-        scroll_cuerpo.pack(side="right", fill="y")
-        self.text_cuerpo.config(yscrollcommand=scroll_cuerpo.set)
+            ttk.Label(frm, text=f"Respuesta {i}:").grid(row=(i - 1) * 2 + 1, column=0, sticky="w", pady=4)
+            e_r = ttk.Entry(frm)
+            e_r.grid(row=(i - 1) * 2 + 1, column=1, sticky="ew", pady=4)
 
-        ttk.Label(frm, text="Texto del enlace:").grid(row=3, column=0, sticky="w", pady=6)
-        self.entry_enlace_texto = ttk.Entry(frm)
-        self.entry_enlace_texto.grid(row=3, column=1, sticky="ew", pady=6)
-
-        ttk.Label(frm, text="URL del enlace:").grid(row=4, column=0, sticky="w", pady=6)
-        self.entry_enlace_url = ttk.Entry(frm)
-        self.entry_enlace_url.grid(row=4, column=1, sticky="ew", pady=6)
-        ttk.Button(frm, text="Probar enlace", command=self.probar_enlace).grid(row=4, column=2, padx=8)
-
-        self.var_link_nombre = tk.BooleanVar(value=True)
-        self.var_link_imagen = tk.BooleanVar(value=True)
-
-        ttk.Checkbutton(frm, text="Usar enlace en nombre", variable=self.var_link_nombre).grid(row=5, column=0, sticky="w")
-        ttk.Checkbutton(frm, text="Usar enlace en imagen", variable=self.var_link_imagen).grid(row=5, column=1, sticky="w")
+            self.entries[f"pregunta{i}"] = e_p
+            self.entries[f"respuesta{i}"] = e_r
 
         frm.columnconfigure(1, weight=1)
-        frm.rowconfigure(2, weight=1)
+        ttk.Button(frm, text="Guardar secciones", command=self.save).grid(row=20, column=0, columnspan=2, pady=20)
 
-        # Botones de gestión
-        btn_frame = ttk.Frame(frm)
-        btn_frame.grid(row=6, column=0, columnspan=3, pady=10)
+        self.load_data()
+
+    def load_data(self):
+        secciones = self.controller.state["quienes_somos"]["secciones"][0]
+        for key, widget in self.entries.items():
+            widget.insert(0, secciones.get(key, ""))
+
+    def save(self):
+        secciones = self.controller.state["quienes_somos"]["secciones"][0]
+        for key, widget in self.entries.items():
+            secciones[key] = widget.get().strip()
+
+
+# ============================================================
+#   PESTAÑA 3 — INVESTIGADORES
+# ============================================================
+class InvestigadoresTab(tk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent)
+        self.controller = controller
+
+        main = ttk.Frame(self)
+        main.pack(fill="both", expand=True, padx=20, pady=20)
+
+        form = ttk.Frame(main)
+        form.grid(row=0, column=0, sticky="nsew")
+
+        ttk.Label(form, text="Nombre:").grid(row=0, column=0, sticky="w", pady=4)
+        self.entry_nombre = ttk.Entry(form)
+        self.entry_nombre.grid(row=0, column=1, sticky="ew", pady=4)
+
+        ttk.Label(form, text="Imagen (ruta):").grid(row=1, column=0, sticky="w", pady=4)
+        self.entry_imagen = ttk.Entry(form)
+        self.entry_imagen.grid(row=1, column=1, sticky="ew", pady=4)
+        ttk.Button(form, text="Seleccionar", command=self.select_image).grid(row=1, column=2, padx=5)
+
+        ttk.Label(form, text="Bio:").grid(row=2, column=0, sticky="nw", pady=4)
+        self.text_bio = tk.Text(form, height=6, wrap="word")
+        self.text_bio.grid(row=2, column=1, columnspan=2, sticky="ew", pady=4)
+
+        ttk.Label(form, text="Link:").grid(row=3, column=0, sticky="w", pady=4)
+        self.entry_link = ttk.Entry(form)
+        self.entry_link.grid(row=3, column=1, sticky="ew", pady=4)
+        ttk.Button(form, text="Probar enlace", command=self.probar_enlace).grid(row=3, column=2, padx=5)
+
+        ttk.Label(form, text="Texto del enlace:").grid(row=4, column=0, sticky="w", pady=4)
+        self.entry_link_text = ttk.Entry(form)
+        self.entry_link_text.grid(row=4, column=1, sticky="ew", pady=4)
+
+        form.columnconfigure(1, weight=1)
+
+        btn_frame = ttk.Frame(main)
+        btn_frame.grid(row=1, column=0, sticky="w", pady=10)
 
         ttk.Button(btn_frame, text="Añadir", command=self.add_item).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Editar", command=self.edit_item).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Eliminar", command=self.delete_item).pack(side="left", padx=5)
-        ttk.Button(btn_frame, text="Editar", command=self.edit_block).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Subir", command=self.move_up).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Bajar", command=self.move_down).pack(side="left", padx=5)
 
-        # Tabla
-        self.tree = ttk.Treeview(frm, columns=("Imagen", "Nombre", "Enlace"), show="headings", height=10)
-        self.tree.grid(row=7, column=0, columnspan=3, sticky="nsew")
-        self.tree.heading("Imagen", text="Imagen")
+        self.tree = ttk.Treeview(
+            main,
+            columns=("Nombre", "Imagen", "Link", "LinkText"),
+            show="headings",
+            height=10
+        )
+        self.tree.grid(row=2, column=0, sticky="nsew", pady=10)
+
         self.tree.heading("Nombre", text="Nombre")
-        self.tree.heading("Enlace", text="Enlace")
-        frm.rowconfigure(7, weight=1)
+        self.tree.heading("Imagen", text="Imagen")
+        self.tree.heading("Link", text="Link")
+        self.tree.heading("LinkText", text="Texto enlace")
 
-    def edit_block(self):
-        selected = self.tree.selection()
-        if not selected:
-            return
-        index = self.tree.index(selected[0])
-        item = self.controller.state[self.key][index]
+        main.rowconfigure(2, weight=1)
+        main.columnconfigure(0, weight=1)
 
-        # Rellenar campos
-        self.entry_imagen.delete(0, tk.END)
-        self.entry_imagen.insert(0, item.get("imagen", ""))
-        self.entry_nombre.delete(0, tk.END)
-        self.entry_nombre.insert(0, item.get("nombre", ""))
-        self.text_cuerpo.delete("1.0", tk.END)
-        self.text_cuerpo.insert("1.0", item.get("cuerpo", ""))
-        enlace = item.get("enlace", {})
-        self.entry_enlace_texto.delete(0, tk.END)
-        self.entry_enlace_texto.insert(0, enlace.get("texto", ""))
-        self.entry_enlace_url.delete(0, tk.END)
-        self.entry_enlace_url.insert(0, enlace.get("url", ""))
-        self.var_link_nombre.set(enlace.get("usar_en_nombre", True))
-        self.var_link_imagen.set(enlace.get("usar_en_imagen", True))
-
-        # Eliminar el item para reemplazarlo al guardar
-        del self.controller.state[self.key][index]
         self.refresh_table()
 
-    def select_imagen(self):
+    def select_image(self):
         ruta = filedialog.askopenfilename(
-            filetypes=[("Imagen", "*.png;*.jpg;*.jpeg;*.gif")]
+            filetypes=[("Imágenes", "*.png;*.jpg;*.jpeg;*.gif")]
         )
-
-        if not ruta:
-            return
-
-        try:
-            nombre = os.path.basename(ruta)
-            destino = os.path.join("data/img", nombre)
-
-            with Image.open(ruta) as img:
-                # Convertir a RGB para evitar problemas de formato
-                img = img.convert("RGB")
-
-                # Mantener proporción dentro de 300x300
-                img.thumbnail((300, 300), Image.LANCZOS)
-
-                # Crear lienzo 300x300 con fondo blanco
-                canvas = Image.new("RGB", (300, 300), "white")
-                x = (300 - img.width) // 2
-                y = (300 - img.height) // 2
-                canvas.paste(img, (x, y))
-
-                # La imagen final es el canvas
-                canvas.save(destino, quality=90)
-
+        if ruta:
             self.entry_imagen.delete(0, tk.END)
-            self.entry_imagen.insert(0, destino)
-            self.controller.state["imagen"] = destino
-
-            with open(destino, "rb") as img_file:
-                b64 = base64.b64encode(img_file.read()).decode("utf-8")
-                self.controller.state["imagen_base64"] = b64
-
-        except Exception as e:
-            messagebox.showerror(
-                "Error",
-                f"No se pudo procesar la imagen de portada:\n{e}"
-            )
+            self.entry_imagen.insert(0, ruta)
 
     def probar_enlace(self):
-        url = self.entry_enlace_url.get().strip()
+        url = self.entry_link.get().strip()
         if not url:
-            messagebox.showwarning("Aviso", "No hay ninguna URL para probar.")
+            messagebox.showwarning("Aviso", "No hay URL para probar.")
             return
-        if not url.startswith(("http://", "https://")):
-            messagebox.showerror("Error", "La URL debe empezar por http:// o https://")
-            return
-        try:
+        if url.startswith(("http://", "https://")):
             webbrowser.open_new_tab(url)
-        except Exception as e:
-            messagebox.showerror("Error", f"No se pudo abrir el enlace:\n{e}")
+        else:
+            messagebox.showerror("Error", "El enlace debe ser una URL válida.")
+
+    def clear_fields(self):
+        self.entry_nombre.delete(0, tk.END)
+        self.entry_imagen.delete(0, tk.END)
+        self.text_bio.delete("1.0", tk.END)
+        self.entry_link.delete(0, tk.END)
+        self.entry_link_text.delete(0, tk.END)
 
     def add_item(self):
-        imagen = self.entry_imagen.get().strip()
         nombre = self.entry_nombre.get().strip()
-        cuerpo = self.text_cuerpo.get("1.0", tk.END).strip()
-        enlace_texto = self.entry_enlace_texto.get().strip()
-        enlace_url = self.entry_enlace_url.get().strip()
-        usar_nombre = self.var_link_nombre.get()
-        usar_imagen = self.var_link_imagen.get()
-
-        if not imagen or not nombre:
-            messagebox.showwarning("Aviso", "Debes completar al menos imagen y nombre.")
+        if not nombre:
+            messagebox.showwarning("Aviso", "El nombre es obligatorio.")
             return
 
-        item = {
-            "imagen": imagen,
-            "imagen_base64": self.controller.state.get("imagen_base64", ""),
+        investigador = {
             "nombre": nombre,
-            "cuerpo": cuerpo,
-            "enlace": {
-                "texto": enlace_texto,
-                "url": enlace_url,
-                "usar_en_nombre": usar_nombre,
-                "usar_en_imagen": usar_imagen
-            }
+            "imagen": self.entry_imagen.get().strip(),
+            "bio": self.text_bio.get("1.0", tk.END).strip(),
+            "link": self.entry_link.get().strip(),
+            "link_text": self.entry_link_text.get().strip()
         }
-        self.controller.state[self.key].append(item)
-        self.refresh_table()
 
-        # Limpiar entradas
-        self.entry_imagen.delete(0, tk.END)
-        self.entry_nombre.delete(0, tk.END)
-        self.text_cuerpo.delete("1.0", tk.END)
-        self.entry_enlace_texto.delete(0, tk.END)
-        self.entry_enlace_url.delete(0, tk.END)
+        self.controller.state["quienes_somos"]["investigadores"].append(investigador)
+        self.refresh_table()
+        self.clear_fields()
 
     def delete_item(self):
         selected = self.tree.selection()
         if not selected:
             return
         index = self.tree.index(selected[0])
-        del self.controller.state[self.key][index]
-        self.refresh_table()
+
+        lista = self.controller.state["quienes_somos"]["investigadores"]
+        if 0 <= index < len(lista):
+            if messagebox.askyesno("Confirmar", "¿Eliminar este investigador?"):
+                del lista[index]
+                self.refresh_table()
+
+    def edit_item(self):
+        selected = self.tree.selection()
+        if not selected:
+            return
+        index = self.tree.index(selected[0])
+
+        lista = self.controller.state["quienes_somos"]["investigadores"]
+        if 0 <= index < len(lista):
+            item = lista[index]
+
+            self.entry_nombre.delete(0, tk.END)
+            self.entry_nombre.insert(0, item.get("nombre", ""))
+
+            self.entry_imagen.delete(0, tk.END)
+            self.entry_imagen.insert(0, item.get("imagen", ""))
+
+            self.text_bio.delete("1.0", tk.END)
+            self.text_bio.insert("1.0", item.get("bio", ""))
+
+            self.entry_link.delete(0, tk.END)
+            self.entry_link.insert(0, item.get("link", ""))
+
+            self.entry_link_text.delete(0, tk.END)
+            self.entry_link_text.insert(0, item.get("link_text", ""))
+
+            del lista[index]
+            self.refresh_table()
 
     def move_up(self):
         selected = self.tree.selection()
         if not selected:
             return
+
         index = self.tree.index(selected[0])
+        lista = self.controller.state["quienes_somos"]["investigadores"]
+
         if index > 0:
-            arr = self.controller.state[self.key]
-            arr[index - 1], arr[index] = arr[index], arr[index - 1]
+            lista[index - 1], lista[index] = lista[index], lista[index - 1]
             self.refresh_table()
             self.tree.selection_set(self.tree.get_children()[index - 1])
 
@@ -256,26 +214,226 @@ class PersonasTab(ttk.Frame):
         selected = self.tree.selection()
         if not selected:
             return
+
         index = self.tree.index(selected[0])
-        arr = self.controller.state[self.key]
-        if index < len(arr) - 1:
-            arr[index + 1], arr[index] = arr[index], arr[index + 1]
+        lista = self.controller.state["quienes_somos"]["investigadores"]
+
+        if index < len(lista) - 1:
+            lista[index + 1], lista[index] = lista[index], lista[index + 1]
             self.refresh_table()
             self.tree.selection_set(self.tree.get_children()[index + 1])
 
     def refresh_table(self):
-        # Vaciar tabla
-        for item_id in self.tree.get_children():
-            self.tree.delete(item_id)
-        # Rellenar
-        for elem in self.controller.state[self.key]:
-            self.tree.insert("", tk.END, values=(
-                elem.get("imagen", ""),
-                elem.get("nombre", ""),
-                elem.get("enlace", {}).get("url", "")
-            ))
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+
+        for inv in self.controller.state["quienes_somos"]["investigadores"]:
+            self.tree.insert(
+                "",
+                tk.END,
+                values=(
+                    inv.get("nombre", ""),
+                    inv.get("imagen", ""),
+                    inv.get("link", ""),
+                    inv.get("link_text", "")
+                )
+            )
 
 
+# ============================================================
+#   PESTAÑA 4 — COLABORADORES
+# ============================================================
+class ColaboradoresTab(tk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent)
+        self.controller = controller
+
+        main = ttk.Frame(self)
+        main.pack(fill="both", expand=True, padx=20, pady=20)
+
+        form = ttk.Frame(main)
+        form.grid(row=0, column=0, sticky="nsew")
+
+        ttk.Label(form, text="Nombre:").grid(row=0, column=0, sticky="w", pady=4)
+        self.entry_nombre = ttk.Entry(form)
+        self.entry_nombre.grid(row=0, column=1, sticky="ew", pady=4)
+
+        ttk.Label(form, text="Imagen (ruta):").grid(row=1, column=0, sticky="w", pady=4)
+        self.entry_imagen = ttk.Entry(form)
+        self.entry_imagen.grid(row=1, column=1, sticky="ew", pady=4)
+        ttk.Button(form, text="Seleccionar", command=self.select_image).grid(row=1, column=2, padx=5)
+
+        ttk.Label(form, text="Bio:").grid(row=2, column=0, sticky="nw", pady=4)
+        self.text_bio = tk.Text(form, height=6, wrap="word")
+        self.text_bio.grid(row=2, column=1, columnspan=2, sticky="ew", pady=4)
+
+        ttk.Label(form, text="Link:").grid(row=3, column=0, sticky="w", pady=4)
+        self.entry_link = ttk.Entry(form)
+        self.entry_link.grid(row=3, column=1, sticky="ew", pady=4)
+        ttk.Button(form, text="Probar enlace", command=self.probar_enlace).grid(row=3, column=2, padx=5)
+
+        ttk.Label(form, text="Texto del enlace:").grid(row=4, column=0, sticky="w", pady=4)
+        self.entry_link_text = ttk.Entry(form)
+        self.entry_link_text.grid(row=4, column=1, sticky="ew", pady=4)
+
+        form.columnconfigure(1, weight=1)
+
+        btn_frame = ttk.Frame(main)
+        btn_frame.grid(row=1, column=0, sticky="w", pady=10)
+
+        ttk.Button(btn_frame, text="Añadir", command=self.add_item).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Editar", command=self.edit_item).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Eliminar", command=self.delete_item).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Subir", command=self.move_up).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Bajar", command=self.move_down).pack(side="left", padx=5)
+
+        self.tree = ttk.Treeview(
+            main,
+            columns=("Nombre", "Imagen", "Link", "LinkText"),
+            show="headings",
+            height=10
+        )
+        self.tree.grid(row=2, column=0, sticky="nsew", pady=10)
+
+        self.tree.heading("Nombre", text="Nombre")
+        self.tree.heading("Imagen", text="Imagen")
+        self.tree.heading("Link", text="Link")
+        self.tree.heading("LinkText", text="Texto enlace")
+
+        main.rowconfigure(2, weight=1)
+        main.columnconfigure(0, weight=1)
+
+        self.refresh_table()
+
+    def select_image(self):
+        ruta = filedialog.askopenfilename(
+            filetypes=[("Imágenes", "*.png;*.jpg;*.jpeg;*.gif")]
+        )
+        if ruta:
+            self.entry_imagen.delete(0, tk.END)
+            self.entry_imagen.insert(0, ruta)
+
+    def probar_enlace(self):
+        url = self.entry_link.get().strip()
+        if not url:
+            messagebox.showwarning("Aviso", "No hay URL para probar.")
+            return
+        if url.startswith(("http://", "https://")):
+            webbrowser.open_new_tab(url)
+        else:
+            messagebox.showerror("Error", "El enlace debe ser una URL válida.")
+
+    def clear_fields(self):
+        self.entry_nombre.delete(0, tk.END)
+        self.entry_imagen.delete(0, tk.END)
+        self.text_bio.delete("1.0", tk.END)
+        self.entry_link.delete(0, tk.END)
+        self.entry_link_text.delete(0, tk.END)
+
+    def add_item(self):
+        nombre = self.entry_nombre.get().strip()
+        if not nombre:
+            messagebox.showwarning("Aviso", "El nombre es obligatorio.")
+            return
+
+        colab = {
+            "nombre": nombre,
+            "imagen": self.entry_imagen.get().strip(),
+            "bio": self.text_bio.get("1.0", tk.END).strip(),
+            "link": self.entry_link.get().strip(),
+            "link_text": self.entry_link_text.get().strip()
+        }
+
+        self.controller.state["quienes_somos"]["colaboradores"].append(colab)
+        self.refresh_table()
+        self.clear_fields()
+
+    def delete_item(self):
+        selected = self.tree.selection()
+        if not selected:
+            return
+        index = self.tree.index(selected[0])
+
+        lista = self.controller.state["quienes_somos"]["colaboradores"]
+        if 0 <= index < len(lista):
+            if messagebox.askyesno("Confirmar", "¿Eliminar este colaborador?"):
+                del lista[index]
+                self.refresh_table()
+
+    def edit_item(self):
+        selected = self.tree.selection()
+        if not selected:
+            return
+        index = self.tree.index(selected[0])
+
+        lista = self.controller.state["quienes_somos"]["colaboradores"]
+        if 0 <= index < len(lista):
+            item = lista[index]
+
+            self.entry_nombre.delete(0, tk.END)
+            self.entry_nombre.insert(0, item.get("nombre", ""))
+
+            self.entry_imagen.delete(0, tk.END)
+            self.entry_imagen.insert(0, item.get("imagen", ""))
+
+            self.text_bio.delete("1.0", tk.END)
+            self.text_bio.insert(0.0, item.get("bio", ""))
+
+            self.entry_link.delete(0, tk.END)
+            self.entry_link.insert(0, item.get("link", ""))
+
+            self.entry_link_text.delete(0, tk.END)
+            self.entry_link_text.insert(0, item.get("link_text", ""))
+
+            del lista[index]
+            self.refresh_table()
+
+    def move_up(self):
+        selected = self.tree.selection()
+        if not selected:
+            return
+
+        index = self.tree.index(selected[0])
+        lista = self.controller.state["quienes_somos"]["colaboradores"]
+
+        if index > 0:
+            lista[index - 1], lista[index] = lista[index], lista[index - 1]
+            self.refresh_table()
+            self.tree.selection_set(self.tree.get_children()[index - 1])
+
+    def move_down(self):
+        selected = self.tree.selection()
+        if not selected:
+            return
+
+        index = self.tree.index(selected[0])
+        lista = self.controller.state["quienes_somos"]["colaboradores"]
+
+        if index < len(lista) - 1:
+            lista[index + 1], lista[index] = lista[index], lista[index + 1]
+            self.refresh_table()
+            self.tree.selection_set(self.tree.get_children()[index + 1])
+
+    def refresh_table(self):
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+
+        for colab in self.controller.state["quienes_somos"]["colaboradores"]:
+            self.tree.insert(
+                "",
+                tk.END,
+                values=(
+                    colab.get("nombre", ""),
+                    colab.get("imagen", ""),
+                    colab.get("link", ""),
+                    colab.get("link_text", "")
+                )
+            )
+
+
+# ============================================================
+#   PESTAÑA 5 — PREVIEW Y GENERAR
+# ============================================================
 class PreviewTab(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
@@ -284,164 +442,213 @@ class PreviewTab(tk.Frame):
         toolbar = ttk.Frame(self)
         toolbar.pack(fill="x", padx=16, pady=10)
 
-        ttk.Button(toolbar, text="Actualizar preview", command=self.update_preview).pack(side="left")
+        ttk.Button(toolbar, text="Actualizar JSON", command=self.update_json_preview).pack(side="left")
         ttk.Button(toolbar, text="Guardar JSON", command=self.save_json).pack(side="left", padx=8)
         ttk.Button(toolbar, text="Previsualizar en web", command=self.preview_web).pack(side="left", padx=8)
-        ttk.Button(toolbar, text="Generar HTML", command=self.generate_html).pack(side="right", padx=8)
-
-        info = ttk.Label(toolbar, text="Revisa el JSON antes de guardar.")
-        info.pack(side="left", padx=16)
+        ttk.Button(toolbar, text="Generar archivo HTML", command=self.generate_html).pack(side="right", padx=8)
 
         self.text_area = tk.Text(self, wrap="word")
         self.text_area.pack(fill="both", expand=True, padx=16, pady=10)
 
-    def update_preview(self):
-        # Copia profunda para no modificar el estado real
-        datos = copy.deepcopy(self.controller.state)
-        datos["fecha"] = datetime.datetime.now().strftime("%d-%m-%Y")
+        self.update_json_preview()
 
-        # Eliminar claves internas que no deben aparecer en el preview
-        for persona in datos.get("investigadores", []):
-            persona.pop("imagen_base64", None)
+    def sync_state(self):
+        self.controller.tab_secciones.save()
+        # Investigadores y colaboradores ya trabajan directo sobre state
 
-        for persona in datos.get("colaboradores", []):
-            persona.pop("imagen_base64", None)
-
+    def update_json_preview(self):
+        self.sync_state()
+        datos = {
+            "quienes_somos": self.controller.state.get("quienes_somos", {})
+        }
         preview = json.dumps(datos, indent=4, ensure_ascii=False)
         self.text_area.delete("1.0", tk.END)
         self.text_area.insert(tk.END, preview)
 
-
-
     def save_json(self):
+        self.sync_state()
         datos = {
-            "investigadores": self.controller.state.get("investigadores", []),
-            "colaboradores": self.controller.state.get("colaboradores", []),
+            "quienes_somos": self.controller.state.get("quienes_somos", {})
         }
-
         ruta = filedialog.asksaveasfilename(
             defaultextension=".json",
             filetypes=[("JSON files", "*.json")],
             initialdir="geoso2-web-template/json"
         )
         if ruta:
-            with open(ruta, "w", encoding="utf-8") as f:
-                json.dump(datos, f, indent=4, ensure_ascii=False)
-            messagebox.showinfo("Guardado", "JSON guardado correctamente")
+            try:
+                with open(ruta, "w", encoding="utf-8") as f:
+                    json.dump(datos, f, indent=4, ensure_ascii=False)
+                messagebox.showinfo("Guardado", f"Archivo JSON guardado en {ruta}")
+            except Exception as e:
+                messagebox.showerror("Error", f"No se pudo guardar el JSON:\n{e}")
 
     def preview_web(self):
-        datos = self.controller.state.copy()
-        datos["fecha"] = datetime.datetime.now().strftime("%d-%m-%Y")
+        self.sync_state()
+        qs = self.controller.state.get("quienes_somos", {})
 
-        # Construir HTML de personas
-        def render_personas(lista):
-            bloques = ""
-            for p in lista:
-                img_src = ""
-                if p.get("imagen_base64"):
-                    img_src = f"data:image/jpeg;base64,{p['imagen_base64']}"
+        descripcion = qs.get("descripcion", "")
+        imagen_principal = qs.get("imagen_principal", "")
+        secciones = qs.get("secciones", [{}])[0]
 
-                # Imagen con o sin enlace
-                img_html = f'<img src="{img_src}" alt="{p["nombre"]}">' if img_src else ""
+        investigadores = qs.get("investigadores", [])
+        colaboradores = qs.get("colaboradores", [])
 
-                if p.get("enlace", {}).get("url") and p["enlace"].get("usar_en_imagen"):
-                    img_html = f'<a href="{p["enlace"]["url"]}" target="_blank">{img_html}</a>'
+        secciones_html = '<div class="marco2">\n'
+        for i in range(1, 6):
+            p = secciones.get(f"pregunta{i}", "")
+            r = secciones.get(f"respuesta{i}", "")
+            if p or r:
+                secciones_html += f'  <p class="texto-justificado">{p} {r}</p>\n'
+        secciones_html += "</div>\n"
 
-                # Nombre con o sin enlace
-                nombre_html = p["nombre"]
-                if p.get("enlace", {}).get("url") and p["enlace"].get("usar_en_nombre"):
-                    nombre_html = f'<a href="{p["enlace"]["url"]}" target="_blank">{nombre_html}</a>'
+        investigadores_html = """
+  <hr style="height: 4px; background: #ccc; margin: 16px 0;">
+  <div class="marco2"><h3><strong>Investigadores</strong></h3></div>
+  <br><br>
+    """
+        for inv in investigadores:
+            investigadores_html += f"""
+  <div class="container my-4">
+    <div class="row align-items-center">
+      <div class="col-md-4 text-center imagenizq-texto">
+        <a href="{inv.get('link','')}"><img src="{inv.get('imagen','')}" style="width:300px"></a>
+      </div>
+      <div class="col-md-8">
+        <p><a style="color:#003366; font-weight:700; text-decoration:none;" href="{inv.get('link','')}"><h4>{inv.get('nombre','')}</h4></a></p>
+        <p>{inv.get('bio','')}</p>
+        <p><a style="color: #003366;" href="{inv.get('link','')}">{inv.get('link_text','')}</a></p>
+      </div>
+    </div>
+  </div>
+    """
 
-                cuerpo_html = p["cuerpo"].replace("\n", "<br>")
+        colaboradores_html = """
+  <hr>
+  <div class="marco2"><h3><strong>Colaboradores</strong></h3></div>
+    """
+        for colab in colaboradores:
+            colaboradores_html += f"""
+  <div class="container my-4">
+    <div class="row align-items-center">
+      <div class="col-md-4 text-center imagenizq-texto">
+        <a href="{colab.get('link','')}"><img src="{colab.get('imagen','')}" style="width:300px"></a>
+      </div>
+      <div class="col-md-8">
+        <p><a style="color:#003366; font-weight:700; text-decoration:none;" href="{colab.get('link','')}"><h4>{colab.get('nombre','')}</h4></a></p>
+        <p>{colab.get('bio','')}</p>
+        <p><a style="color: #003366;" href="{colab.get('link','')}">{colab.get('link_text','')}</a></p>
+      </div>
+    </div>
+  </div>
+    """
 
-                # Texto del enlace
-                enlace_html = ""
-                if p.get("enlace", {}).get("texto") and p["enlace"].get("url"):
-                    enlace_html = f'<p><a href="{p["enlace"]["url"]}" target="_blank">{p["enlace"]["texto"]}</a></p>'
+            html = f"""
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <title>¿Quiénes somos?</title>
+    </head>
+    <body>
+    <br>
+    <div class="marco2">
+    <h3>{descripcion}</h3>
+    </div>
 
-                bloques += f"""
-                <div class="persona">
-                    <div class="foto">{img_html}</div>
-                    <div class="info">
-                        <h3>{nombre_html}</h3>
-                        <p>{cuerpo_html}</p>
-                        {enlace_html}
-                    </div>
-                </div>
-                """
-            return bloques
+    <br>
+    <div class="text-center">
+    <img src="{imagen_principal}" width="350" height="350">
+    </div>
 
+    {secciones_html}
 
-        html = f"""
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-            <meta charset="UTF-8">
-            <title>Investigadores y Colaboradores</title>
-            <style>
-                body {{
-                    font-family: Segoe UI, sans-serif;
-                    margin: 40px auto;
-                    max-width: 900px;
-                    line-height: 1.6;
-                }}
-                .persona {{
-                    display: flex;
-                    gap: 20px;
-                    margin-bottom: 30px;
-                }}
-                .persona img {{
-                    width: 150px;
-                    height: auto;
-                    border-radius: 6px;
-                }}
-                .info {{
-                    flex-grow: 1;
-                }}
-            </style>
-        </head>
-        <body>
-            <h1>Investigadores</h1>
-            {render_personas(datos["investigadores"])}
+    <div class="mx-3">
+    {investigadores_html}
+    {colaboradores_html}
+    </div>
+    </body>
+    </html>
+    """
 
-            <h1>Colaboradores</h1>
-            {render_personas(datos["colaboradores"])}
-
-            <p><small>Fecha: {datos['fecha']}</small></p>
-        </body>
-        </html>
-        """
-
-        temp_html = "data/preview_personas.html"
+        temp_html = "data/quienes_somos_preview.html"
+        os.makedirs("data", exist_ok=True)
         with open(temp_html, "w", encoding="utf-8") as f:
             f.write(html)
 
         webbrowser.open_new_tab(f"file:///{os.path.abspath(temp_html)}")
 
     def generate_html(self):
-        datos = self.controller.state.copy()
+        self.sync_state()
+        qs = self.controller.state.get("quienes_somos", {})
 
-        # Ruta de plantillas
-        env = Environment(loader=FileSystemLoader("templates"))
+        try:
+            env = Environment(loader=FileSystemLoader("geoso2-web-template/templates"))
+            template = env.get_template("quienes-somos.html")
+            html_output = template.render(quienes_somos=qs)
 
-        # Seleccionar plantilla según el editor
-        # Puedes cambiar esto dinámicamente si quieres
-        template = env.get_template("quienes-somos.html")
+            output_dir = "geoso2-web-template/output"
+            os.makedirs(output_dir, exist_ok=True)
+            output_path = os.path.join(output_dir, "quienes-somos.html")
 
-        # Renderizar HTML
-        html_output = template.render(datos=datos)
+            with open(output_path, "w", encoding="utf-8") as f:
+                f.write(html_output)
 
-        # Guardar archivo final
-        ruta = filedialog.asksaveasfilename(
-            defaultextension=".html",
-            filetypes=[("HTML files", "*.html")],
-            initialdir="data/output"
-        )
+            messagebox.showinfo("Éxito", f"Archivo HTML generado en:\n{output_path}")
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo generar el archivo HTML:\n{e}")
 
-        if ruta:
+
+# ============================================================
+#   CLASE PRINCIPAL — EDITORWINDOW
+# ============================================================
+class EditorWindow(tk.Toplevel):
+    def __init__(self, mode="create", filepath=None):
+        super().__init__()
+        self.title("Editor - Quiénes Somos")
+        self.geometry("1100x700")
+
+        self.state = {
+            "quienes_somos": {
+                "descripcion": "",
+                "imagen_principal": "",
+                "secciones": [
+                    {
+                        "pregunta1": "",
+                        "respuesta1": "",
+                        "pregunta2": "",
+                        "respuesta2": "",
+                        "pregunta3": "",
+                        "respuesta3": "",
+                        "pregunta4": "",
+                        "respuesta4": "",
+                        "pregunta5": "",
+                        "respuesta5": ""
+                    }
+                ],
+                "investigadores": [],
+                "colaboradores": []
+            }
+        }
+
+        if mode == "edit" and filepath:
             try:
-                with open(ruta, "w", encoding="utf-8") as f:
-                    f.write(html_output)
-                messagebox.showinfo("Éxito", f"Archivo HTML generado en:\n{ruta}")
+                with open(filepath, "r", encoding="utf-8") as f:
+                    datos = json.load(f)
+                if "quienes_somos" in datos:
+                    self.state["quienes_somos"] = datos["quienes_somos"]
             except Exception as e:
-                messagebox.showerror("Error", f"No se pudo generar el archivo:\n{e}")
+                messagebox.showerror("Error", f"No se pudo cargar el JSON:\n{e}")
+
+        self.notebook = ttk.Notebook(self)
+        self.notebook.pack(fill="both", expand=True)
+
+        self.tab_secciones = SeccionesTab(self.notebook, self)
+        self.tab_investigadores = InvestigadoresTab(self.notebook, self)
+        self.tab_colaboradores = ColaboradoresTab(self.notebook, self)
+        self.tab_preview = PreviewTab(self.notebook, self)
+
+        self.notebook.add(self.tab_secciones, text="Secciones")
+        self.notebook.add(self.tab_investigadores, text="Investigadores")
+        self.notebook.add(self.tab_colaboradores, text="Colaboradores")
+        self.notebook.add(self.tab_preview, text="Preview y Generar")
