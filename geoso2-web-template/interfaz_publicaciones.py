@@ -2,28 +2,35 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import json
 import os
-from collections import OrderedDict
 import webbrowser
+from jinja2 import Environment, FileSystemLoader
 
 
-class PublicacionesWindow(tk.Toplevel):
+# -----------------------------
+# Ventana del editor de Publicaciones
+# -----------------------------
+class EditorWindow(tk.Toplevel):
     def __init__(self, mode="create", filepath=None):
         super().__init__()
         self.title("Editor de Publicaciones")
-        self.geometry("1100x700")
+        self.geometry("980x640")
 
-        # Estado inicial
+        # Estado del documento: diccionario de años → lista de publicaciones
         self.state = {
-            "publicaciones": OrderedDict()
+            "publicaciones": {}
         }
 
-        # Cargar JSON si estamos en modo edición
+        # Cargar JSON en modo edición
         if mode == "edit" and filepath:
             try:
                 with open(filepath, "r", encoding="utf-8") as f:
-                    datos = json.load(f, object_pairs_hook=OrderedDict)
-                if "publicaciones" in datos:
+                    datos = json.load(f)
+
+                if isinstance(datos, dict) and isinstance(datos.get("publicaciones"), dict):
                     self.state["publicaciones"] = datos["publicaciones"]
+                else:
+                    self.state["publicaciones"] = {}
+
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo cargar el JSON:\n{e}")
 
@@ -32,27 +39,21 @@ class PublicacionesWindow(tk.Toplevel):
         self.notebook.pack(fill="both", expand=True)
 
         # Pestañas
-        self.tab_selector = SelectorTab(self.notebook, self)
-        self.tab_lista = ListaTab(self.notebook, self)
-        self.tab_form = FormularioTab(self.notebook, self)
+        self.tab_datos = DatosTab(self.notebook, self)
         self.tab_preview = PreviewTab(self.notebook, self)
 
-        self.notebook.add(self.tab_selector, text="Años")
-        self.notebook.add(self.tab_lista, text="Publicaciones")
-        self.notebook.add(self.tab_form, text="Formulario")
-        self.notebook.add(self.tab_preview, text="Preview y Guardar")
+        self.notebook.add(self.tab_datos, text="Datos")
+        self.notebook.add(self.tab_preview, text="Preview y Generar")
 
-        # Refrescar
-        self.tab_selector.refresh_years()
-        self.tab_lista.refresh_table()
-        self.tab_preview.update_preview()
+        if mode == "edit":
+            self.tab_datos.set_data(self.state)
+            self.tab_preview.update_preview()
 
 
-# ---------------------------------------------------------
-# TAB 1 — Selector de año
-# ---------------------------------------------------------
-
-class SelectorTab(ttk.Frame):
+# -----------------------------
+# Pestaña: Datos
+# -----------------------------
+class DatosTab(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
         self.controller = controller
@@ -60,112 +61,152 @@ class SelectorTab(ttk.Frame):
         frm = ttk.Frame(self)
         frm.pack(fill="both", expand=True, padx=20, pady=20)
 
-        ttk.Label(frm, text="Año:").grid(row=0, column=0, sticky="w")
-        self.combo_anio = ttk.Combobox(frm, state="readonly")
-        self.combo_anio.grid(row=0, column=1, padx=10)
+        # -------------------------
+        # Selector de año
+        # -------------------------
+        ttk.Label(frm, text="Año:").grid(row=0, column=0, sticky="w", pady=6)
 
-        ttk.Button(frm, text="Seleccionar", command=self.select_year).grid(row=0, column=2, padx=10)
-        ttk.Button(frm, text="Añadir Año", command=self.add_year).grid(row=1, column=0, pady=10)
-        ttk.Button(frm, text="Eliminar Año", command=self.delete_year).grid(row=1, column=1, pady=10)
+        self.combo_year = ttk.Combobox(frm, state="readonly")
+        self.combo_year.grid(row=0, column=1, sticky="ew", pady=6)
 
-    def refresh_years(self):
-        years = list(self.controller.state["publicaciones"].keys())
-        self.combo_anio["values"] = years
-        if years:
-            self.combo_anio.current(0)
+        ttk.Button(frm, text="Añadir año", command=self.add_year).grid(row=0, column=2, padx=6)
+        ttk.Button(frm, text="Eliminar año", command=self.delete_year).grid(row=0, column=3, padx=6)
 
-    def select_year(self):
-        year = self.combo_anio.get()
+        frm.columnconfigure(1, weight=1)
+
+        # -------------------------
+        # Campos de publicación
+        # -------------------------
+        ttk.Label(frm, text="Autores:").grid(row=1, column=0, sticky="w", pady=6)
+        self.entry_autores = ttk.Entry(frm)
+        self.entry_autores.grid(row=1, column=1, sticky="ew", pady=6)
+
+        ttk.Label(frm, text="Título:").grid(row=2, column=0, sticky="w", pady=6)
+        self.entry_titulo = ttk.Entry(frm)
+        self.entry_titulo.grid(row=2, column=1, sticky="ew", pady=6)
+
+        ttk.Label(frm, text="Tipo:").grid(row=3, column=0, sticky="w", pady=6)
+        self.entry_tipo = ttk.Entry(frm)
+        self.entry_tipo.grid(row=3, column=1, sticky="ew", pady=6)
+
+        ttk.Label(frm, text="Revista:").grid(row=4, column=0, sticky="w", pady=6)
+        self.entry_revista = ttk.Entry(frm)
+        self.entry_revista.grid(row=4, column=1, sticky="ew", pady=6)
+
+        ttk.Label(frm, text="Volumen:").grid(row=5, column=0, sticky="w", pady=6)
+        self.entry_volumen = ttk.Entry(frm)
+        self.entry_volumen.grid(row=5, column=1, sticky="ew", pady=6)
+
+        ttk.Label(frm, text="Número:").grid(row=6, column=0, sticky="w", pady=6)
+        self.entry_num = ttk.Entry(frm)
+        self.entry_num.grid(row=6, column=1, sticky="ew", pady=6)
+
+        ttk.Label(frm, text="URL:").grid(row=7, column=0, sticky="w", pady=6)
+        self.entry_link = ttk.Entry(frm)
+        self.entry_link.grid(row=7, column=1, sticky="ew", pady=6)
+        ttk.Button(frm, text="Probar enlace", command=self.probar_enlace).grid(row=7, column=2, padx=6)
+
+        # -------------------------
+        # Botones CRUD
+        # -------------------------
+        btn_frame = ttk.Frame(frm)
+        btn_frame.grid(row=8, column=0, columnspan=4, pady=10)
+
+        ttk.Button(btn_frame, text="Añadir", command=self.add_item).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Editar", command=self.edit_item).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Eliminar", command=self.delete_item).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Subir", command=self.move_up).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Bajar", command=self.move_down).pack(side="left", padx=5)
+        ttk.Button(frm, text="Actualizar", command=self.refresh_table).grid(row=0, column=4, padx=6)
+
+
+        # -------------------------
+        # Tabla
+        # -------------------------
+        self.tree = ttk.Treeview(
+            frm,
+            columns=("Autores", "Título", "Tipo", "Revista", "Volumen", "Num", "Link"),
+            show="headings",
+            height=10
+        )
+        self.tree.grid(row=9, column=0, columnspan=4, sticky="nsew")
+
+        for col in ("Autores", "Título", "Tipo", "Revista", "Volumen", "Num", "Link"):
+            self.tree.heading(col, text=col)
+
+        frm.rowconfigure(9, weight=1)
+
+    # -------------------------
+    # Gestión de años
+    # -------------------------
+    def add_year(self):
+        year = tk.simpledialog.askstring("Nuevo año", "Introduce el año (ej: 2025):")
         if not year:
             return
-        self.controller.current_year = year
-        self.controller.tab_lista.refresh_table()
 
-    def add_year(self):
-        new_year = tk.simpledialog.askstring("Nuevo Año", "Introduce el año:")
-        if not new_year:
-            return
-        if new_year in self.controller.state["publicaciones"]:
+        if year in self.controller.state["publicaciones"]:
             messagebox.showwarning("Aviso", "Ese año ya existe.")
             return
-        self.controller.state["publicaciones"][new_year] = []
+
+        self.controller.state["publicaciones"][year] = []
         self.refresh_years()
+        self.combo_year.set(year)
+        self.refresh_table()
 
     def delete_year(self):
-        year = self.combo_anio.get()
-        if not year:
-            return
-        if messagebox.askyesno("Confirmar", f"¿Eliminar el año {year}?"):
-            del self.controller.state["publicaciones"][year]
-            self.refresh_years()
-            self.controller.tab_lista.refresh_table()
-
-
-# ---------------------------------------------------------
-# TAB 2 — Lista de publicaciones
-# ---------------------------------------------------------
-
-class ListaTab(ttk.Frame):
-    def __init__(self, parent, controller):
-        super().__init__(parent)
-        self.controller = controller
-
-        frm = ttk.Frame(self)
-        frm.pack(fill="both", expand=True, padx=20, pady=20)
-
-        # Tabla
-        self.tree = ttk.Treeview(frm, columns=("Autores", "Título", "Revista", "Link"), show="headings")
-        self.tree.heading("Autores", text="Autores")
-        self.tree.heading("Título", text="Título")
-        self.tree.heading("Revista", text="Revista")
-        self.tree.heading("Link", text="Link")
-        self.tree.pack(fill="both", expand=True)
-
-        # Botones
-        btns = ttk.Frame(frm)
-        btns.pack(pady=10)
-
-        ttk.Button(btns, text="Añadir", command=self.add_item).pack(side="left", padx=5)
-        ttk.Button(btns, text="Editar", command=self.edit_item).pack(side="left", padx=5)
-        ttk.Button(btns, text="Eliminar", command=self.delete_item).pack(side="left", padx=5)
-
-    def refresh_table(self):
-        for item in self.tree.get_children():
-            self.tree.delete(item)
-
-        year = getattr(self.controller, "current_year", None)
+        year = self.combo_year.get()
         if not year:
             return
 
-        for pub in self.controller.state["publicaciones"].get(year, []):
-            self.tree.insert("", tk.END, values=(
-                pub["autores"],
-                pub["titulo"],
-                pub["revista"],
-                pub["link"]
-            ))
+        # Confirmación antes de borrar
+        confirmar = messagebox.askyesno(
+            "Confirmar eliminación",
+            f"¿Seguro que quieres eliminar el año {year}?\nEsta acción no se puede deshacer."
+        )
 
+        if not confirmar:
+            return
+
+        del self.controller.state["publicaciones"][year]
+        self.refresh_years()
+        self.refresh_table()
+
+
+    def refresh_years(self):
+        years = sorted(self.controller.state["publicaciones"].keys(), reverse=True)
+        self.combo_year["values"] = years
+        if years:
+            self.combo_year.set(years[0])
+
+    # -------------------------
+    # CRUD
+    # -------------------------
     def add_item(self):
-        self.controller.tab_form.load_form(None)
-        self.controller.notebook.select(self.controller.tab_form)
-
-    def edit_item(self):
-        year = getattr(self.controller, "current_year", None)
+        year = self.combo_year.get()
         if not year:
+            messagebox.showwarning("Aviso", "Debes seleccionar un año.")
             return
 
-        selected = self.tree.selection()
-        if not selected:
+        pub = {
+            "autores": self.entry_autores.get().strip(),
+            "titulo": self.entry_titulo.get().strip(),
+            "tipo": self.entry_tipo.get().strip(),
+            "revista": self.entry_revista.get().strip(),
+            "volumen": self.entry_volumen.get().strip(),
+            "num": self.entry_num.get().strip(),
+            "link": self.entry_link.get().strip()
+        }
+
+        if not pub["titulo"]:
+            messagebox.showwarning("Aviso", "Debes introducir un título.")
             return
 
-        index = self.tree.index(selected[0])
-        pub = self.controller.state["publicaciones"][year][index]
-
-        self.controller.tab_form.load_form(pub, index)
-        self.controller.notebook.select(self.controller.tab_form)
+        self.controller.state["publicaciones"][year].append(pub)
+        self.refresh_table()
+        self.clear_fields()
 
     def delete_item(self):
-        year = getattr(self.controller, "current_year", None)
+        year = self.combo_year.get()
         if not year:
             return
 
@@ -177,133 +218,259 @@ class ListaTab(ttk.Frame):
         del self.controller.state["publicaciones"][year][index]
         self.refresh_table()
 
-
-# ---------------------------------------------------------
-# TAB 3 — Formulario
-# ---------------------------------------------------------
-
-class FormularioTab(ttk.Frame):
-    def __init__(self, parent, controller):
-        super().__init__(parent)
-        self.controller = controller
-        self.edit_index = None
-
-        frm = ttk.Frame(self)
-        frm.pack(fill="both", expand=True, padx=20, pady=20)
-
-        labels = ["Autores", "Título", "Tipo", "Revista", "Volumen", "Número", "Link"]
-        self.entries = {}
-
-        for i, label in enumerate(labels):
-            ttk.Label(frm, text=label + ":").grid(row=i, column=0, sticky="w", pady=5)
-            entry = ttk.Entry(frm, width=80)
-            entry.grid(row=i, column=1, pady=5)
-            self.entries[label.lower()] = entry
-
-        ttk.Button(frm, text="Guardar", command=self.save_item).grid(row=len(labels), column=0, pady=20)
-        ttk.Button(frm, text="Cancelar", command=self.cancel).grid(row=len(labels), column=1, pady=20)
-
-    def load_form(self, pub, index=None):
-        self.edit_index = index
-
-        for key in self.entries:
-            self.entries[key].delete(0, tk.END)
-
-        if pub:
-            self.entries["autores"].insert(0, pub["autores"])
-            self.entries["título"].insert(0, pub["titulo"])
-            self.entries["tipo"].insert(0, pub["tipo"])
-            self.entries["revista"].insert(0, pub["revista"])
-            self.entries["volumen"].insert(0, pub["volumen"])
-            self.entries["número"].insert(0, pub["num"])
-            self.entries["link"].insert(0, pub["link"])
-
-    def save_item(self):
-        year = getattr(self.controller, "current_year", None)
+    def edit_item(self):
+        year = self.combo_year.get()
         if not year:
-            messagebox.showwarning("Aviso", "Selecciona un año primero.")
             return
 
-        pub = {
-            "autores": self.entries["autores"].get(),
-            "titulo": self.entries["título"].get(),
-            "tipo": self.entries["tipo"].get(),
-            "revista": self.entries["revista"].get(),
-            "volumen": self.entries["volumen"].get(),
-            "num": self.entries["número"].get(),
-            "link": self.entries["link"].get()
-        }
+        selected = self.tree.selection()
+        if not selected:
+            return
 
-        if self.edit_index is None:
-            self.controller.state["publicaciones"][year].append(pub)
-        else:
-            self.controller.state["publicaciones"][year][self.edit_index] = pub
+        index = self.tree.index(selected[0])
+        item = self.controller.state["publicaciones"][year][index]
 
-        self.controller.tab_lista.refresh_table()
-        self.controller.tab_preview.update_preview()
-        self.controller.notebook.select(self.controller.tab_lista)
+        self.entry_autores.delete(0, tk.END)
+        self.entry_autores.insert(0, item["autores"])
 
-    def cancel(self):
-        self.controller.notebook.select(self.controller.tab_lista)
+        self.entry_titulo.delete(0, tk.END)
+        self.entry_titulo.insert(0, item["titulo"])
+
+        self.entry_tipo.delete(0, tk.END)
+        self.entry_tipo.insert(0, item["tipo"])
+
+        self.entry_revista.delete(0, tk.END)
+        self.entry_revista.insert(0, item["revista"])
+
+        self.entry_volumen.delete(0, tk.END)
+        self.entry_volumen.insert(0, item["volumen"])
+
+        self.entry_num.delete(0, tk.END)
+        self.entry_num.insert(0, item["num"])
+
+        self.entry_link.delete(0, tk.END)
+        self.entry_link.insert(0, item["link"])
+
+        del self.controller.state["publicaciones"][year][index]
+        self.refresh_table()
+
+    def move_up(self):
+        year = self.combo_year.get()
+        if not year:
+            return
+
+        selected = self.tree.selection()
+        if not selected:
+            return
+
+        index = self.tree.index(selected[0])
+        arr = self.controller.state["publicaciones"][year]
+
+        if index > 0:
+            arr[index - 1], arr[index] = arr[index], arr[index - 1]
+            self.refresh_table()
+            self.tree.selection_set(self.tree.get_children()[index - 1])
+
+    def move_down(self):
+        year = self.combo_year.get()
+        if not year:
+            return
+
+        selected = self.tree.selection()
+        if not selected:
+            return
+
+        index = self.tree.index(selected[0])
+        arr = self.controller.state["publicaciones"][year]
+
+        if index < len(arr) - 1:
+            arr[index + 1], arr[index] = arr[index], arr[index + 1]
+            self.refresh_table()
+            self.tree.selection_set(self.tree.get_children()[index + 1])
+
+    # -------------------------
+    # Utilidades
+    # -------------------------
+    def probar_enlace(self):
+        url = self.entry_link.get().strip()
+        if not url:
+            messagebox.showwarning("Aviso", "No hay URL para probar.")
+            return
+
+        try:
+            if url.startswith(("http://", "https://")):
+                webbrowser.open_new_tab(url)
+            else:
+                messagebox.showerror("Error", "El enlace debe ser una URL válida.")
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo abrir el enlace:\n{e}")
+
+    def refresh_table(self):
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+
+        year = self.combo_year.get()
+        if not year:
+            return
+
+        for p in self.controller.state["publicaciones"].get(year, []):
+            self.tree.insert(
+                "",
+                tk.END,
+                values=(
+                    p["autores"],
+                    p["titulo"],
+                    p["tipo"],
+                    p["revista"],
+                    p["volumen"],
+                    p["num"],
+                    p["link"]
+                )
+            )
+
+    def clear_fields(self):
+        self.entry_autores.delete(0, tk.END)
+        self.entry_titulo.delete(0, tk.END)
+        self.entry_tipo.delete(0, tk.END)
+        self.entry_revista.delete(0, tk.END)
+        self.entry_volumen.delete(0, tk.END)
+        self.entry_num.delete(0, tk.END)
+        self.entry_link.delete(0, tk.END)
+
+    def set_data(self, datos):
+        self.controller.state["publicaciones"] = datos.get("publicaciones", {})
+        self.refresh_years()
+        self.refresh_table()
 
 
-# ---------------------------------------------------------
-# TAB 4 — Preview y Guardado
-# ---------------------------------------------------------
-
-class PreviewTab(ttk.Frame):
+# -----------------------------
+# Pestaña: Preview y Generar
+# -----------------------------
+class PreviewTab(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
         self.controller = controller
 
         toolbar = ttk.Frame(self)
-        toolbar.pack(fill="x", padx=20, pady=10)
+        toolbar.pack(fill="x", padx=16, pady=10)
 
         ttk.Button(toolbar, text="Actualizar preview", command=self.update_preview).pack(side="left")
-        ttk.Button(toolbar, text="Guardar JSON", command=self.save_json).pack(side="left", padx=10)
+        ttk.Button(toolbar, text="Guardar JSON", command=self.save_json).pack(side="left", padx=8)
+        ttk.Button(toolbar, text="Previsualizar en web", command=self.preview_web).pack(side="left", padx=8)
+        ttk.Button(toolbar, text="Generar archivo HTML", command=self.generate_html).pack(side="right", padx=8)
 
         self.text_area = tk.Text(self, wrap="word")
-        self.text_area.pack(fill="both", expand=True, padx=20, pady=10)
+        self.text_area.pack(fill="both", expand=True, padx=16, pady=10)
 
     def update_preview(self):
-        preview = json.dumps(self.controller.state, indent=4, ensure_ascii=False)
+        datos = {
+            "publicaciones": self.controller.state.get("publicaciones", {})
+        }
+        preview = json.dumps(datos, indent=4, ensure_ascii=False)
         self.text_area.delete("1.0", tk.END)
         self.text_area.insert(tk.END, preview)
 
     def save_json(self):
+        datos = {
+            "publicaciones": self.controller.state.get("publicaciones", {})
+        }
+        ruta = filedialog.asksaveasfilename(
+            defaultextension=".json",
+            filetypes=[("JSON files", "*.json")],
+            initialdir="geoso2-web-template/json"
+        )
+        if ruta:
+            try:
+                with open(ruta, "w", encoding="utf-8") as f:
+                    json.dump(datos, f, indent=4, ensure_ascii=False)
+                messagebox.showinfo("Guardado", f"Archivo JSON guardado en {ruta}")
+            except Exception as e:
+                messagebox.showerror("Error", f"No se pudo guardar el JSON:\n{e}")
 
-        index_json = "geoso2-web-template/json/publicaciones.json"
+    def preview_web(self):
+        datos = self.controller.state.get("publicaciones", {})
+
+        bloques = ""
+
+        for year in sorted(datos.keys(), reverse=True):
+            bloques += f"""
+            <hr>
+            <h4><strong>{year}</strong></h4>
+            <br>
+            <div class="references csl-bib-body hanging-indent" role="list">
+            """
+
+            for p in datos[year]:
+                autores = p.get("autores", "")
+                titulo = p.get("titulo", "")
+                tipo = p.get("tipo", "")
+                revista = p.get("revista", "")
+                volumen = p.get("volumen", "")
+                num = p.get("num", "")
+                link = p.get("link", "")
+
+                bloques += f"""
+                <div class="csl-entry" role="listitem">
+                    {autores} ({year}). {titulo} [{tipo}].
+                    <i>{revista}</i>{", " + volumen if volumen else ""}{", " + num if num else ""}.
+                    {"<a href='" + link + "' target='_blank'>" + link + "</a>" if link else ""}
+                    <br>
+                </div>
+                """
+
+            bloques += "</div><br>"
+
+
+            html = f"""
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <title>Publicaciones</title>
+            <style>
+                body {{
+                    font-family: Segoe UI, sans-serif;
+                    margin: 40px auto;
+                    max-width: 900px;
+                    line-height: 1.6;
+                }}
+                .csl-entry {{
+                    margin-bottom: 10px;
+                }}
+                i {{
+                    font-style: italic;
+                }}
+            </style>
+        </head>
+        <body>
+            <h1>Publicaciones</h1>
+            {bloques}
+        </body>
+        </html>
+        """
+
+        temp_html = "data/publicaciones_preview.html"
+        os.makedirs("data", exist_ok=True)
+        with open(temp_html, "w", encoding="utf-8") as f:
+            f.write(html)
+
+        webbrowser.open_new_tab(f"file:///{os.path.abspath(temp_html)}")
+
+    def generate_html(self):
+        datos = self.controller.state.get("publicaciones", {})
 
         try:
-            # 1. Cargar JSON maestro
-            if os.path.exists(index_json):
-                with open(index_json, "r", encoding="utf-8") as f:
-                    maestro = json.load(f, object_pairs_hook=OrderedDict)
-            else:
-                maestro = OrderedDict()
+            env = Environment(loader=FileSystemLoader("geoso2-web-template/templates"))
+            template = env.get_template("publicaciones.html")
+            html_output = template.render(publicaciones=datos)
 
-            # 2. Asegurar estructura
-            maestro.setdefault("index_page", OrderedDict())
-            maestro.setdefault("publicaciones", OrderedDict())
+            output_dir = "geoso2-web-template/output"
+            os.makedirs(output_dir, exist_ok=True)
+            output_path = os.path.join(output_dir, "publicaciones.html")
 
-            publicaciones_maestro = maestro["publicaciones"]
-            publicaciones_editor = self.controller.state["publicaciones"]
+            with open(output_path, "w", encoding="utf-8") as f:
+                f.write(html_output)
 
-            # 3. Fusionar año por año sin borrar nada
-            for year, lista_editor in publicaciones_editor.items():
-
-                # Asegurar que el año existe en el maestro
-                publicaciones_maestro.setdefault(year, [])
-
-                # Añadir cada publicación nueva sin borrar las anteriores
-                for pub in lista_editor:
-                    publicaciones_maestro[year].append(pub)
-
-            # 4. Guardar archivo
-            with open(index_json, "w", encoding="utf-8") as f:
-                json.dump(maestro, f, indent=4, ensure_ascii=False)
-
-            messagebox.showinfo("Guardado", "Publicaciones actualizadas correctamente")
-
+            messagebox.showinfo("Éxito", f"Archivo HTML generado en:\n{output_path}")
         except Exception as e:
-            messagebox.showerror("Error", f"No se pudo guardar las publicaciones:\n{e}")
+            messagebox.showerror("Error", f"No se pudo generar el archivo HTML:\n{e}")

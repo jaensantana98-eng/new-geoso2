@@ -105,7 +105,7 @@ class DatosTab(tk.Frame):
         self.entry_imagen.grid(row=0, column=1, sticky="ew", pady=6)
         ttk.Button(frm, text="Buscar", command=self.select_imagen).grid(row=0, column=2, padx=8)
 
-        ttk.Label(frm, text="ALT:").grid(row=1, column=0, sticky="w", pady=6)
+        ttk.Label(frm, text="Evento Nº:").grid(row=1, column=0, sticky="w", pady=6)
         self.entry_alt = ttk.Entry(frm)
         self.entry_alt.grid(row=1, column=1, sticky="ew", pady=6)
 
