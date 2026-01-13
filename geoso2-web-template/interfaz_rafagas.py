@@ -15,7 +15,7 @@ from jinja2 import Environment, FileSystemLoader
 class EditorWindow(tk.Toplevel):
     def __init__(self, mode="create", filepath=None):
         super().__init__()
-        self.title("Editor de Noticias")
+        self.title("Editor de rafagas")
         self.geometry("980x640")
 
         self.state = {
@@ -31,12 +31,12 @@ class EditorWindow(tk.Toplevel):
                 with open(filepath, "r", encoding="utf-8") as f:
                     datos = json.load(f)
 
-                # Nuevo formato: ya trae lista de noticias
-                if isinstance(datos.get("noticias"), list):
-                    self.state["noticias"] = datos["noticias"]
+                # Nuevo formato: ya trae lista de ráfagas
+                if isinstance(datos.get("rafagas"), list):
+                    self.state["rafagas"] = datos["rafagas"]
                 else:
-                    # Formato antiguo: una sola noticia en la raíz
-                    noticia_unica = {
+                    # Formato antiguo: una sola ráfaga en la raíz
+                    rafaga_unica = {
                         "portada": datos.get("portada", ""),
                         "portada_base64": datos.get("portada_base64", ""),
                         "titulo": datos.get("titulo", ""),
@@ -49,8 +49,8 @@ class EditorWindow(tk.Toplevel):
                         })
                     }
                     # Solo la añadimos si tiene algo mínimamente relleno
-                    if noticia_unica["titulo"] or noticia_unica["cuerpo"]:
-                        self.state["noticias"].append(noticia_unica)
+                    if rafaga_unica["titulo"] or rafaga_unica["cuerpo"]:
+                        self.state["rafagas"].append(rafaga_unica)
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo cargar el JSON:\n{e}")
 
@@ -72,14 +72,14 @@ class EditorWindow(tk.Toplevel):
 
 
 # -----------------------------
-# Pestaña: Datos (múltiples noticias)
+# Pestaña: Datos
 # -----------------------------
 class DatosTab(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
         self.controller = controller
 
-        # Para guardar temporalmente la portada_base64 de la noticia en edición
+        # Para guardar temporalmente la portada_base64 de la ráfaga en edición
         self.portada_base64_actual = ""
 
         frm = ttk.Frame(self)
@@ -150,7 +150,7 @@ class DatosTab(tk.Frame):
         ttk.Button(btn_frame, text="Subir", command=self.move_up).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Bajar", command=self.move_down).pack(side="left", padx=5)
 
-        # --- Tabla de noticias ---
+        # --- Tabla ---
 
         self.tree = ttk.Treeview(
             frm,
@@ -259,7 +259,7 @@ class DatosTab(tk.Frame):
             }
         }
 
-        self.controller.state["noticias"].append(noticia)
+        self.controller.state["rafagas"].append(noticia)
         self.refresh_table()
 
         # Limpiar campos para siguiente noticia
@@ -277,7 +277,7 @@ class DatosTab(tk.Frame):
         if not selected:
             return
         index = self.tree.index(selected[0])
-        del self.controller.state["noticias"][index]
+        del self.controller.state["rafagas"][index]
         self.refresh_table()
 
     def edit_item(self):
@@ -286,9 +286,9 @@ class DatosTab(tk.Frame):
             return
 
         index = self.tree.index(selected[0])
-        item = self.controller.state["noticias"][index]
+        item = self.controller.state["rafagas"][index]
 
-        # Rellenar campos con la noticia seleccionada
+        # Rellenar campos con la ráfaga seleccionada
         self.entry_portada.delete(0, tk.END)
         self.entry_portada.insert(0, item.get("portada", ""))
 
@@ -310,8 +310,8 @@ class DatosTab(tk.Frame):
 
         self.portada_base64_actual = item.get("portada_base64", "")
 
-        # Eliminar la noticia de la lista; se volverá a guardar al pulsar "Añadir"
-        del self.controller.state["noticias"][index]
+        # Eliminar la ráfaga de la lista; se volverá a guardar al pulsar "Añadir"
+        del self.controller.state["rafagas"][index]
         self.refresh_table()
 
     def move_up(self):
@@ -320,7 +320,7 @@ class DatosTab(tk.Frame):
             return
         index = self.tree.index(selected[0])
         if index > 0:
-            arr = self.controller.state["noticias"]
+            arr = self.controller.state["rafagas"]
             arr[index - 1], arr[index] = arr[index], arr[index - 1]
             self.refresh_table()
             self.tree.selection_set(self.tree.get_children()[index - 1])
@@ -330,7 +330,7 @@ class DatosTab(tk.Frame):
         if not selected:
             return
         index = self.tree.index(selected[0])
-        arr = self.controller.state["noticias"]
+        arr = self.controller.state["rafagas"]
         if index < len(arr) - 1:
             arr[index + 1], arr[index] = arr[index], arr[index + 1]
             self.refresh_table()
@@ -341,7 +341,7 @@ class DatosTab(tk.Frame):
         for item_id in self.tree.get_children():
             self.tree.delete(item_id)
         # Rellenar
-        for n in self.controller.state["noticias"]:
+        for n in self.controller.state["rafagas"]:
             self.tree.insert(
                 "",
                 tk.END,
@@ -353,8 +353,8 @@ class DatosTab(tk.Frame):
             )
 
     def set_data(self, datos):
-        # Cargar lista de noticias al abrir en modo edición
-        self.controller.state["noticias"] = datos.get("noticias", [])
+        # Cargar lista de ráfagas al abrir en modo edición
+        self.controller.state["rafagas"] = datos.get("rafagas", [])
         self.refresh_table()
 
 
@@ -380,25 +380,30 @@ class PreviewTab(tk.Frame):
     def update_preview(self):
         # Construir datos para preview
         datos = {
-            "noticias": [],
+            "rafagas": [],
             "fecha": datetime.datetime.now().strftime("%d-%m-%Y")
         }
 
-        for n in self.controller.state.get("noticias", []):
+        for n in self.controller.state.get("rafagas", []):
             copia = n.copy()
             # Quitar la clave base64 para el JSON de preview
             copia.pop("portada_base64", None)
-            datos["noticias"].append(copia)
-
+            datos["rafagas"].append(copia)
         preview = json.dumps(datos, indent=4, ensure_ascii=False)
         self.text_area.delete("1.0", tk.END)
         self.text_area.insert(tk.END, preview)
 
     def save_json(self):
         datos = {
-            "noticias": self.controller.state.get("noticias", []),
+            "rafagas": [],
             "fecha": datetime.datetime.now().strftime("%d-%m-%Y")
         }
+
+        for r in self.controller.state.get("rafagas", []):
+            copia = r.copy()
+            copia.pop("portada_base64", None)
+            datos["rafagas"].append(copia)
+
         ruta = filedialog.asksaveasfilename(
             defaultextension=".json",
             filetypes=[("JSON files", "*.json")],
@@ -414,13 +419,13 @@ class PreviewTab(tk.Frame):
 
     def preview_web(self):
         datos = {
-            "noticias": self.controller.state.get("noticias", []),
+            "rafagas": self.controller.state.get("rafagas", []),
             "fecha": datetime.datetime.now().strftime("%d-%m-%Y")
         }
 
-        # Construir HTML de todas las noticias
+        # Construir HTML de todas las ráfagas
         bloques = ""
-        for n in datos["noticias"]:
+        for n in datos["rafagas"]:
             cuerpo_html = n.get("cuerpo", "").replace("\n", "<br>")
 
             portada_src = ""
@@ -452,7 +457,7 @@ class PreviewTab(tk.Frame):
                 enlace_inferior_html = f'<p><a href="{enlace_url}" target="_blank">{enlace_texto}</a></p>'
 
             bloques += f"""
-            <div class="noticia">
+            <div class="rafagas">
                 <div class="contenedor">
                     <div class="portada">
                         {portada_html}
@@ -524,29 +529,27 @@ class PreviewTab(tk.Frame):
     def generate_html(self):
         # Datos para la plantilla
         datos = {
-            "noticias": self.controller.state.get("noticias", []),
+            "rafagas": self.controller.state.get("rafagas", []),
             "fecha": datetime.datetime.now().strftime("%d-%m-%Y")
         }
 
         # Ruta de plantillas
-        env = Environment(loader=FileSystemLoader("templates"))
+        env = Environment(loader=FileSystemLoader("geoso2-web-template/templates"))
 
+        # Plantilla de ráfagas (debes adaptarla para usar datos.rafagas)
         template = env.get_template("rafagas.html")
 
         # Renderizar HTML
         html_output = template.render(datos=datos)
 
-        # Guardar archivo final
-        ruta = filedialog.asksaveasfilename(
-            defaultextension=".html",
-            filetypes=[("HTML files", "*.html")],
-            initialdir="data/output"
-        )
+        output_dir = "geoso2-web-template/output"
+        os.makedirs(output_dir, exist_ok=True)
+        output_path = os.path.join(output_dir, "rafagas.html")
 
-        if ruta:
-            try:
-                with open(ruta, "w", encoding="utf-8") as f:
-                    f.write(html_output)
-                messagebox.showinfo("Éxito", f"Archivo HTML generado en:\n{ruta}")
-            except Exception as e:
-                messagebox.showerror("Error", f"No se pudo generar el archivo:\n{e}")
+        # Guardar archivo automáticamente
+        try:
+            with open(output_path, "w", encoding="utf-8") as f:
+                f.write(html_output)
+            messagebox.showinfo("Éxito", f"Archivo HTML generado en:\n{output_path}")
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo generar el archivo:\n{e}")
