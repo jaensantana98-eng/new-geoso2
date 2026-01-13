@@ -345,7 +345,11 @@ class PreviewTab(tk.Frame):
             "fecha": datetime.datetime.now().strftime("%d-%m-%Y")
         }
 
-        ruta = filedialog.asksaveasfilename(defaultextension=".json", filetypes=[("JSON", "*.json")])
+        ruta = filedialog.asksaveasfilename(
+            defaultextension=".json",
+            filetypes=[("JSON files", "*.json")],
+            initialdir="geoso2-web-template/json"
+        )
         if ruta:
             with open(ruta, "w", encoding="utf-8") as f:
                 json.dump(datos, f, indent=4, ensure_ascii=False)
@@ -447,8 +451,8 @@ class PreviewTab(tk.Frame):
     def generate_html(self):
         # Datos para la plantilla
         datos = {
-            "en curso": self.controller.state.get("en_curso", []),
-            "trabajos academicos": self.controller.state.get("trabajos_academicos", []),
+            "en_curso": self.controller.state.get("en_curso", []),
+            "trabajos_academicos": self.controller.state.get("trabajos_academicos", []),
             "anteriores": self.controller.state.get("anteriores", []),
             "fecha": datetime.datetime.now().strftime("%d-%m-%Y")
         }

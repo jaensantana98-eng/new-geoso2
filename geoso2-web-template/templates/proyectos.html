@@ -4,61 +4,167 @@
 
 {% block content %}
 <br><br>
+
 <a class="marco2" style="text-decoration: none; color: white;" href="#encurso">En curso</a>
 <a class="marco2" style="text-decoration: none; color: white;" href="#anteriores">Anteriores</a>
 <a class="marco2" style="text-decoration: none; color: white;" href="#trabajosacademicos">Trabajos académicos</a>
+
 <hr>
+
+<!-- ============================
+     SECCIÓN: EN CURSO
+============================= -->
 <div id="encurso" class="marco2">
   <h1>En curso</h1>
 </div>
-{% for proyecto in proyectos.encurso %}
+
+{% for proyecto in datos.en_curso %}
 <div class="container my-4">
   <div class="row align-items-center">
+
+    <!-- Portada -->
     <div class="col-md-4 text-center imagenizq-texto">
-      <a href="{{ proyecto.link }}"><img src="{{ proyecto.imagen }}" style="width:300px"></a>
+      {% if proyecto.enlace.url and proyecto.enlace.usar_en_portada %}
+        <a href="{{ proyecto.enlace.url }}" target="_blank">
+          <img src="data:image/jpeg;base64,{{ proyecto.portada_base64 }}" style="width:300px">
+        </a>
+      {% else %}
+        <img src="data:image/jpeg;base64,{{ proyecto.portada_base64 }}" style="width:300px">
+      {% endif %}
     </div>
+
+    <!-- Contenido -->
     <div class="col-md-8">
-      <p><a style="color:#003366; font-weight:700; text-decoration:none;" href="{{ proyecto.link }}"><h4>{{ proyecto.titulo }}</h4></a></p>
-      <p>{{ proyecto.descripcion }}</p>
-      <p><a style="color: #003366" href="{{ proyecto.link }}">Leer Más</a></p>
+
+      <!-- Título -->
+      {% if proyecto.enlace.url and proyecto.enlace.usar_en_titulo %}
+        <h4>
+          <a style="color:#003366; font-weight:700; text-decoration:none;"
+             href="{{ proyecto.enlace.url }}" target="_blank">
+             {{ proyecto.titulo }}
+          </a>
+        </h4>
+      {% else %}
+        <h4>{{ proyecto.titulo }}</h4>
+      {% endif %}
+
+      <!-- Cuerpo -->
+      <p>{{ proyecto.cuerpo | safe }}</p>
+
+      <!-- Enlace inferior -->
+      {% if proyecto.enlace.url and proyecto.enlace.texto %}
+        <p>
+          <a style="color:#003366" href="{{ proyecto.enlace.url }}" target="_blank">
+            {{ proyecto.enlace.texto }}
+          </a>
+        </p>
+      {% endif %}
+
     </div>
   </div>
 </div>
 {% endfor %}
+
 <hr>
+
+<!-- ============================
+     SECCIÓN: ANTERIORES
+============================= -->
 <div id="anteriores" class="marco2">
   <h1>Anteriores</h1>
 </div>
-{% for proyecto in proyectos.anteriores %}
+
+{% for proyecto in datos.anteriores %}
 <div class="container my-4">
   <div class="row align-items-center">
+
     <div class="col-md-4 text-center imagenizq-texto">
-      <a href="{{ proyecto.link }}"><img src="{{ proyecto.imagen }}" style="width:300px"></a>
+      {% if proyecto.enlace.url and proyecto.enlace.usar_en_portada %}
+        <a href="{{ proyecto.enlace.url }}" target="_blank">
+          <img src="data:image/jpeg;base64,{{ proyecto.portada_base64 }}" style="width:300px">
+        </a>
+      {% else %}
+        <img src="data:image/jpeg;base64,{{ proyecto.portada_base64 }}" style="width:300px">
+      {% endif %}
     </div>
+
     <div class="col-md-8">
-      <p><a style="color:#003366; font-weight:700; text-decoration:none;" href="{{ proyecto.link }}"><h4>{{ proyecto.titulo }}</h4></a></p>
-      <p>{{ proyecto.descripcion }}</p>
-      <p><a style="color: #003366" href="{{ proyecto.link }}">Leer Más</a></p>
+
+      {% if proyecto.enlace.url and proyecto.enlace.usar_en_titulo %}
+        <h4>
+          <a style="color:#003366; font-weight:700; text-decoration:none;"
+             href="{{ proyecto.enlace.url }}" target="_blank">
+             {{ proyecto.titulo }}
+          </a>
+        </h4>
+      {% else %}
+        <h4>{{ proyecto.titulo }}</h4>
+      {% endif %}
+
+      <p>{{ proyecto.cuerpo | safe }}</p>
+
+      {% if proyecto.enlace.url and proyecto.enlace.texto %}
+        <p>
+          <a style="color:#003366" href="{{ proyecto.enlace.url }}" target="_blank">
+            {{ proyecto.enlace.texto }}
+          </a>
+        </p>
+      {% endif %}
+
     </div>
   </div>
 </div>
 {% endfor %}
+
 <hr>
+
+<!-- ============================
+     SECCIÓN: TRABAJOS ACADÉMICOS
+============================= -->
 <div id="trabajosacademicos" class="marco2">
   <h1>Trabajos académicos</h1>
 </div>
-{% for trabajo in proyectos.trabajosacademicos %}
+
+{% for proyecto in datos.trabajos_academicos %}
 <div class="container my-4">
   <div class="row align-items-center">
+
     <div class="col-md-4 text-center imagenizq-texto">
-      <a href="{{ trabajo.link }}"><img src="{{ trabajo.imagen }}" style="width:300px"></a>
+      {% if proyecto.enlace.url and proyecto.enlace.usar_en_portada %}
+        <a href="{{ proyecto.enlace.url }}" target="_blank">
+          <img src="data:image/jpeg;base64,{{ proyecto.portada_base64 }}" style="width:300px">
+        </a>
+      {% else %}
+        <img src="data:image/jpeg;base64,{{ proyecto.portada_base64 }}" style="width:300px">
+      {% endif %}
     </div>
+
     <div class="col-md-8">
-      <p><a style="color:#003366; font-weight:700; text-decoration:none;" href="{{ trabajo.link }}"><h4>{{ trabajo.titulo }}</h4></a></p>
-      <p>{{ trabajo.descripcion }}</p>
-      <p><a style="color: #003366" href="{{ trabajo.link }}">Leer Más</a></p>
+
+      {% if proyecto.enlace.url and proyecto.enlace.usar_en_titulo %}
+        <h4>
+          <a style="color:#003366; font-weight:700; text-decoration:none;"
+             href="{{ proyecto.enlace.url }}" target="_blank">
+             {{ proyecto.titulo }}
+          </a>
+        </h4>
+      {% else %}
+        <h4>{{ proyecto.titulo }}</h4>
+      {% endif %}
+
+      <p>{{ proyecto.cuerpo | safe }}</p>
+
+      {% if proyecto.enlace.url and proyecto.enlace.texto %}
+        <p>
+          <a style="color:#003366" href="{{ proyecto.enlace.url }}" target="_blank">
+            {{ proyecto.enlace.texto }}
+          </a>
+        </p>
+      {% endif %}
+
     </div>
   </div>
 </div>
 {% endfor %}
+
 {% endblock %}
