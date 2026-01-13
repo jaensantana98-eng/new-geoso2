@@ -186,7 +186,7 @@ class MainApp(tk.Tk):
             filepath = filedialog.askopenfilename(
                 title="Selecciona el JSON de Publicaciones",
                 filetypes=[("JSON files", "*.json")],
-                initialdir="data"
+                initialdir="geoso2-web-template/json"
             )
             if not filepath or not os.path.exists(filepath):
                 messagebox.showwarning(
@@ -212,7 +212,7 @@ class MainApp(tk.Tk):
             filepath = filedialog.askopenfilename(
                 title="Selecciona el JSON de Carrusel",
                 filetypes=[("JSON files", "*.json")],
-                initialdir="data"
+                initialdir="geoso2-web-template/json"
             )
 
             if not filepath or not os.path.exists(filepath):
@@ -232,7 +232,7 @@ class MainApp(tk.Tk):
             filepath = filedialog.askopenfilename(
                 title="Selecciona el JSON de Entidades Colaboradoras",
                 filetypes=[("JSON files", "*.json")],
-                initialdir="data"
+                initialdir="geoso2-web-template/json"
             )
 
             if not filepath or not os.path.exists(filepath):

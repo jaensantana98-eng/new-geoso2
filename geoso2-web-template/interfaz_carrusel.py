@@ -221,7 +221,7 @@ class PreviewTab(tk.Frame):
         datos = self.controller.state.copy()
         ruta = filedialog.asksaveasfilename(defaultextension=".json",
                                             filetypes=[("JSON files", "*.json")],
-                                            initialdir="data")
+                                            initialdir="geoso2-web-template/json",)
         if ruta:
             try:
                 with open(ruta, "w", encoding="utf-8") as f:
