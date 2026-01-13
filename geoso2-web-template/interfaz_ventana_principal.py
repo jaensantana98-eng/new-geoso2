@@ -182,19 +182,9 @@ class MainApp(tk.Tk):
     def abrir_publicaciones(self, mode, parent_win):
         parent_win.destroy()
         filepath = self.seleccionar_json(mode, "Publicaciones")
-        if mode == "edit":
-            filepath = filedialog.askopenfilename(
-                title="Selecciona el JSON de Publicaciones",
-                filetypes=[("JSON files", "*.json")],
-                initialdir="geoso2-web-template/json"
-            )
-            if not filepath or not os.path.exists(filepath):
-                messagebox.showwarning(
-                    "Aviso",
-                    "No se seleccionó ningún archivo válido."
-                )
+        if mode == "edit" and not filepath:
             return
-        interfaz_publicaciones.PublicacionesWindow(mode=mode, filepath=filepath)
+        interfaz_publicaciones.EditorWindow(mode=mode, filepath=filepath)
     
     def abrir_agenda(self, mode, parent_win):
         parent_win.destroy()
