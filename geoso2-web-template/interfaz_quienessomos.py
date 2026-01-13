@@ -314,20 +314,20 @@ class PreviewTab(tk.Frame):
 
 
     def save_json(self):
-        datos = self.controller.state.copy()
-        datos["fecha"] = datetime.datetime.now().strftime("%d-%m-%Y")
+        datos = {
+            "investigadores": self.controller.state.get("investigadores", []),
+            "colaboradores": self.controller.state.get("colaboradores", []),
+        }
+
         ruta = filedialog.asksaveasfilename(
             defaultextension=".json",
             filetypes=[("JSON files", "*.json")],
-            initialdir="data"
+            initialdir="geoso2-web-template/json"
         )
         if ruta:
-            try:
-                with open(ruta, "w", encoding="utf-8") as f:
-                    json.dump(datos, f, indent=4, ensure_ascii=False)
-                messagebox.showinfo("Guardado", f"Archivo JSON guardado en {ruta}")
-            except Exception as e:
-                messagebox.showerror("Error", f"No se pudo guardar el JSON:\n{e}")
+            with open(ruta, "w", encoding="utf-8") as f:
+                json.dump(datos, f, indent=4, ensure_ascii=False)
+            messagebox.showinfo("Guardado", "JSON guardado correctamente")
 
     def preview_web(self):
         datos = self.controller.state.copy()
