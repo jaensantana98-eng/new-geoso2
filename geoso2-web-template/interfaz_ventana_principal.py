@@ -170,7 +170,7 @@ class MainApp(tk.Tk):
         filepath = self.seleccionar_json(mode, "Proyectos")
         if mode == "edit" and not filepath:
             return
-        interfaz_proyectos.ProyectosWindow(mode=mode, filepath=filepath)
+        interfaz_proyectos.EditorProyectosWindow(filepath=filepath)
 
     def abrir_quienes_somos(self, mode, parent_win):
         parent_win.destroy()
