@@ -163,7 +163,7 @@ class MainApp(tk.Tk):
         filepath = self.seleccionar_json(mode, "Ráfagas")
         if mode == "edit" and not filepath:
             return
-        interfaz_rafagas.EditorWindow(mode=mode, filepath=filepath)
+        interfaz_rafagas.EditorRafagasWindow(filepath=filepath)
 
     def abrir_proyectos(self, mode, parent_win):
         parent_win.destroy()

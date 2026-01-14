@@ -2,277 +2,101 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import json
 import os
-import datetime
 import webbrowser
 from PIL import Image
-import base64
 from jinja2 import Environment, FileSystemLoader
 
 
-# -----------------------------
-# Ventana del editor con pestañas
-# -----------------------------
-class EditorWindow(tk.Toplevel):
-    def __init__(self, mode="create", filepath=None):
+# ============================================================
+# VENTANA PRINCIPAL DEL EDITOR
+# ============================================================
+class EditorRafagasWindow(tk.Toplevel):
+    def __init__(self, filepath=None):
         super().__init__()
-        self.title("Editor de rafagas")
-        self.geometry("980x640")
+        self.title("Editor de Ráfagas")
+        self.geometry("1100x700")
 
-        self.state = {
-            "rafagas": []
-        }
+        self.state = {"rafagas": []}
+        self.filepath = filepath
+        self.editing_index = None
 
-        # Asegurar carpeta de imágenes
-        os.makedirs("data/img", exist_ok=True)
+        if filepath and os.path.exists(filepath):
+            with open(filepath, "r", encoding="utf-8") as f:
+                datos = json.load(f)
+                self.state["rafagas"] = datos.get("rafagas", [])
 
-        # Si es edición, cargar datos desde JSON
-        if mode == "edit" and filepath:
-            try:
-                with open(filepath, "r", encoding="utf-8") as f:
-                    datos = json.load(f)
-
-                # Nuevo formato: ya trae lista de ráfagas
-                if isinstance(datos.get("rafagas"), list):
-                    self.state["rafagas"] = datos["rafagas"]
-                else:
-                    # Formato antiguo: una sola ráfaga en la raíz
-                    rafaga_unica = {
-                        "portada": datos.get("portada", ""),
-                        "portada_base64": datos.get("portada_base64", ""),
-                        "titulo": datos.get("titulo", ""),
-                        "cuerpo": datos.get("cuerpo", ""),
-                        "enlace": datos.get("enlace", {
-                            "texto": "",
-                            "url": "",
-                            "usar_en_titulo": True,
-                            "usar_en_portada": True
-                        })
-                    }
-                    # Solo la añadimos si tiene algo mínimamente relleno
-                    if rafaga_unica["titulo"] or rafaga_unica["cuerpo"]:
-                        self.state["rafagas"].append(rafaga_unica)
-            except Exception as e:
-                messagebox.showerror("Error", f"No se pudo cargar el JSON:\n{e}")
-
-        # Notebook
         self.notebook = ttk.Notebook(self)
         self.notebook.pack(fill="both", expand=True)
 
-        # Pestañas
-        self.tab_datos = DatosTab(self.notebook, self)
+        self.tab_lista = ListaTab(self.notebook, self)
+        self.tab_form = FormTab(self.notebook, self)
         self.tab_preview = PreviewTab(self.notebook, self)
 
-        self.notebook.add(self.tab_datos, text="Datos")
+        self.notebook.add(self.tab_lista, text="Lista")
+        self.notebook.add(self.tab_form, text="Formulario")
         self.notebook.add(self.tab_preview, text="Preview y Generar")
 
-        # Inicializar contenido si es edición
-        if mode == "edit":
-            self.tab_datos.set_data(self.state)
-            self.tab_preview.update_preview()
+        self.tab_lista.refresh_table()
 
 
-# -----------------------------
-# Pestaña: Datos
-# -----------------------------
-class DatosTab(tk.Frame):
+# ============================================================
+# TABLA DE RÁFAGAS
+# ============================================================
+class ListaTab(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
         self.controller = controller
 
-        # Para guardar temporalmente la portada_base64 de la ráfaga en edición
-        self.portada_base64_actual = ""
+        toolbar = ttk.Frame(self)
+        toolbar.pack(fill="x", pady=10)
 
-        frm = ttk.Frame(self)
-        frm.pack(fill="both", expand=True, padx=20, pady=20)
-
-        # --- Campos superiores ---
-
-        ttk.Label(frm, text="Portada:").grid(row=0, column=0, sticky="w", pady=6)
-        self.entry_portada = ttk.Entry(frm)
-        self.entry_portada.grid(row=0, column=1, sticky="ew", pady=6)
-        ttk.Button(frm, text="Buscar", command=self.select_portada).grid(row=0, column=2, padx=8)
-
-        ttk.Label(frm, text="Título de la noticia:").grid(row=1, column=0, sticky="w", pady=6)
-        self.text_titulo = tk.Text(frm, wrap="word", height=2)
-        self.text_titulo.grid(row=1, column=1, sticky="ew", pady=6)
-
-        ttk.Label(frm, text="Cuerpo:").grid(row=2, column=0, sticky="nw", pady=6)
-        cuerpo_frame = ttk.Frame(frm)
-        cuerpo_frame.grid(row=2, column=1, sticky="nsew", pady=6)
-        self.text_cuerpo = tk.Text(cuerpo_frame, wrap="word")
-        self.text_cuerpo.pack(side="left", fill="both", expand=True)
-        scroll_cuerpo = ttk.Scrollbar(cuerpo_frame, orient="vertical", command=self.text_cuerpo.yview)
-        scroll_cuerpo.pack(side="right", fill="y")
-        self.text_cuerpo.config(yscrollcommand=scroll_cuerpo.set)
-
-        # Enlace
-        ttk.Label(frm, text="Texto del enlace:").grid(row=3, column=0, sticky="w", pady=6)
-        self.entry_enlace_texto = ttk.Entry(frm)
-        self.entry_enlace_texto.grid(row=3, column=1, sticky="ew", pady=6)
-
-        ttk.Label(frm, text="URL del enlace:").grid(row=4, column=0, sticky="w", pady=6)
-        self.entry_enlace_url = ttk.Entry(frm)
-        self.entry_enlace_url.grid(row=4, column=1, sticky="ew", pady=6)
-        
-        ttk.Button(
-            frm,
-            text="Probar enlace",
-            command=self.probar_enlace
-        ).grid(row=4, column=2, padx=8)
-
-        # Checkbuttons para usar enlace en título/portada
-        self.var_link_titulo = tk.BooleanVar(value=True)
-        self.var_link_portada = tk.BooleanVar(value=True)
-
-        ttk.Checkbutton(
-            frm,
-            text="Usar este enlace en el título",
-            variable=self.var_link_titulo
-        ).grid(row=5, column=0, sticky="w", pady=(6, 0))
-
-        ttk.Checkbutton(
-            frm,
-            text="Usar este enlace en la portada",
-            variable=self.var_link_portada
-        ).grid(row=5, column=1, sticky="w")
-
-        frm.columnconfigure(1, weight=1)
-        frm.rowconfigure(2, weight=1)
-
-        # --- Botones de gestión de noticias ---
-
-        btn_frame = ttk.Frame(frm)
-        btn_frame.grid(row=6, column=0, columnspan=3, pady=10)
-
-        ttk.Button(btn_frame, text="Añadir", command=self.add_item).pack(side="left", padx=5)
-        ttk.Button(btn_frame, text="Editar", command=self.edit_item).pack(side="left", padx=5)
-        ttk.Button(btn_frame, text="Eliminar", command=self.delete_item).pack(side="left", padx=5)
-        ttk.Button(btn_frame, text="Subir", command=self.move_up).pack(side="left", padx=5)
-        ttk.Button(btn_frame, text="Bajar", command=self.move_down).pack(side="left", padx=5)
-
-        # --- Tabla ---
+        ttk.Button(toolbar, text="Añadir", command=self.add).pack(side="left", padx=5)
+        ttk.Button(toolbar, text="Editar", command=self.edit).pack(side="left", padx=5)
+        ttk.Button(toolbar, text="Eliminar", command=self.delete).pack(side="left", padx=5)
+        ttk.Button(toolbar, text="Subir", command=self.up).pack(side="left", padx=5)
+        ttk.Button(toolbar, text="Bajar", command=self.down).pack(side="left", padx=5)
 
         self.tree = ttk.Treeview(
-            frm,
-            columns=("Imagen", "Título", "Enlace"),
+            self,
+            columns=("Imagen", "Título", "Link"),
             show="headings",
-            height=10
+            height=20
         )
-        self.tree.grid(row=7, column=0, columnspan=3, sticky="nsew")
+        self.tree.pack(fill="both", expand=True)
+
         self.tree.heading("Imagen", text="Imagen")
         self.tree.heading("Título", text="Título")
-        self.tree.heading("Enlace", text="Enlace")
+        self.tree.heading("Link", text="Link")
 
-        frm.rowconfigure(7, weight=1)
+    def refresh_table(self):
+        for item in self.tree.get_children():
+            self.tree.delete(item)
 
-    # ---------- Gestión de imagen de portada ----------
-    def select_portada(self):
-        ruta = filedialog.askopenfilename(
-            filetypes=[("Imagen", "*.png;*.jpg;*.jpeg;*.gif")]
-        )
-
-        if not ruta:
-            return
-
-        try:
-            nombre = os.path.basename(ruta)
-            destino = os.path.join("data/img", nombre)
-
-            with Image.open(ruta) as img:
-                # Convertir a RGB para evitar problemas de formato
-                img = img.convert("RGB")
-
-                # Mantener proporción dentro de 300x300
-                img.thumbnail((300, 300), Image.LANCZOS)
-
-                # Crear lienzo 300x300 con fondo blanco
-                canvas = Image.new("RGB", (300, 300), "white")
-                x = (300 - img.width) // 2
-                y = (300 - img.height) // 2
-                canvas.paste(img, (x, y))
-
-                # La imagen final es el canvas
-                canvas.save(destino, quality=90)
-
-            self.entry_portada.delete(0, tk.END)
-            self.entry_portada.insert(0, destino)
-
-            # Guardar base64 solo para la noticia actual (no en el estado global directamente)
-            with open(destino, "rb") as img_file:
-                b64 = base64.b64encode(img_file.read()).decode("utf-8")
-                self.portada_base64_actual = b64
-
-        except Exception as e:
-            messagebox.showerror(
-                "Error",
-                f"No se pudo procesar la imagen de portada:\n{e}"
+        for r in self.controller.state["rafagas"]:
+            self.tree.insert(
+                "",
+                tk.END,
+                values=(r.get("imagen", ""), r.get("titulo", ""), r.get("link", ""))
             )
 
-    # ---------- Probar enlace ----------
-    def probar_enlace(self):
-        url = self.entry_enlace_url.get().strip()
+    def add(self):
+        self.controller.editing_index = None
+        self.controller.tab_form.load_data({})
+        self.controller.notebook.select(self.controller.tab_form)
 
-        if not url:
-            messagebox.showwarning("Aviso", "No hay ninguna URL para probar.")
+    def edit(self):
+        selected = self.tree.selection()
+        if not selected:
             return
 
-        try:
-            # Si es un archivo HTML dentro del proyecto
-            if url.endswith(".html"):
-                ruta_absoluta = os.path.abspath(url)
-                if os.path.exists(ruta_absoluta):
-                    webbrowser.open_new_tab(f"file:///{ruta_absoluta}")
-                else:
-                    messagebox.showerror("Error", f"No se encontró el archivo HTML:\n{ruta_absoluta}")
-            elif url.startswith(("http://", "https://")):
-                webbrowser.open_new_tab(url)
-            else:
-                messagebox.showerror("Error", "El enlace debe ser una URL válida o un archivo .html del proyecto.")
-        except Exception as e:
-            messagebox.showerror("Error", f"No se pudo abrir el enlace:\n{e}")
+        index = self.tree.index(selected[0])
+        self.controller.editing_index = index
+        data = self.controller.state["rafagas"][index]
 
-    # ---------- CRUD de noticias ----------
+        self.controller.tab_form.load_data(data)
+        self.controller.notebook.select(self.controller.tab_form)
 
-    def add_item(self):
-        portada = self.entry_portada.get().strip()
-        titulo = self.text_titulo.get("1.0", tk.END).strip()
-        cuerpo = self.text_cuerpo.get("1.0", tk.END).strip()
-        enlace_texto = self.entry_enlace_texto.get().strip()
-        enlace_url = self.entry_enlace_url.get().strip()
-        usar_en_titulo = self.var_link_titulo.get()
-        usar_en_portada = self.var_link_portada.get()
-
-        if not titulo:
-            messagebox.showwarning("Aviso", "Debes introducir al menos un título para la noticia.")
-            return
-
-        noticia = {
-            "portada": portada,
-            "portada_base64": self.portada_base64_actual,
-            "titulo": titulo,
-            "cuerpo": cuerpo,
-            "enlace": {
-                "texto": enlace_texto,
-                "url": enlace_url,
-                "usar_en_titulo": usar_en_titulo,
-                "usar_en_portada": usar_en_portada
-            }
-        }
-
-        self.controller.state["rafagas"].append(noticia)
-        self.refresh_table()
-
-        # Limpiar campos para siguiente noticia
-        self.entry_portada.delete(0, tk.END)
-        self.text_titulo.delete("1.0", tk.END)
-        self.text_cuerpo.delete("1.0", tk.END)
-        self.entry_enlace_texto.delete(0, tk.END)
-        self.entry_enlace_url.delete(0, tk.END)
-        self.var_link_titulo.set(True)
-        self.var_link_portada.set(True)
-        self.portada_base64_actual = ""
-
-    def delete_item(self):
+    def delete(self):
         selected = self.tree.selection()
         if not selected:
             return
@@ -280,276 +104,190 @@ class DatosTab(tk.Frame):
         del self.controller.state["rafagas"][index]
         self.refresh_table()
 
-    def edit_item(self):
+    def up(self):
         selected = self.tree.selection()
         if not selected:
             return
-
         index = self.tree.index(selected[0])
-        item = self.controller.state["rafagas"][index]
-
-        # Rellenar campos con la ráfaga seleccionada
-        self.entry_portada.delete(0, tk.END)
-        self.entry_portada.insert(0, item.get("portada", ""))
-
-        self.text_titulo.delete("1.0", tk.END)
-        self.text_titulo.insert("1.0", item.get("titulo", ""))
-
-        self.text_cuerpo.delete("1.0", tk.END)
-        self.text_cuerpo.insert("1.0", item.get("cuerpo", ""))
-
-        enlace = item.get("enlace", {})
-        self.entry_enlace_texto.delete(0, tk.END)
-        self.entry_enlace_texto.insert(0, enlace.get("texto", ""))
-
-        self.entry_enlace_url.delete(0, tk.END)
-        self.entry_enlace_url.insert(0, enlace.get("url", ""))
-
-        self.var_link_titulo.set(enlace.get("usar_en_titulo", True))
-        self.var_link_portada.set(enlace.get("usar_en_portada", True))
-
-        self.portada_base64_actual = item.get("portada_base64", "")
-
-        # Eliminar la ráfaga de la lista; se volverá a guardar al pulsar "Añadir"
-        del self.controller.state["rafagas"][index]
+        if index == 0:
+            return
+        arr = self.controller.state["rafagas"]
+        arr[index - 1], arr[index] = arr[index], arr[index - 1]
         self.refresh_table()
 
-    def move_up(self):
-        selected = self.tree.selection()
-        if not selected:
-            return
-        index = self.tree.index(selected[0])
-        if index > 0:
-            arr = self.controller.state["rafagas"]
-            arr[index - 1], arr[index] = arr[index], arr[index - 1]
-            self.refresh_table()
-            self.tree.selection_set(self.tree.get_children()[index - 1])
-
-    def move_down(self):
+    def down(self):
         selected = self.tree.selection()
         if not selected:
             return
         index = self.tree.index(selected[0])
         arr = self.controller.state["rafagas"]
-        if index < len(arr) - 1:
-            arr[index + 1], arr[index] = arr[index], arr[index + 1]
-            self.refresh_table()
-            self.tree.selection_set(self.tree.get_children()[index + 1])
-
-    def refresh_table(self):
-        # Vaciar tabla
-        for item_id in self.tree.get_children():
-            self.tree.delete(item_id)
-        # Rellenar
-        for n in self.controller.state["rafagas"]:
-            self.tree.insert(
-                "",
-                tk.END,
-                values=(
-                    n.get("portada", ""),
-                    n.get("titulo", ""),
-                    n.get("enlace", {}).get("url", "")
-                )
-            )
-
-    def set_data(self, datos):
-        # Cargar lista de ráfagas al abrir en modo edición
-        self.controller.state["rafagas"] = datos.get("rafagas", [])
+        if index == len(arr) - 1:
+            return
+        arr[index + 1], arr[index] = arr[index], arr[index + 1]
         self.refresh_table()
 
 
-# -----------------------------
-# Pestaña: Preview y Generar
-# -----------------------------
+# ============================================================
+# FORMULARIO DE EDICIÓN
+# ============================================================
+class FormTab(tk.Frame):
+    def __init__(self, parent, controller):
+        super().__init__(parent)
+        self.controller = controller
+
+        frm = ttk.Frame(self)
+        frm.pack(fill="both", expand=True, padx=20, pady=20)
+
+        # Imagen
+        ttk.Label(frm, text="Imagen:").grid(row=0, column=0, sticky="w")
+        self.entry_imagen = ttk.Entry(frm)
+        self.entry_imagen.grid(row=0, column=1, sticky="ew")
+        ttk.Button(frm, text="Seleccionar", command=self.select_image).grid(row=0, column=2, padx=5)
+
+        # Título
+        ttk.Label(frm, text="Título:").grid(row=2, column=0, sticky="nw")
+        self.text_titulo = tk.Text(frm, height=3)
+        self.text_titulo.grid(row=2, column=1, sticky="ew")
+
+        # Descripción
+        ttk.Label(frm, text="Descripción:").grid(row=3, column=0, sticky="nw")
+        self.text_desc = tk.Text(frm, height=8)
+        self.text_desc.grid(row=3, column=1, sticky="ew")
+
+        # Link + botón probar
+        ttk.Label(frm, text="Link:").grid(row=4, column=0, sticky="w")
+
+        link_frame = ttk.Frame(frm)
+        link_frame.grid(row=4, column=1, sticky="ew")
+
+        self.entry_link = ttk.Entry(link_frame)
+        self.entry_link.pack(side="left", fill="x", expand=True)
+
+        ttk.Button(link_frame, text="Probar", command=self.probar_link).pack(side="left", padx=5)
+
+
+
+        # Botones
+        btns = ttk.Frame(frm)
+        btns.grid(row=5, column=0, columnspan=3, pady=20)
+
+        ttk.Button(btns, text="Guardar", command=self.save).pack(side="left", padx=10)
+        ttk.Button(btns, text="Cancelar", command=self.cancel).pack(side="left", padx=10)
+
+        frm.columnconfigure(1, weight=1)
+    
+    def probar_link(self):
+        url = self.entry_link.get().strip()
+
+        if not url:
+            messagebox.showwarning("Aviso", "No hay ningún enlace para probar.")
+            return
+
+        try:
+            # Si es un archivo HTML local
+            if url.endswith(".html") and os.path.exists(url):
+                ruta = os.path.abspath(url)
+                webbrowser.open_new_tab(f"file:///{ruta}")
+                return
+
+            # Si es una URL web
+            if url.startswith("http://") or url.startswith("https://"):
+                webbrowser.open_new_tab(url)
+                return
+
+            messagebox.showerror("Error", "El enlace no es válido. Debe ser una URL o un archivo .html existente.")
+
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo abrir el enlace:\n{e}")
+
+
+    def load_data(self, data):
+        self.entry_imagen.delete(0, tk.END)
+        self.text_titulo.delete("1.0", tk.END)
+        self.text_desc.delete("1.0", tk.END)
+        self.entry_link.delete(0, tk.END)
+
+        self.entry_imagen.insert(0, data.get("imagen", ""))
+        self.text_titulo.insert("1.0", data.get("titulo", ""))
+        self.text_desc.insert("1.0", data.get("descripcion", ""))
+        self.entry_link.insert(0, data.get("link", ""))
+
+    def select_image(self):
+        ruta = filedialog.askopenfilename(
+            filetypes=[("Imágenes", "*.jpg;*.jpeg;*.png;*.gif")]
+        )
+        if ruta:
+            self.entry_imagen.delete(0, tk.END)
+            self.entry_imagen.insert(0, ruta)
+
+    def save(self):
+        data = {
+            "imagen": self.entry_imagen.get().strip(),
+            "titulo": self.text_titulo.get("1.0", tk.END).strip(),
+            "descripcion": self.text_desc.get("1.0", tk.END).strip(),
+            "link": self.entry_link.get().strip()
+        }
+
+        if self.controller.editing_index is None:
+            self.controller.state["rafagas"].append(data)
+        else:
+            self.controller.state["rafagas"][self.controller.editing_index] = data
+            self.controller.editing_index = None
+
+        self.controller.tab_lista.refresh_table()
+        self.controller.notebook.select(self.controller.tab_lista)
+
+    def cancel(self):
+        self.controller.notebook.select(self.controller.tab_lista)
+
+
+# ============================================================
+# PREVIEW Y GENERAR
+# ============================================================
 class PreviewTab(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
         self.controller = controller
 
         toolbar = ttk.Frame(self)
-        toolbar.pack(fill="x", padx=16, pady=10)
+        toolbar.pack(fill="x", pady=10)
 
-        ttk.Button(toolbar, text="Actualizar preview", command=self.update_preview).pack(side="left")
-        ttk.Button(toolbar, text="Guardar JSON", command=self.save_json).pack(side="left", padx=8)
-        ttk.Button(toolbar, text="Previsualizar en web", command=self.preview_web).pack(side="left", padx=8)
-        ttk.Button(toolbar, text="Generar archivo HTML", command=self.generate_html).pack(side="right", padx=8)
+        ttk.Button(toolbar, text="Preview JSON", command=self.preview_json).pack(side="left", padx=5)
+        ttk.Button(toolbar, text="Preview HTML", command=self.preview_html).pack(side="left", padx=5)
+        ttk.Button(toolbar, text="Generar HTML", command=self.generate_html).pack(side="left", padx=5)
 
-        self.text_area = tk.Text(self, wrap="word")
-        self.text_area.pack(fill="both", expand=True, padx=16, pady=10)
+        self.text = tk.Text(self, wrap="word")
+        self.text.pack(fill="both", expand=True)
 
-    def update_preview(self):
-        # Construir datos para preview
-        datos = {
-            "rafagas": [],
-            "fecha": datetime.datetime.now().strftime("%d-%m-%Y")
-        }
+    def preview_json(self):
+        datos = {"rafagas": self.controller.state["rafagas"]}
+        self.text.delete("1.0", tk.END)
+        self.text.insert(tk.END, json.dumps(datos, indent=4, ensure_ascii=False))
 
-        for n in self.controller.state.get("rafagas", []):
-            copia = n.copy()
-            # Quitar la clave base64 para el JSON de preview
-            copia.pop("portada_base64", None)
-            datos["rafagas"].append(copia)
-        preview = json.dumps(datos, indent=4, ensure_ascii=False)
-        self.text_area.delete("1.0", tk.END)
-        self.text_area.insert(tk.END, preview)
+    def preview_html(self):
+        datos = {"rafagas": self.controller.state["rafagas"]}
 
-    def save_json(self):
-        datos = {
-            "rafagas": [],
-            "fecha": datetime.datetime.now().strftime("%d-%m-%Y")
-        }
+        env = Environment(loader=FileSystemLoader("geoso2-web-template/templates"))
+        template = env.get_template("rafagas.html")
+        html = template.render(rafagas=datos["rafagas"])
 
-        for r in self.controller.state.get("rafagas", []):
-            copia = r.copy()
-            copia.pop("portada_base64", None)
-            datos["rafagas"].append(copia)
-
-        ruta = filedialog.asksaveasfilename(
-            defaultextension=".json",
-            filetypes=[("JSON files", "*.json")],
-            initialdir="data"
-        )
-        if ruta:
-            try:
-                with open(ruta, "w", encoding="utf-8") as f:
-                    json.dump(datos, f, indent=4, ensure_ascii=False)
-                messagebox.showinfo("Guardado", f"Archivo JSON guardado en {ruta}")
-            except Exception as e:
-                messagebox.showerror("Error", f"No se pudo guardar el JSON:\n{e}")
-
-    def preview_web(self):
-        datos = {
-            "rafagas": self.controller.state.get("rafagas", []),
-            "fecha": datetime.datetime.now().strftime("%d-%m-%Y")
-        }
-
-        # Construir HTML de todas las ráfagas
-        bloques = ""
-        for n in datos["rafagas"]:
-            cuerpo_html = n.get("cuerpo", "").replace("\n", "<br>")
-
-            portada_src = ""
-            if n.get("portada_base64"):
-                portada_src = f"data:image/jpeg;base64,{n['portada_base64']}"
-
-            enlace_info = n.get("enlace", {})
-            enlace_url = enlace_info.get("url", "").strip()
-            enlace_texto = enlace_info.get("texto", "").strip()
-            usar_en_titulo = enlace_info.get("usar_en_titulo", True)
-            usar_en_portada = enlace_info.get("usar_en_portada", True)
-
-            # Título (con o sin enlace)
-            titulo_html = n.get("titulo", "")
-            if enlace_url and usar_en_titulo:
-                titulo_html = f'<a href="{enlace_url}" target="_blank">{titulo_html}</a>'
-
-            # Portada (con o sin enlace)
-            portada_html = ""
-            if portada_src:
-                img_tag = f'<img src="{portada_src}" alt="Portada">'
-                if enlace_url and usar_en_portada:
-                    img_tag = f'<a href="{enlace_url}" target="_blank">{img_tag}</a>'
-                portada_html = img_tag
-
-            # Enlace inferior
-            enlace_inferior_html = ""
-            if enlace_url and enlace_texto:
-                enlace_inferior_html = f'<p><a href="{enlace_url}" target="_blank">{enlace_texto}</a></p>'
-
-            bloques += f"""
-            <div class="rafagas">
-                <div class="contenedor">
-                    <div class="portada">
-                        {portada_html}
-                    </div>
-                    <div class="contenido">
-                        <h3>{titulo_html}</h3>
-                        <div>{cuerpo_html}</div>
-                        {enlace_inferior_html}
-                        <p><small>Fecha: {datos['fecha']}</small></p>
-                    </div>
-                </div>
-                <hr>
-            </div>
-            """
-
-        html = f"""
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-            <meta charset="UTF-8">
-            <title>Ráfagas</title>
-            <style>
-                body {{
-                    font-family: Segoe UI, sans-serif;
-                    margin: 40px auto;
-                    max-width: 900px;
-                    line-height: 1.6;
-                }}
-                .contenedor {{
-                    display: flex;
-                    align-items: flex-start;
-                    gap: 20px;
-                    margin-bottom: 20px;
-                }}
-                .portada {{
-                    max-width: 300px;
-                    flex-shrink: 0;
-                }}
-                .contenido {{
-                    flex-grow: 1;
-                }}
-                img {{
-                    width: 100%;
-                    height: auto;
-                    display: block;
-                }}
-                h3 a {{
-                    color: inherit;
-                    text-decoration: none;
-                }}
-                h3 a:hover {{
-                    text-decoration: underline;
-                }}
-            </style>
-        </head>
-        <body>
-            <h1>Ráfagas</h1>
-            {bloques}
-        </body>
-        </html>
-        """
-
-        temp_html = "data/preview_temp_rafagas.html"
-        with open(temp_html, "w", encoding="utf-8") as f:
+        ruta = "data/preview_rafagas.html"
+        os.makedirs("data", exist_ok=True)
+        with open(ruta, "w", encoding="utf-8") as f:
             f.write(html)
 
-        webbrowser.open_new_tab(f"file:///{os.path.abspath(temp_html)}")
+        webbrowser.open_new_tab(f"file:///{os.path.abspath(ruta)}")
 
     def generate_html(self):
-        # Datos para la plantilla
-        datos = {
-            "rafagas": self.controller.state.get("rafagas", []),
-            "fecha": datetime.datetime.now().strftime("%d-%m-%Y")
-        }
+        datos = {"rafagas": self.controller.state["rafagas"]}
 
-        # Ruta de plantillas
         env = Environment(loader=FileSystemLoader("geoso2-web-template/templates"))
-
-        # Plantilla de ráfagas (debes adaptarla para usar datos.rafagas)
         template = env.get_template("rafagas.html")
+        html = template.render(rafagas=datos["rafagas"])
 
-        # Renderizar HTML
-        html_output = template.render(datos=datos)
+        ruta = "geoso2-web-template/output/rafagas.html"
+        os.makedirs("geoso2-web-template/output", exist_ok=True)
+        with open(ruta, "w", encoding="utf-8") as f:
+            f.write(html)
 
-        output_dir = "geoso2-web-template/output"
-        os.makedirs(output_dir, exist_ok=True)
-        output_path = os.path.join(output_dir, "rafagas.html")
-
-        # Guardar archivo automáticamente
-        try:
-            with open(output_path, "w", encoding="utf-8") as f:
-                f.write(html_output)
-            messagebox.showinfo("Éxito", f"Archivo HTML generado en:\n{output_path}")
-        except Exception as e:
-            messagebox.showerror("Error", f"No se pudo generar el archivo:\n{e}")
+        messagebox.showinfo("OK", f"Archivo generado:\n{ruta}")

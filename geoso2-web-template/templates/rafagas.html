@@ -3,55 +3,23 @@
 {% block title %}Ráfagas{% endblock %}
 
 {% block content %}
-
-<h1 class="my-4">Ráfagas</h1>
-
-{% for r in datos.rafagas %}
+{% for rafaga in rafagas %}
 <div class="container my-4">
   <div class="row align-items-center">
-
-    <!-- Portada -->
     <div class="col-md-4 text-center imagenizq-texto">
-      {% if r.enlace.url and r.enlace.usar_en_portada %}
-        <a href="{{ r.enlace.url }}" target="_blank">
-          <img src="data:image/jpeg;base64,{{ r.portada_base64 }}" style="width:300px">
-        </a>
-      {% else %}
-        <img src="data:image/jpeg;base64,{{ r.portada_base64 }}" style="width:300px">
-      {% endif %}
+      <a href="{{ rafaga.link }}">
+        <img src="{{ rafaga.imagen }}" style="width:300px">
+      </a>
     </div>
-
-    <!-- Contenido -->
     <div class="col-md-8">
-
-      <!-- Título -->
-      {% if r.enlace.url and r.enlace.usar_en_titulo %}
-        <h4>
-          <a style="color:#003366; font-weight:700; text-decoration:none;"
-             href="{{ r.enlace.url }}" target="_blank">
-             {{ r.titulo }}
-          </a>
-        </h4>
-      {% else %}
-        <h4>{{ r.titulo }}</h4>
-      {% endif %}
-
-      <!-- Cuerpo -->
-      <p>{{ r.cuerpo | safe }}</p>
-
-      <!-- Enlace inferior -->
-      {% if r.enlace.url and r.enlace.texto %}
-        <p>
-          <a style="color:#003366" href="{{ r.enlace.url }}" target="_blank">
-            {{ r.enlace.texto }}
-          </a>
-        </p>
-      {% endif %}
-
+      <h4>
+        <a style="color:#003366; font-weight:700; text-decoration:none;" href="{{ rafaga.link }}">
+          {{ rafaga.titulo }}
+        </a>
+      </h4>
+      <p>{{ rafaga.descripcion }}</p>
     </div>
   </div>
 </div>
-<hr>
 {% endfor %}
-
 {% endblock %}

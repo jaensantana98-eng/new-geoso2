@@ -3,16 +3,14 @@
     {
         "link": "rafagas01.html",
         "imagen": "../imput/img/rafagas/pagina1/rafagas1_01.jpg",
-        "alt1": "Imagen 1",
         "titulo": "Impacto positivo de la declaración de parque regional en evolución de la calidad de agua",
         "descripcion": "La declaración del Parque Regional del Sureste en 1994 parece haber tenido un impacto positivo en la evolución de la calidad de agua de las lagunas de gravera a lo largo de los años estudiados (1984-2011). Se redujo a la mitad el número de masas de agua hipereutróficas, e incluso, al final del periodo, aparecieron masas de agua oligotróficas. Leer más…"
     },
     {
-        "link2": "https://datos1.geoso2.es/spain/bodyWater//",
-        "imagen2": "../imput/img/rafagas/pagina2/rafagas2_01.jpg",
-        "alt2": "Imagen 2",
-        "titulo2": "Ejemplo de visor de temperaturas en la España Peninsular (en pruebas)",
-        "descripcion2": "Se trata de un ejemplo de visor para manejar datos ráster en grandes extensiones, en este caso temperaturas medias en la España Peninsular. Los datos que se muestran son ficticios y solo se utilizan para ilustrar la variación de una variable en el espacio."
+        "link": "https://datos1.geoso2.es/spain/bodyWater//",
+        "imagen": "../imput/img/rafagas/pagina2/rafagas2_01.jpg",
+        "titulo": "Ejemplo de visor de temperaturas en la España Peninsular (en pruebas)",
+        "descripcion": "Se trata de un ejemplo de visor para manejar datos ráster en grandes extensiones, en este caso temperaturas medias en la España Peninsular. Los datos que se muestran son ficticios y solo se utilizan para ilustrar la variación de una variable en el espacio."
     }
     ],
     
