@@ -7,11 +7,15 @@ import webbrowser
 from PIL import Image
 from jinja2 import Environment, FileSystemLoader
 
+
 class paginaWindow(tk.Toplevel):
     def __init__(self, mode="create", filepath=None):
         super().__init__()
         self.title("Editor de Página Web")
         self.geometry("1050x950")
+
+        # Aseguramos carpeta de imágenes
+        os.makedirs("data/img", exist_ok=True)
 
         # Estado inicial
         self.state = {
@@ -26,7 +30,9 @@ class paginaWindow(tk.Toplevel):
             try:
                 with open(filepath, "r", encoding="utf-8") as f:
                     datos = json.load(f)
-                self.state.update(datos)
+                # Permitimos que venga tal cual o con alguna estructura similar
+                if isinstance(datos, dict):
+                    self.state.update(datos)
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo cargar el JSON:\n{e}")
 
@@ -41,7 +47,7 @@ class paginaWindow(tk.Toplevel):
 
         self.notebook.add(self.tab_datos, text="Datos")
         self.notebook.add(self.tab_cuerpo, text="Cuerpo")
-        self.notebook.add(self.tab_preview, text="Preview y Guardar")
+        self.notebook.add(self.tab_preview, text="Preview y Generar")
 
         if mode == "edit":
             self.tab_datos.refresh_fields()
@@ -62,8 +68,8 @@ class DatosTab(ttk.Frame):
         self.entry_portada.grid(row=0, column=1, sticky="ew", pady=6)
         ttk.Button(frm, text="Buscar", command=self.select_portada).grid(row=0, column=2, padx=8)
 
-        ttk.Label(frm, text="Titulo:").grid(row=2, column=0, sticky="w", pady=6)
-        self.texto = tk.Text(frm, height=8, wrap="word")
+        ttk.Label(frm, text="Título:").grid(row=2, column=0, sticky="w", pady=6)
+        self.texto = tk.Text(frm, height=4, wrap="word")
         self.texto.grid(row=2, column=1, sticky="ew", pady=6)
 
         ttk.Label(frm, text="Autor:").grid(row=3, column=0, sticky="w", pady=6)
@@ -95,19 +101,14 @@ class DatosTab(ttk.Frame):
             destino = os.path.join("data/img", nombre)
 
             with Image.open(ruta) as img:
-                # Convertir a RGB para evitar problemas de formato
                 img = img.convert("RGB")
-
-                # Mantener proporción dentro de 300x300
                 img.thumbnail((300, 300), Image.LANCZOS)
 
-                # Crear lienzo 300x300 con fondo blanco
                 canvas = Image.new("RGB", (300, 300), "white")
                 x = (300 - img.width) // 2
                 y = (300 - img.height) // 2
                 canvas.paste(img, (x, y))
 
-                # La imagen final es el canvas
                 canvas.save(destino, quality=90)
 
             self.entry_portada.delete(0, tk.END)
@@ -125,6 +126,7 @@ class DatosTab(ttk.Frame):
         self.controller.state["titulo"] = self.texto.get("1.0", tk.END).strip()
         self.controller.state["autor"] = self.entry_autor.get().strip()
 
+
 class CuerpoTab(ttk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
@@ -133,9 +135,8 @@ class CuerpoTab(ttk.Frame):
         frm = ttk.Frame(self)
         frm.pack(fill="both", expand=True, padx=10, pady=10)
 
-        # Campos para añadir bloques
         ttk.Label(frm, text="Texto:").grid(row=0, column=0, sticky="w", pady=6)
-        self.texto = tk.Text(frm, height=16, wrap="word")
+        self.texto = tk.Text(frm, height=10, wrap="word")
         self.texto.grid(row=0, column=1, sticky="ew", pady=6)
 
         ttk.Label(frm, text="Enlace:").grid(row=1, column=0, sticky="w", pady=6)
@@ -153,21 +154,24 @@ class CuerpoTab(ttk.Frame):
         ttk.Button(frm, text="Buscar", command=self.select_imagen).grid(row=3, column=2, padx=8)
 
         ttk.Label(frm, text="Pie de imagen:").grid(row=4, column=0, sticky="w", pady=6)
-        self.texto_Pie_de_imagen = tk.Text(frm, height=6, wrap="word")
+        self.texto_Pie_de_imagen = tk.Text(frm, height=4, wrap="word")
         self.texto_Pie_de_imagen.grid(row=4, column=1, sticky="ew", pady=6)
 
-        # Botones de gestión
         btn_frame = ttk.Frame(frm)
-        btn_frame.grid(row=5, column=0, columnspan=2, pady=10)
+        btn_frame.grid(row=5, column=0, columnspan=3, pady=10)
         ttk.Button(btn_frame, text="Añadir", command=self.add_block).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Eliminar", command=self.delete_block).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Editar", command=self.edit_block).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Subir", command=self.move_up).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Bajar", command=self.move_down).pack(side="left", padx=5)
 
-        # Tabla para mostrar bloques añadidos
-        self.tree = ttk.Treeview(frm, columns=("Texto", "Imagen", "Pie de imagen", "Enlace", "Texto del enlace"), show="headings", height=8)
-        self.tree.grid(row=6, column=0, columnspan=2, sticky="nsew")
+        self.tree = ttk.Treeview(
+            frm,
+            columns=("Texto", "Imagen", "Pie de imagen", "Enlace", "Texto del enlace"),
+            show="headings",
+            height=8
+        )
+        self.tree.grid(row=6, column=0, columnspan=3, sticky="nsew")
         self.tree.heading("Texto", text="Texto")
         self.tree.heading("Imagen", text="Imagen")
         self.tree.heading("Pie de imagen", text="Pie de Imagen")
@@ -175,15 +179,15 @@ class CuerpoTab(ttk.Frame):
         self.tree.heading("Texto del enlace", text="Texto del Enlace")
 
         frm.columnconfigure(1, weight=1)
-        frm.rowconfigure(5, weight=1)
+        frm.rowconfigure(6, weight=1)
 
     def add_block(self):
         bloque = {
             "texto": self.texto.get("1.0", tk.END).strip(),
             "imagen": self.entry_imagen.get().strip(),
-            "Pie de imagen": self.texto_Pie_de_imagen.get("1.0", tk.END).strip(),
+            "pie_imagen": self.texto_Pie_de_imagen.get("1.0", tk.END).strip(),
             "enlace": self.entry_enlace.get().strip(),
-            "texto del enlace": self.entry_texto_del_enlace.get().strip()
+            "texto_enlace": self.entry_texto_del_enlace.get().strip()
         }
         if not bloque["texto"] and not bloque["imagen"]:
             messagebox.showwarning("Aviso", "Debes añadir al menos texto o imagen.")
@@ -191,7 +195,6 @@ class CuerpoTab(ttk.Frame):
         self.controller.state["cuerpo"].append(bloque)
         self.refresh_table()
 
-        # limpiar campos
         self.texto.delete("1.0", tk.END)
         self.entry_imagen.delete(0, tk.END)
         self.entry_enlace.delete(0, tk.END)
@@ -235,19 +238,17 @@ class CuerpoTab(ttk.Frame):
         index = self.tree.index(selected[0])
         bloque = self.controller.state["cuerpo"][index]
 
-        # Cargar datos en los campos
         self.texto.delete("1.0", tk.END)
-        self.texto.insert("1.0", bloque["texto"])
+        self.texto.insert("1.0", bloque.get("texto", ""))
         self.entry_imagen.delete(0, tk.END)
-        self.entry_imagen.insert(0, bloque["imagen"])
+        self.entry_imagen.insert(0, bloque.get("imagen", ""))
         self.texto_Pie_de_imagen.delete("1.0", tk.END)
-        self.texto_Pie_de_imagen.insert("1.0", bloque["Pie de imagen"])
+        self.texto_Pie_de_imagen.insert("1.0", bloque.get("pie_imagen", ""))
         self.entry_enlace.delete(0, tk.END)
-        self.entry_enlace.insert(0, bloque["enlace"])
+        self.entry_enlace.insert(0, bloque.get("enlace", ""))
         self.entry_texto_del_enlace.delete(0, tk.END)
-        self.entry_texto_del_enlace.insert(0, bloque["texto del enlace"])
+        self.entry_texto_del_enlace.insert(0, bloque.get("texto_enlace", ""))
 
-        # Eliminar el bloque actual para reemplazarlo al guardar
         del self.controller.state["cuerpo"][index]
         self.refresh_table()
 
@@ -255,7 +256,17 @@ class CuerpoTab(ttk.Frame):
         for item in self.tree.get_children():
             self.tree.delete(item)
         for bloque in self.controller.state["cuerpo"]:
-            self.tree.insert("", tk.END, values=(bloque["texto"], bloque["enlace"], bloque["texto del enlace"], bloque["imagen"], bloque["Pie de imagen"]))
+            self.tree.insert(
+                "",
+                tk.END,
+                values=(
+                    bloque.get("texto", ""),
+                    bloque.get("imagen", ""),
+                    bloque.get("pie_imagen", ""),
+                    bloque.get("enlace", ""),
+                    bloque.get("texto_enlace", "")
+                )
+            )
 
     def select_imagen(self):
         ruta = filedialog.askopenfilename(
@@ -270,24 +281,18 @@ class CuerpoTab(ttk.Frame):
             destino = os.path.join("data/img", nombre)
 
             with Image.open(ruta) as img:
-                # Convertir a RGB para evitar problemas de formato
                 img = img.convert("RGB")
-
-                # Mantener proporción dentro de 300x300
                 img.thumbnail((300, 300), Image.LANCZOS)
 
-                # Crear lienzo 300x300 con fondo blanco
                 canvas = Image.new("RGB", (300, 300), "white")
                 x = (300 - img.width) // 2
                 y = (300 - img.height) // 2
                 canvas.paste(img, (x, y))
 
-                # La imagen final es el canvas
                 canvas.save(destino, quality=90)
 
             self.entry_imagen.delete(0, tk.END)
             self.entry_imagen.insert(0, destino)
-            self.controller.state["imagen"] = destino
 
         except Exception as e:
             messagebox.showerror(
@@ -302,18 +307,20 @@ class CuerpoTab(ttk.Frame):
             messagebox.showwarning("Aviso", "No hay ninguna URL para probar.")
             return
 
-        if not url.startswith(("http://", "https://")):
-            messagebox.showerror("Error", "La URL debe empezar por http:// o https://")
-            return
-
         try:
-            webbrowser.open_new_tab(url)
+            if url.endswith(".html"):
+                ruta_absoluta = os.path.abspath(url)
+                if os.path.exists(ruta_absoluta):
+                    webbrowser.open_new_tab(f"file:///{ruta_absoluta}")
+                else:
+                    messagebox.showerror("Error", f"No se encontró el archivo HTML:\n{ruta_absoluta}")
+            elif url.startswith(("http://", "https://")):
+                webbrowser.open_new_tab(url)
+            else:
+                messagebox.showerror("Error", "El enlace debe ser una URL válida o un archivo .html del proyecto.")
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo abrir el enlace:\n{e}")
 
-    def texto_del_enlace(self):
-        return self.entry_texto_del_enlace.get().strip()
-    
 
 class PreviewTab(tk.Frame):
     def __init__(self, parent, controller):
@@ -342,7 +349,11 @@ class PreviewTab(tk.Frame):
         self.controller.tab_datos.update_state()
         datos = self.controller.state.copy()
         datos["fecha"] = datetime.datetime.now().strftime("%d-%m-%Y")
-        ruta = filedialog.asksaveasfilename(defaultextension=".json", filetypes=[("JSON", "*.json")], initialdir="data")
+        ruta = filedialog.asksaveasfilename(
+            defaultextension=".json",
+            filetypes=[("JSON", "*.json")],
+            initialdir="geoso2-web-template/json"
+        )
         if ruta:
             try:
                 with open(ruta, "w", encoding="utf-8") as f:
@@ -351,127 +362,66 @@ class PreviewTab(tk.Frame):
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo guardar el JSON:\n{e}")
 
+    def _ajustar_ruta_imagen(self, ruta):
+        ruta = ruta.replace("\\", "/")
+        if "data/img" in ruta:
+            return "../" + ruta.split("data/")[1]
+        return ruta
+
     def preview_web(self):
+        # Actualizamos estado
+        self.controller.tab_datos.update_state()
         datos = self.controller.state.copy()
         datos["fecha"] = datetime.datetime.now().strftime("%d-%m-%Y")
-        datos["portada_base64"] = self.controller.state.get("portada_base64", "")
 
-        # Convertir saltos de línea del cuerpo a <br>
-        cuerpo_html = datos["cuerpo"].replace("\n", "<br>")
+        # Ajustar rutas de portada y de imágenes del cuerpo
+        portada = datos.get("portada", "")
+        datos["portada"] = self._ajustar_ruta_imagen(portada) if portada else ""
 
-        portada_src = ""
-        if datos.get("portada_base64"):
-            portada_src = f"data:image/jpeg;base64,{datos['portada_base64']}"
+        cuerpo_ajustado = []
+        for bloque in datos.get("cuerpo", []):
+            nuevo = bloque.copy()
+            if nuevo.get("imagen"):
+                nuevo["imagen"] = self._ajustar_ruta_imagen(nuevo["imagen"])
+            cuerpo_ajustado.append(nuevo)
+        datos["cuerpo"] = cuerpo_ajustado
 
-        # Enlace y flags
-        enlace_url = datos.get("enlace", {}).get("url", "").strip()
-        enlace_texto = datos.get("enlace", {}).get("texto", "").strip()
-        usar_en_titulo = datos.get("enlace", {}).get("usar_en_titulo", True)
-        usar_en_portada = datos.get("enlace", {}).get("usar_en_portada", True)
+        try:
+            env = Environment(loader=FileSystemLoader("geoso2-web-template/templates"))
+            # Usa aquí el nombre real de tu plantilla, por ejemplo "pagina.html"
+            template = env.get_template("pagina.html")
+            html = template.render(pagina=datos)
 
-        # Título (con o sin enlace)
-        titulo_html = datos["titulo"]
-        if enlace_url and usar_en_titulo:
-            titulo_html = f'<a href="{enlace_url}" target="_blank">{titulo_html}</a>'
+            ruta = "geoso2-web-template/data/preview_pagina.html"
+            os.makedirs("geoso2-web-template/data", exist_ok=True)
 
-        # Portada (con o sin enlace)
-        portada_html = ""
-        if portada_src:
-            img_tag = f'<img src="{portada_src}" alt="Portada">'
-            if enlace_url and usar_en_portada:
-                img_tag = f'<a href="{enlace_url}" target="_blank">{img_tag}</a>'
-            portada_html = img_tag
+            with open(ruta, "w", encoding="utf-8") as f:
+                f.write(html)
 
-        # Enlace inferior (solo si hay texto y URL)
-        enlace_inferior_html = ""
-        if enlace_url and enlace_texto:
-            enlace_inferior_html = f'<p><a href="{enlace_url}" target="_blank">{enlace_texto}</a></p>'
+            webbrowser.open_new_tab(f"file:///{os.path.abspath(ruta)}")
 
-        html = f"""
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-            <meta charset="UTF-8">
-            <title>{datos['titulo']}</title>
-            <style>
-                body {{
-                    font-family: Segoe UI, sans-serif;
-                    margin: 40px auto;
-                    max-width: 900px;
-                    line-height: 1.6;
-                }}
-                .contenedor {{
-                    display: flex;
-                    align-items: flex-start;
-                    gap: 20px;
-                }}
-                .portada {{
-                    max-width: 300px;
-                    flex-shrink: 0;
-                }}
-                .contenido {{
-                    flex-grow: 1;
-                }}
-                img {{
-                    width: 100%;
-                    height: auto;
-                    display: block;
-                }}
-                h3 a {{
-                    color: inherit;
-                    text-decoration: none;
-                }}
-                h3 a:hover {{
-                    text-decoration: underline;
-                }}
-            </style>
-        </head>
-        <body>
-            <div class="contenedor">
-                <div class="portada">
-                    {portada_html}
-                </div>
-                <div class="contenido">
-                    <h3>{titulo_html}</h3>
-                    <div>{cuerpo_html}</div>
-                    {enlace_inferior_html}
-                    <p><small>Fecha: {datos['fecha']}</small></p>
-                </div>
-            </div>
-        </body>
-        </html>
-        """
-
-        temp_html = "geoso2-web-template/data/preview_temp.html"
-        with open(temp_html, "w", encoding="utf-8") as f:
-            f.write(html)
-
-        webbrowser.open_new_tab(f"file:///{os.path.abspath(temp_html)}")
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo generar el preview HTML:\n{e}")
 
     def generate_html(self):
+        self.controller.tab_datos.update_state()
         datos = self.controller.state.copy()
+        datos["fecha"] = datetime.datetime.now().strftime("%d-%m-%Y")
 
-        # Ruta de plantillas
-        env = Environment(loader=FileSystemLoader("templates"))
+        # No ajustamos rutas aquí: la plantilla final se sirve desde /output
+        try:
+            env = Environment(loader=FileSystemLoader("geoso2-web-template/templates"))
+            # Misma plantilla que en preview
+            template = env.get_template("pagina.html")
+            html_output = template.render(pagina=datos)
 
-        # Seleccionar plantilla según el editor
-        # Puedes cambiar esto dinámicamente si quieres
-        template = env.get_template("noticia01.html")
+            output_dir = "geoso2-web-template/output"
+            os.makedirs(output_dir, exist_ok=True)
+            output_path = os.path.join(output_dir, "pagina.html")
 
-        # Renderizar HTML
-        html_output = template.render(datos=datos)
+            with open(output_path, "w", encoding="utf-8") as f:
+                f.write(html_output)
 
-        # Guardar archivo final
-        ruta = filedialog.asksaveasfilename(
-            defaultextension=".html",
-            filetypes=[("HTML files", "*.html")],
-            initialdir="data/output"
-        )
-
-        if ruta:
-            try:
-                with open(ruta, "w", encoding="utf-8") as f:
-                    f.write(html_output)
-                messagebox.showinfo("Éxito", f"Archivo HTML generado en:\n{ruta}")
-            except Exception as e:
-                messagebox.showerror("Error", f"No se pudo generar el archivo:\n{e}")
+            messagebox.showinfo("Éxito", f"Archivo HTML generado en:\n{output_path}")
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo generar el archivo HTML de página:\n{e}")
