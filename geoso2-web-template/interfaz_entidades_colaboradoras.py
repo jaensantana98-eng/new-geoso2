@@ -3,8 +3,7 @@ from tkinter import ttk, filedialog, messagebox
 import json
 import os
 import webbrowser
-from PIL import Image, ImageTk
-import base64
+from PIL import Image
 import copy
 from jinja2 import Environment, FileSystemLoader
 
@@ -14,20 +13,27 @@ class EntidadesWindow(tk.Toplevel):
         self.title("Editor de Entidades Colaboradoras")
         self.geometry("980x640")
 
-        # Estado: lista de elementos de entidades colaboradoras
+        # Estado
         self.state = {
             "entidades": []
         }
 
-        os.makedirs("data/img", exist_ok=True)
+        # Carpeta correcta
+        os.makedirs("geoso2-web-template/imput/img/colaboradores", exist_ok=True)
 
-        # Si es edición, cargar datos desde JSON
+        # Cargar JSON si estamos editando
         if mode == "edit" and filepath:
             try:
                 with open(filepath, "r", encoding="utf-8") as f:
                     datos = json.load(f)
-                if "entidades" in datos:
+
+                if isinstance(datos, dict) and "entidades" in datos:
                     self.state["entidades"] = datos["entidades"]
+                elif isinstance(datos, list):
+                    self.state["entidades"] = datos
+                else:
+                    self.state["entidades"] = []
+
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo cargar el JSON:\n{e}")
 
@@ -35,7 +41,6 @@ class EntidadesWindow(tk.Toplevel):
         self.notebook = ttk.Notebook(self)
         self.notebook.pack(fill="both", expand=True)
 
-        # Pestañas
         self.tab_datos = DatosTab(self.notebook, self)
         self.tab_preview = PreviewTab(self.notebook, self)
 
@@ -55,7 +60,7 @@ class DatosTab(ttk.Frame):
         frm = ttk.Frame(self)
         frm.pack(fill="both", expand=True, padx=10, pady=10)
 
-        # --- Campos de entrada ---
+        # Campos
         ttk.Label(frm, text="Imagen:").grid(row=0, column=0, sticky="w", pady=6)
         self.entry_imagen = ttk.Entry(frm)
         self.entry_imagen.grid(row=0, column=1, sticky="ew", pady=6)
@@ -68,14 +73,14 @@ class DatosTab(ttk.Frame):
 
         frm.columnconfigure(1, weight=1)
 
-        # --- Botones de gestión ---
+        # Botones
         btn_frame = ttk.Frame(frm)
         btn_frame.grid(row=2, column=0, columnspan=3, pady=10)
 
         ttk.Button(btn_frame, text="Añadir", command=self.add_item).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Eliminar", command=self.delete_item).pack(side="left", padx=5)
 
-        # --- Tabla Treeview ---
+        # Tabla
         self.tree = ttk.Treeview(frm, columns=("Imagen", "Enlace"), show="headings", height=12)
         self.tree.grid(row=3, column=0, columnspan=3, sticky="nsew")
 
@@ -90,15 +95,15 @@ class DatosTab(ttk.Frame):
             return
         try:
             nombre = os.path.basename(ruta)
-            destino = os.path.join("data/img", nombre)
+            destino = os.path.join("geoso2-web-template/imput/img/colaboradores", nombre)
+
             with Image.open(ruta) as img:
                 img = img.convert("RGBA")
-                img = img.resize((120, 120), Image.LANCZOS)
-                img.save(destino, format="PNG")
+                img.save(destino)
 
-                
-                self.entry_imagen.delete(0, tk.END)
-                self.entry_imagen.insert(0, destino)
+            self.entry_imagen.delete(0, tk.END)
+            self.entry_imagen.insert(0, destino)
+
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo procesar la imagen:\n{e}")
 
@@ -110,10 +115,7 @@ class DatosTab(ttk.Frame):
         if not enlace.startswith(("http://", "https://")):
             messagebox.showerror("Error", "La URL debe empezar por http:// o https://")
             return
-        try:
-            webbrowser.open_new_tab(enlace)
-        except Exception as e:
-            messagebox.showerror("Error", f"No se pudo abrir el enlace:\n{e}")
+        webbrowser.open_new_tab(enlace)
 
     def add_item(self):
         imagen = self.entry_imagen.get().strip()
@@ -123,23 +125,14 @@ class DatosTab(ttk.Frame):
             messagebox.showwarning("Aviso", "Debes seleccionar una imagen y escribir un enlace.")
             return
 
-        # Convertir imagen a base64
-        try:
-            with open(imagen, "rb") as img_file:
-                b64 = base64.b64encode(img_file.read()).decode("utf-8")
-        except:
-            b64 = ""
-
         self.controller.state["entidades"].append({
             "imagen": imagen,
-            "imagen_base64": b64,
             "enlace": enlace
         })
 
         self.refresh_table()
         self.entry_imagen.delete(0, tk.END)
         self.entry_enlace.delete(0, tk.END)
-
 
     def delete_item(self):
         selected = self.tree.selection()
@@ -148,28 +141,6 @@ class DatosTab(ttk.Frame):
         index = self.tree.index(selected[0])
         del self.controller.state["entidades"][index]
         self.refresh_table()
-
-    def move_up(self):
-        selected = self.tree.selection()
-        if not selected:
-            return
-        index = self.tree.index(selected[0])
-        if index > 0:
-            self.controller.state["entidades"][index - 1], self.controller.state["entidades"][index] = \
-                self.controller.state["entidades"][index], self.controller.state["entidades"][index - 1]
-            self.refresh_table()
-            self.tree.selection_set(self.tree.get_children()[index - 1])
-
-    def move_down(self):
-        selected = self.tree.selection()
-        if not selected:
-            return
-        index = self.tree.index(selected[0])
-        if index < len(self.controller.state["entidades"]) - 1:
-            self.controller.state["entidades"][index + 1], self.controller.state["entidades"][index] = \
-                self.controller.state["entidades"][index], self.controller.state["entidades"][index + 1]
-            self.refresh_table()
-            self.tree.selection_set(self.tree.get_children()[index + 1])
 
     def refresh_table(self):
         for item in self.tree.get_children():
@@ -199,116 +170,60 @@ class PreviewTab(tk.Frame):
 
     def update_preview(self):
         datos = copy.deepcopy(self.controller.state)
-
-        # Eliminar imagen_base64 del preview
-        for entidad in datos.get("entidades", []):
-            entidad.pop("imagen_base64", None)
-
         preview = json.dumps(datos, indent=4, ensure_ascii=False)
         self.text_area.delete("1.0", tk.END)
         self.text_area.insert(tk.END, preview)
-
 
     def save_json(self):
         datos = self.controller.state.copy()
         ruta = filedialog.asksaveasfilename(defaultextension=".json",
                                             filetypes=[("JSON files", "*.json")],
-                                            initialdir="data")
+                                            initialdir="geoso2-web-template/json")
         if ruta:
-            try:
-                with open(ruta, "w", encoding="utf-8") as f:
-                    json.dump(datos, f, indent=4, ensure_ascii=False)
-                messagebox.showinfo("Guardado", f"Archivo JSON guardado en {ruta}")
-            except Exception as e:
-                messagebox.showerror("Error", f"No se pudo guardar el JSON:\n{e}")
+            with open(ruta, "w", encoding="utf-8") as f:
+                json.dump(datos, f, indent=4, ensure_ascii=False)
+            messagebox.showinfo("Guardado", f"Archivo JSON guardado en {ruta}")
 
     def preview_web(self):
-        datos = self.controller.state.copy()
+        entidades = self.controller.state.get("entidades", [])
 
-        # Construir HTML de entidades
-        bloques = ""
-        for e in datos["entidades"]:
-            img_src = ""
-            if e.get("imagen_base64"):
-                img_src = f"data:image/jpeg;base64,{e['imagen_base64']}"
+        entidades_ajustadas = []
+        for e in entidades:
+            nuevo = e.copy()
+            imagen = nuevo["imagen"].replace("\\", "/")
+            nombre_archivo = os.path.basename(imagen)
+            nuevo["imagen"] = f"../imput/img/colaboradores/{nombre_archivo}"
+            entidades_ajustadas.append(nuevo)
 
-            img_html = f'<img src="{img_src}" alt="Entidad">' if img_src else ""
+        try:
+            env = Environment(loader=FileSystemLoader("geoso2-web-template/templates"))
+            template = env.get_template("entidades.html")
+            html = template.render(entidades=entidades_ajustadas)
 
-            # Imagen clicable
-            if e.get("enlace"):
-                img_html = f'<a href="{e["enlace"]}" target="_blank">{img_html}</a>'
+            ruta = "geoso2-web-template/data/preview_entidades.html"
+            os.makedirs("geoso2-web-template/data", exist_ok=True)
 
-            bloques += f"""
-            <div class="entidad">
-                {img_html}
-            </div>
-            """
+            with open(ruta, "w", encoding="utf-8") as f:
+                f.write(html)
 
-        html = f"""
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-            <meta charset="UTF-8">
-            <title>Entidades Colaboradoras</title>
-            <style>
-                body {{
-                    font-family: Segoe UI, sans-serif;
-                    margin: 40px auto;
-                    max-width: 1000px;
-                    text-align: center;
-                }}
-                .fila {{
-                    display: flex;
-                    flex-wrap: wrap;
-                    justify-content: center;
-                    gap: 20px;
-                }}
-                .entidad img {{
-                    width: 120px;
-                    height: 120px;
-                    object-fit: contain;
-                    border-radius: 6px;
-                }}
-            </style>
-        </head>
-        <body>
-            <h1>Entidades Colaboradoras</h1>
+            webbrowser.open_new_tab(f"file:///{os.path.abspath(ruta)}")
 
-            <div class="fila">
-                {bloques}
-            </div>
-        </body>
-        </html>
-        """
-
-        temp_html = "geoso2-web-template/data/preview_entidades.html"
-        with open(temp_html, "w", encoding="utf-8") as f:
-            f.write(html)
-
-        webbrowser.open_new_tab(f"file:///{os.path.abspath(temp_html)}")
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo generar el preview HTML:\n{e}")
 
     def generate_html(self):
-        # Datos para la plantilla
-        datos = {
-            "entidades_colaboradoras": self.controller.state.get("entidades_colaboradoras", []),
-        }
+        entidades = self.controller.state.get("entidades", [])
 
-        # Cargar plantilla desde /templates
         env = Environment(loader=FileSystemLoader("geoso2-web-template/templates"))
+        template = env.get_template("entidades.html")
 
-        template = env.get_template("index_page.html")
+        html_output = template.render(entidades=entidades)
 
-        # Renderizar HTML
-        html_output = template.render(datos=datos)
-
-        # Carpeta de salida
         output_dir = "geoso2-web-template/output"
         os.makedirs(output_dir, exist_ok=True)
 
-        # Nombre fijo del archivo
-        output_path = os.path.join(output_dir, "entidades_colaboradoras.html")
+        output_path = os.path.join(output_dir, "entidades.html")
 
-        # Guardar archivo automáticamente
         try:
             with open(output_path, "w", encoding="utf-8") as f:
                 f.write(html_output)

@@ -1,0 +1,24 @@
+{
+    "entidades": [
+        {
+            "imagen": "../imput/img/colaboradores/zercaylejos/Original.png",
+            "enlace": "https://zercaylejos.org/"
+        },
+        {
+            "imagen": "../imput/img/colaboradores/nediage/nediage_logo_black.png",
+            "enlace": "https://nediage.eu/"
+        },
+        {
+            "imagen": "../imput/img/colaboradores/left_cape/left_cape_logo_01.png",
+            "enlace": "https://www.leftcape.com/"
+        },
+        {
+            "imagen": "../imput/img/colaboradores/SRM/SRM_logo.png",
+            "enlace": "https://srmconsulting.es/"
+        },
+        {
+            "imagen": "../imput/img/colaboradores/ALTITUM/Altitum_horizontal.png",
+            "enlace": "https://altitum.com/"
+        }
+    ]
+}
