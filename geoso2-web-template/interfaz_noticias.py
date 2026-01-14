@@ -516,7 +516,7 @@ class PreviewTab(tk.Frame):
         </html>
         """
 
-        temp_html = "data/preview_temp_noticias.html"
+        temp_html = "geoso2-web-template/data/preview_temp_noticias.html"
         with open(temp_html, "w", encoding="utf-8") as f:
             f.write(html)
 

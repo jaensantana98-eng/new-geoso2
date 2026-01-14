@@ -333,8 +333,8 @@ class PreviewTab(tk.Frame):
 
         html = template.render(proyectos=self.controller.state["proyectos"])
 
-        ruta = "data/preview_proyectos.html"
-        os.makedirs("data", exist_ok=True)
+        ruta = "geoso2-web-template/data/preview_proyectos.html"
+        os.makedirs("geoso2-web-template/data", exist_ok=True)
         with open(ruta, "w", encoding="utf-8") as f:
             f.write(html)
 

@@ -4,7 +4,6 @@ import json
 import os
 import webbrowser
 from PIL import Image
-import base64
 from jinja2 import Environment, FileSystemLoader
 
 
@@ -75,16 +74,6 @@ class EditorWindow(tk.Toplevel):
             "texto_link": ev.get("texto_link", "")
         }
         return nuevo
-
-    # Conversión de imagen a base64 para preview
-    def image_to_base64(self, path):
-        try:
-            with open(path, "rb") as img_file:
-                encoded = base64.b64encode(img_file.read()).decode("utf-8")
-            ext = os.path.splitext(path)[1].lower().replace(".", "") or "jpeg"
-            return f"data:image/{ext};base64,{encoded}"
-        except Exception:
-            return ""
 
 
 # -----------------------------
@@ -412,103 +401,45 @@ class PreviewTab(tk.Frame):
                 messagebox.showerror("Error", f"No se pudo guardar el JSON:\n{e}")
 
     def preview_web(self):
+        # Copiamos el estado actual
         datos = {
             "agenda": self.controller.state.get("agenda", [])
         }
 
-        bloques = ""
+        # Ajustar rutas de imagen para que funcionen desde /geoso2-web-template/data/
+        agenda_ajustada = []
         for e in datos["agenda"]:
-            # Imagen en base64 (si existe ruta)
-            imagen_src = ""
-            imagen_path = e.get("imagen", "").strip()
-            if imagen_path and os.path.exists(imagen_path):
-                imagen_src = self.controller.image_to_base64(imagen_path)
+            nuevo = e.copy()
+            imagen = nuevo.get("imagen", "").replace("\\", "/")
 
-            titulo = e.get("titulo", "")
-            descripcion = e.get("descripcion", "").replace("\n", "<br>")
-            fecha = e.get("fecha", "")
-            hora = e.get("hora", "")
-            lugar = e.get("lugar", "")
-            link = e.get("link", "").strip()
-            texto_link = e.get("texto_link", "").strip()
-            alt = e.get("alt", "")
+            # Si la imagen está en data/img/... convertimos a ruta relativa desde preview
+            if "data/img" in imagen:
+                # Queremos ../data/img/archivo.png
+                nuevo["imagen"] = "../" + imagen.split("data/")[1]
+            else:
+                nuevo["imagen"] = imagen
 
-            hora_html = f"<br>Hora: {hora}" if hora else ""
+            agenda_ajustada.append(nuevo)
 
-            imagen_html = ""
-            if imagen_src:
-                imagen_html = f'<img src="{imagen_src}" alt="{alt}" style="max-width:300px;display:block;margin-bottom:10px;">'
+        # Renderizar usando el template real
+        try:
+            env = Environment(loader=FileSystemLoader("geoso2-web-template/templates"))
+            template = env.get_template("agenda.html")
+            html = template.render(agenda=agenda_ajustada)
 
-            enlace_html = ""
-            if link and texto_link:
-                enlace_html = f'<p><a href="{link}" target="_blank">{texto_link}</a></p>'
+            # Guardar preview
+            ruta = "geoso2-web-template/data/preview_agenda.html"
+            os.makedirs("geoso2-web-template/data", exist_ok=True)
 
-            bloques += f"""
-            <div class="evento">
-                <div class="contenedor">
-                    <div class="portada">
-                        {imagen_html}
-                    </div>
-                    <div class="contenido">
-                        <h3>{titulo}</h3>
-                        <p>
-                            Fecha: {fecha}{hora_html}<br>
-                            Lugar: {lugar}
-                        </p>
-                        <div>{descripcion}</div>
-                        {enlace_html}
-                    </div>
-                </div>
-                <hr>
-            </div>
-            """
+            with open(ruta, "w", encoding="utf-8") as f:
+                f.write(html)
 
-        html = f"""
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-            <meta charset="UTF-8">
-            <title>Agenda</title>
-            <style>
-                body {{
-                    font-family: Segoe UI, sans-serif;
-                    margin: 40px auto;
-                    max-width: 900px;
-                    line-height: 1.6;
-                }}
-                .contenedor {{
-                    display: flex;
-                    align-items: flex-start;
-                    gap: 20px;
-                    margin-bottom: 20px;
-                }}
-                .portada {{
-                    max-width: 300px;
-                    flex-shrink: 0;
-                }}
-                .contenido {{
-                    flex-grow: 1;
-                }}
-                img {{
-                    width: 100%;
-                    height: auto;
-                    display: block;
-                }}
-            </style>
-        </head>
-        <body>
-            <h1>Agenda</h1>
-            {bloques}
-        </body>
-        </html>
-        """
+            webbrowser.open_new_tab(f"file:///{os.path.abspath(ruta)}")
 
-        temp_html = "data/agenda_preview.html"
-        os.makedirs("data", exist_ok=True)
-        with open(temp_html, "w", encoding="utf-8") as f:
-            f.write(html)
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo generar el preview HTML:\n{e}")
 
-        webbrowser.open_new_tab(f"file:///{os.path.abspath(temp_html)}")
+
 
     def generate_html(self):
         datos = {

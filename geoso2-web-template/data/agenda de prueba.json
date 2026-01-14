@@ -1,0 +1,15 @@
+{
+    "portada": "data/img/img1 copia.png",
+    "titulo": "agenda de prueba",
+    "fecha del evento": "mañana",
+    "hora": "Primera convocatoria 15:00 - 17:00. Segunda convocatoria 19:00 - 21:00",
+    "lugar": "Mi casa",
+    "cuerpo": "Este es una convocatoria de prueba,traed bebidas y comida.\nEl que no traiga nada no podrá acceder a la fiesta",
+    "enlace": {
+        "texto": "pincha aquí",
+        "url": "https://geoso2.es",
+        "usar_en_titulo": true,
+        "usar_en_portada": true
+    },
+    "fecha": "17-12-2025"
+}

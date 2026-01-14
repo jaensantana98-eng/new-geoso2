@@ -271,8 +271,8 @@ class PreviewTab(tk.Frame):
         template = env.get_template("rafagas.html")
         html = template.render(rafagas=datos["rafagas"])
 
-        ruta = "data/preview_rafagas.html"
-        os.makedirs("data", exist_ok=True)
+        ruta = "geoso2-web-template/data/preview_rafagas.html"
+        os.makedirs("geoso2-web-template/data", exist_ok=True)
         with open(ruta, "w", encoding="utf-8") as f:
             f.write(html)
 

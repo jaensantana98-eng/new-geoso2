@@ -571,8 +571,8 @@ class PreviewTab(tk.Frame):
     </html>
     """
 
-        temp_html = "data/quienes_somos_preview.html"
-        os.makedirs("data", exist_ok=True)
+        temp_html = "geoso2-web-template/data/quienes_somos_preview.html"
+        os.makedirs("geoso2-web-template/data", exist_ok=True)
         with open(temp_html, "w", encoding="utf-8") as f:
             f.write(html)
 

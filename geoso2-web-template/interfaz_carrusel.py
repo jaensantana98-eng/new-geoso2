@@ -19,7 +19,7 @@ class CarruselWindow(tk.Toplevel):
             "carrusel": []
         }
 
-        os.makedirs("data/img", exist_ok=True)
+        os.makedirs("geoso2-web-template/imput/img/carrusel", exist_ok=True)
 
         # Si es edición, cargar datos desde JSON
         if mode == "edit" and filepath:
@@ -92,7 +92,7 @@ class DatosTab(ttk.Frame):
             return
         try:
             nombre = os.path.basename(ruta)
-            destino = os.path.join("data/img", nombre)
+            destino = os.path.join("geoso2-web-template/imput/img", nombre)
             with Image.open(ruta) as img:
                 img = img.convert("RGB")
                 img.save(destino, quality=90) # guardar tal cual, sin redimensionar 
@@ -337,7 +337,8 @@ class PreviewTab(tk.Frame):
         </html>
         """
 
-        temp_html = "data/preview_carrusel.html"
+        temp_html = "geoso2-web-template/data/preview_carrusel.html"
+        os.makedirs("geoso2-web-template/data", exist_ok=True)
         with open(temp_html, "w", encoding="utf-8") as f:
             f.write(html)
 

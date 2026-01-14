@@ -1,0 +1,17 @@
+{
+    "investigadores": [],
+    "colaboradores": [
+        {
+            "imagen": "data/img/img1 copia.png",
+            "nombre": "Jesús Jaén Santana",
+            "cuerpo": "Alumno de Fundación Tomillo, creó el gestor de Geoso2.es. Para facilitar la accesibilidad, el mantenimiento y facilitar la gestión y creación de añadidos en la web",
+            "enlace": {
+                "texto": "Ver Página",
+                "url": "https://geoso2.es",
+                "usar_en_nombre": true,
+                "usar_en_imagen": true
+            }
+        }
+    ],
+    "fecha": "17-12-2025"
+}
