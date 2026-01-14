@@ -156,7 +156,7 @@ class MainApp(tk.Tk):
         filepath = self.seleccionar_json(mode, "Noticias")
         if mode == "edit" and not filepath:
             return
-        interfaz_noticias.EditorWindow(mode=mode, filepath=filepath)
+        interfaz_noticias.NoticiasWindow(mode=mode, filepath=filepath)
 
     def abrir_rafagas(self, mode, parent_win):
         parent_win.destroy()

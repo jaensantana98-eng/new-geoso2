@@ -1,44 +1,40 @@
 {% extends "index_base.html" %}
 
-{% block title %}GEOSO2 y la Cooperación Internacional{% endblock %}
+{% block title %}Noticias{% endblock %}
 
 {% block content %}
 <div class="mx-3 mt-4">
+
   <hr style="height: 4px; background: #ccc; margin: 16px 0;">
   <div class="marco2"><h3><strong>Noticias</strong></h3></div>
   <br><br>
 
-  {% for noticia in datos.noticias %}
+  {% for noticia in noticias %}
     <div class="imagenizq-texto">
 
-      {% if noticia.portada_base64 %}
-        <img src="data:image/jpeg;base64,{{ noticia.portada_base64 }}" class="imagenizq img-marco">
-      {% else %}
-        <img src="{{ noticia.portada }}" class="imagenizq img-marco">
+      {% if noticia.imagen %}
+        <img src="{{ noticia.imagen }}" class="imagenizq img-marco">
       {% endif %}
 
       <div>
-        <h3><strong>
-          {% if noticia.enlace.usar_en_titulo and noticia.enlace.url %}
-            <a href="{{ noticia.enlace.url }}" target="_blank">{{ noticia.titulo }}</a>
-          {% else %}
-            {{ noticia.titulo }}
-          {% endif %}
-        </strong></h3>
+        <h3><strong>{{ noticia.titulo }}</strong></h3>
 
-        <p style="color:rgba(235, 245, 255, 0.775);">
-          {{ noticia.cuerpo }}
+        <p style="color:rgba(235, 245, 255, 0.775); white-space: pre-line;">
+          {{ noticia.descripcion }}
         </p>
 
-        {% if noticia.enlace.texto and noticia.enlace.url %}
-          <a href="{{ noticia.enlace.url }}" class="btn btn-primary" target="_blank">
-            {{ noticia.enlace.texto }}
+        {% if noticia.enlace %}
+          <a href="{{ noticia.enlace }}" class="btn btn-primary" target="_blank">
+            Leer más
           </a>
         {% endif %}
+
         <br><br>
       </div>
+
     </div>
     <hr>
   {% endfor %}
+
 </div>
 {% endblock %}

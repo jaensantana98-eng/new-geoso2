@@ -73,27 +73,27 @@
         "colaboradores": [
             {
                 "nombre": "Zerca y Lejos",
-                "imagen": "../imput/img/colaboradores/zercaylejos/Original.png",
+                "imagen": "../imput/img/colaboradores/Original.png",
                 "link": "https://zercaylejos.org/"
             },
             {
                 "nombre": "Nediage",
-                "imagen": "../imput/img/colaboradores/nediage/nediage_logo_black.png",
+                "imagen": "../imput/img/colaboradores/nediage_logo_black.png",
                 "link": "https://nediage.eu/"
             },
             {
                 "nombre": "Left Cape",
-                "imagen": "../imput/img/colaboradores/left_cape/left_cape_logo_01.png",
+                "imagen": "../imput/img/colaboradores/left_cape_logo_01.png",
                 "link": "https://www.leftcape.com/"
             },
             {
                 "nombre": "SRM Consulting",
-                "imagen": "../imput/img/colaboradores/SRM/SRM_logo.png",
+                "imagen": "../imput/img/colaboradores/SRM_logo.png",
                 "link": "https://srmconsulting.es/"
             },
             {
                 "nombre": "Altitum",
-                "imagen": "../imput/img/colaboradores/ALTITUM/Altitum_horizontal.png",
+                "imagen": "../imput/img/colaboradores/Altitum_horizontal.png",
                 "link": "https://altitum.com/"
             }
         ],
