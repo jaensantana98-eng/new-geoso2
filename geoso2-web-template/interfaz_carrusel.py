@@ -4,7 +4,6 @@ import json
 import os
 import webbrowser
 from PIL import Image, ImageTk
-import base64
 import copy
 from jinja2 import Environment, FileSystemLoader
 
@@ -26,10 +25,20 @@ class CarruselWindow(tk.Toplevel):
             try:
                 with open(filepath, "r", encoding="utf-8") as f:
                     datos = json.load(f)
-                if "carrusel" in datos:
+
+                # Aceptar ambos formatos posibles
+                if isinstance(datos, dict) and "carrusel" in datos:
                     self.state["carrusel"] = datos["carrusel"]
+
+                elif isinstance(datos, list):
+                    self.state["carrusel"] = datos
+
+                else:
+                    self.state["carrusel"] = []
+
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo cargar el JSON:\n{e}")
+
 
         # Notebook
         self.notebook = ttk.Notebook(self)
@@ -92,7 +101,7 @@ class DatosTab(ttk.Frame):
             return
         try:
             nombre = os.path.basename(ruta)
-            destino = os.path.join("geoso2-web-template/imput/img", nombre)
+            destino = os.path.join("geoso2-web-template/imput/img/carrusel", nombre)
             with Image.open(ruta) as img:
                 img = img.convert("RGB")
                 img.save(destino, quality=90) # guardar tal cual, sin redimensionar 
@@ -130,22 +139,16 @@ class DatosTab(ttk.Frame):
             messagebox.showwarning("Aviso", "Debes seleccionar una imagen y escribir un enlace.")
             return
 
-        # Convertir imagen a base64
-        try:
-            with open(imagen, "rb") as img_file:
-                b64 = base64.b64encode(img_file.read()).decode("utf-8")
-        except:
-            b64 = ""
-
+        # AÑADIR AL ESTADO (esto faltaba)
         self.controller.state["carrusel"].append({
             "imagen": imagen,
-            "imagen_base64": b64,
             "enlace": enlace
         })
 
         self.refresh_table()
         self.entry_imagen.delete(0, tk.END)
         self.entry_enlace.delete(0, tk.END)
+
 
 
     def delete_item(self):
@@ -208,10 +211,6 @@ class PreviewTab(tk.Frame):
     def update_preview(self):
         datos = copy.deepcopy(self.controller.state)
 
-        # Eliminar base64 del preview
-        for item in datos.get("carrusel", []):
-            item.pop("imagen_base64", None)
-
         preview = json.dumps(datos, indent=4, ensure_ascii=False)
         self.text_area.delete("1.0", tk.END)
         self.text_area.insert(tk.END, preview)
@@ -231,118 +230,41 @@ class PreviewTab(tk.Frame):
                 messagebox.showerror("Error", f"No se pudo guardar el JSON:\n{e}")
 
     def preview_web(self):
-        datos = self.controller.state.copy()
+        datos = {
+            "carrusel": self.controller.state.get("carrusel", [])
+        }
 
-        # Construir slides
-        slides = ""
+        # Ajustar rutas de imagen para que funcionen desde /geoso2-web-template/data/
+        carrusel_ajustado = []
         for item in datos["carrusel"]:
-            img_src = ""
-            if item.get("imagen_base64"):
-                img_src = f"data:image/jpeg;base64,{item['imagen_base64']}"
+            nuevo = item.copy()
 
-            img_html = f'<img src="{img_src}" class="slide-img">' if img_src else ""
+            imagen = nuevo.get("imagen", "").replace("\\", "/")
+            nombre_archivo = os.path.basename(imagen)
 
-            # Imagen clicable
-            if item.get("enlace"):
-                img_html = f'<a href="{item["enlace"]}" target="_blank">{img_html}</a>'
+            # Ruta relativa correcta desde preview
+            nuevo["imagen"] = f"../imput/img/carrusel/{nombre_archivo}"
 
-            slides += f'<div class="slide">{img_html}</div>'
-        
-        # HTML del carrusel
-        html = f"""
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-            <meta charset="UTF-8">
-            <title>Carrusel</title>
-            <style>
-                body {{
-                    font-family: Segoe UI, sans-serif;
-                    margin: 40px auto;
-                    max-width: 900px;
-                    text-align: center;
-                }}
+            carrusel_ajustado.append(nuevo)
 
-                .carrusel {{
-                    position: relative;
-                    width: 100%;
-                    height: 400px;
-                    overflow: hidden;
-                }}
+        # Renderizar usando el template real
+        try:
+            env = Environment(loader=FileSystemLoader("geoso2-web-template/templates"))
+            template = env.get_template("carrusel.html")
+            html = template.render(carrusel=carrusel_ajustado)
 
-                .slides {{
-                    display: flex;
-                    width: 100%;
-                    height: 100%;
-                    transition: transform 0.5s ease;
-                }}
+            ruta = "geoso2-web-template/data/preview_carrusel.html"
+            os.makedirs("geoso2-web-template/data", exist_ok=True)
 
-                .slide {{
-                    min-width: 100%;
-                    height: 100%;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                }}
+            with open(ruta, "w", encoding="utf-8") as f:
+                f.write(html)
 
-                .slide-img {{
-                    max-width: 100%;
-                    max-height: 100%;
-                    object-fit: contain;
-                }}
+            webbrowser.open_new_tab(f"file:///{os.path.abspath(ruta)}")
 
-                .btn {{
-                    position: absolute;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    background: rgba(0,0,0,0.5);
-                    color: white;
-                    border: none;
-                    padding: 10px 20px;
-                    cursor: pointer;
-                    font-size: 20px;
-                }}
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo generar el preview HTML del carrusel:\n{e}")
 
-                .prev {{ left: 10px; }}
-                .next {{ right: 10px; }}
-            </style>
-        </head>
-        <body>
 
-            <h1>Carrusel</h1>
-
-            <div class="carrusel">
-                <div class="slides" id="slides">
-                    {slides}
-                </div>
-
-                <button class="btn prev" onclick="move(-1)">❮</button>
-                <button class="btn next" onclick="move(1)">❯</button>
-            </div>
-
-            <script>
-                let index = 0;
-                function move(dir) {{
-                    const slides = document.getElementById("slides");
-                    const total = slides.children.length;
-                    index = (index + dir + total) % total;
-                    slides.style.transform = "translateX(" + (-index * 100) + "%)";
-                }}
-
-                const intervalo = 2000;
-                setInterval(() => move(1), intervalo);
-            </script>
-
-        </body>
-        </html>
-        """
-
-        temp_html = "geoso2-web-template/data/preview_carrusel.html"
-        os.makedirs("geoso2-web-template/data", exist_ok=True)
-        with open(temp_html, "w", encoding="utf-8") as f:
-            f.write(html)
-
-        webbrowser.open_new_tab(f"file:///{os.path.abspath(temp_html)}")
 
     def generate_html(self):
         # Datos para la plantilla
@@ -357,7 +279,7 @@ class PreviewTab(tk.Frame):
         template = env.get_template("carrusel.html")
 
         # Renderizar HTML
-        html_output = template.render(datos=datos)
+        html_output = template.render(carrusel=datos["carrusel"])
 
         # Carpeta de salida
         output_dir = "geoso2-web-template/output"

@@ -5,40 +5,11 @@
 {% block content %}
 <h2 class="text-center mb-4"></h2>
 
-<style>
-    #miCarrusel {
-        width: 100vw;
-        margin-left: calc(50% - 50vw);
-    }
-
-    #miCarrusel .carousel-item img {
-        height: 70vh;
-        object-fit: cover;
-        border-radius: 0;
-    }
-
-    .carousel-indicators [data-bs-target] {
-        background-color: #fff;
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        opacity: 0.6;
-    }
-    .carousel-indicators .active {
-        opacity: 1;
-    }
-
-    .carousel-control-prev-icon,
-    .carousel-control-next-icon {
-        filter: invert(1);
-    }
-</style>
-
 <div id="miCarrusel" class="carousel slide" data-bs-ride="carousel">
 
   <!-- INDICADORES -->
   <div class="carousel-indicators">
-    {% for item in datos.carrusel %}
+    {% for item in carrusel %}
       <button type="button"
               data-bs-target="#miCarrusel"
               data-bs-slide-to="{{ loop.index0 }}"
@@ -49,18 +20,12 @@
 
   <!-- SLIDES -->
   <div class="carousel-inner">
-    {% for item in datos.carrusel %}
+    {% for item in carrusel %}
       <div class="carousel-item {% if loop.first %}active{% endif %}">
 
-        {% if item.imagen_base64 %}
-          <img src="data:image/jpeg;base64,{{ item.imagen_base64 }}"
-               class="d-block w-100"
-               alt="Imagen {{ loop.index }}">
-        {% else %}
-          <img src="{{ item.imagen }}"
-               class="d-block w-100"
-               alt="Imagen {{ loop.index }}">
-        {% endif %}
+        <img src="{{ item.imagen }}"
+             class="d-block w-100"
+             alt="Imagen {{ loop.index }}">
 
       </div>
     {% endfor %}
