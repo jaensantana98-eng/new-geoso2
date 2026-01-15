@@ -414,6 +414,7 @@ class PreviewTab(tk.Frame):
         ttk.Button(toolbar, text="Guardar JSON", command=self.save_json).pack(side="left", padx=8)
         ttk.Button(toolbar, text="Previsualizar en web", command=self.preview_web).pack(side="left", padx=8)
         ttk.Button(toolbar, text="Generar archivo HTML", command=self.generate_html).pack(side="right", padx=8)
+        ttk.Button(toolbar, text="Abrir Geoso2.es", command=self.open_output_html).pack(side="right")
 
         self.text_area = tk.Text(self, wrap="word")
         self.text_area.pack(fill="both", expand=True, padx=16, pady=10)
@@ -504,3 +505,19 @@ class PreviewTab(tk.Frame):
             messagebox.showinfo("Éxito", f"Archivo HTML generado en:\n{output_path}")
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo generar el archivo HTML de agenda:\n{e}")
+
+    def open_output_html(self):
+        output_path = "geoso2-web-template/output/agenda.html"
+        ruta_absoluta = os.path.abspath(output_path)
+
+        if not os.path.exists(ruta_absoluta):
+            messagebox.showerror(
+                "Error",
+                f"No se encontró el archivo HTML final:\n{ruta_absoluta}\n\nGenera el HTML primero."
+            )
+            return
+
+        try:
+            webbrowser.open_new_tab(f"file:///{ruta_absoluta}")
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo abrir el HTML:\n{e}")
