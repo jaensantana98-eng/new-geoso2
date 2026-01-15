@@ -6,7 +6,7 @@
             "descripcion": "Investigadores de GEOSO2 participan en dos proyectos “Acción Semilla” de la XXIV Convocatoria UPM para acciones de cooperación internacional para el desarrollo humano sostenible.\nSe actuará sobre la problemática de la etnia baka en la región Sur de Camerún y sobre cambios morfológicos de la costa de Riohacha, La Guajira, Colombia.",
             "enlace": {
                 "texto": "Leer más",
-                "url": "../noticia01.html",
+                "url": "geoso2-web-template/output/noticia01.html",
                 "usar_en_titulo": true,
                 "usar_en_portada": true
             }

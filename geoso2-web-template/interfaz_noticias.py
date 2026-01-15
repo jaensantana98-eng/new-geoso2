@@ -148,7 +148,6 @@ class DatosTab(ttk.Frame):
 
 
     def select_file(self):
-
         descargas = os.path.join(os.path.expanduser("~"), "Downloads")
         if not os.path.isdir(descargas):
             descargas = os.path.expanduser("~")
@@ -171,9 +170,6 @@ class DatosTab(ttk.Frame):
             nombre = os.path.basename(ruta)
             extension = nombre.lower().split(".")[-1]
 
-            # -----------------------------
-            # SI ES PDF → copiar al directorio
-            # -----------------------------
             if extension == "pdf":
                 destino_dir = "geoso2-web-template/imput/docs/noticias"
                 os.makedirs(destino_dir, exist_ok=True)
@@ -184,15 +180,12 @@ class DatosTab(ttk.Frame):
                     with open(destino, "wb") as f_dst:
                         f_dst.write(f_src.read())
 
+                # En el JSON guardamos la ruta que usará el HTML final
                 ruta_relativa = f"../imput/docs/noticias/{nombre}"
 
-            # -----------------------------
-            # SI ES HTML → NO copiar
-            # -----------------------------
-            else:
-                ruta_relativa = f"../{nombre}"
+            else:  # HTML → NO copiar, solo guardar el nombre
+                ruta_relativa = nombre   # ← IMPORTANTE: sin "../"
 
-            # Insertar en el campo
             self.entry_enlace_url.delete(0, tk.END)
             self.entry_enlace_url.insert(0, ruta_relativa)
 
@@ -355,22 +348,22 @@ class PreviewTab(tk.Frame):
         for n in noticias:
             nuevo = copy.deepcopy(n)
 
-            # -----------------------------
-            # Ajustar ruta de la imagen
-            # -----------------------------
+            # Imagen
             imagen = nuevo["imagen"].replace("\\", "/")
             nombre_img = os.path.basename(imagen)
             nuevo["imagen"] = f"../imput/img/noticias/{nombre_img}"
 
-            # -----------------------------
-            # Ajustar ruta del enlace (PDF/HTML)
-            # -----------------------------
+            # Enlace
             enlace = nuevo.get("enlace", {}).get("url", "")
 
-            if enlace.startswith("../"):
-                nombre_enlace = enlace.replace("../", "")
-                # En preview, los archivos PDF están en imput/docs/noticias/
-                nuevo["enlace"]["url"] = f"../imput/docs/noticias/{nombre_enlace}"
+            if enlace.lower().endswith(".pdf"):
+                # Ya viene como ../imput/docs/noticias/archivo.pdf → lo dejamos tal cual
+                nuevo["enlace"]["url"] = enlace
+
+            elif enlace.lower().endswith(".html"):
+                # Solo tenemos el nombre → apuntamos a ../output/
+                nombre_html = os.path.basename(enlace)
+                nuevo["enlace"]["url"] = f"../output/{nombre_html}"
 
             noticias_ajustadas.append(nuevo)
 
@@ -398,19 +391,34 @@ class PreviewTab(tk.Frame):
         for n in noticias:
             nuevo = copy.deepcopy(n)
 
-            # Ajustar imagen
+            # -----------------------------
+            # Ajustar ruta de la imagen
+            # -----------------------------
             imagen = nuevo["imagen"].replace("\\", "/")
             nombre_img = os.path.basename(imagen)
             nuevo["imagen"] = f"../imput/img/noticias/{nombre_img}"
 
-            # Ajustar enlace si es relativo
+            # -----------------------------
+            # Ajustar ruta del enlace (PDF / HTML)
+            # -----------------------------
             enlace = nuevo.get("enlace", {}).get("url", "")
-            if enlace.startswith("../"):
-                nombre_enlace = enlace.replace("../", "")
-                nuevo["enlace"]["url"] = f"../imput/docs/noticias/{nombre_enlace}"
 
+            if enlace.lower().endswith(".pdf"):
+                # PDF → ya viene como ../imput/docs/noticias/archivo.pdf
+                nuevo["enlace"]["url"] = enlace
+
+            elif enlace.lower().endswith(".html"):
+                # HTML → solo guardamos el nombre en el JSON (ej: noticia01.html)
+                # En el HTML final debe apuntar a la carpeta output
+                nombre_html = os.path.basename(enlace)
+                nuevo["enlace"]["url"] = f"../output/{nombre_html}"
+
+            # Añadir a la lista final
             noticias_ajustadas.append(nuevo)
 
+        # -----------------------------
+        # Renderizar plantilla
+        # -----------------------------
         env = Environment(loader=FileSystemLoader("geoso2-web-template/templates"))
         template = env.get_template("noticias.html")
 
