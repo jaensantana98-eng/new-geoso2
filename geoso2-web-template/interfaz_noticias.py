@@ -394,10 +394,27 @@ class PreviewTab(tk.Frame):
     def generate_html(self):
         noticias = self.controller.state.get("noticias", [])
 
+        noticias_ajustadas = []
+        for n in noticias:
+            nuevo = copy.deepcopy(n)
+
+            # Ajustar imagen
+            imagen = nuevo["imagen"].replace("\\", "/")
+            nombre_img = os.path.basename(imagen)
+            nuevo["imagen"] = f"../imput/img/noticias/{nombre_img}"
+
+            # Ajustar enlace si es relativo
+            enlace = nuevo.get("enlace", {}).get("url", "")
+            if enlace.startswith("../"):
+                nombre_enlace = enlace.replace("../", "")
+                nuevo["enlace"]["url"] = f"../imput/docs/noticias/{nombre_enlace}"
+
+            noticias_ajustadas.append(nuevo)
+
         env = Environment(loader=FileSystemLoader("geoso2-web-template/templates"))
         template = env.get_template("noticias.html")
 
-        html_output = template.render(noticias=noticias)
+        html_output = template.render(noticias=noticias_ajustadas)
 
         output_dir = "geoso2-web-template/output"
         os.makedirs(output_dir, exist_ok=True)
@@ -410,6 +427,7 @@ class PreviewTab(tk.Frame):
             messagebox.showinfo("Éxito", f"Archivo HTML generado en:\n{output_path}")
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo generar el archivo:\n{e}")
+
 
     def open_output_html(self):
         output_path = "geoso2-web-template/output/noticias.html"
