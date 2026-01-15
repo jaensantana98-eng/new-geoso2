@@ -10,6 +10,9 @@ import interfaz_publicaciones
 import interfaz_rafagas
 import interfaz_proyectos
 import os
+import json
+import webbrowser
+from jinja2 import Environment, FileSystemLoader
 
 # -----------------------------
 # Ventana principal
@@ -31,17 +34,17 @@ class MainApp(tk.Tk):
 
         ttk.Button(
             btns,
-            text="Crear JSON",
+            text="Editar sitio web",
             width=18,
-            command=lambda: self.open_section_menu("create")
+            command=lambda: self.open_section_menu("edit")
         ).grid(row=0, column=0, padx=10)
 
         ttk.Button(
             btns,
-            text="Editar JSON",
+            text="Generar sitio web",
             width=18,
-            command=lambda: self.open_section_menu("edit")
-        ).grid(row=0, column=1, padx=10)
+            command=lambda: self.generar_sitio_web()
+        ).grid(row=2, column=0, padx=10, pady=20)
 
         firma = ttk.Label(self, text="© Creado por Jesús Jaén Santana v.1.0/2025", font=("Segoe UI", 10, "italic"))
         firma.pack(side="bottom", pady=10)
@@ -262,6 +265,49 @@ class MainApp(tk.Tk):
             return None
 
         return filepath
+    
+    def generar_sitio_web(self):
+        try:
+            # 1. Cargar JSON general
+            with open("geoso2-web-template/json/web.json", "r", encoding="utf-8") as f:
+                datos = json.load(f)
+
+            # 2. Preparar motor de plantillas
+            env = Environment(loader=FileSystemLoader("geoso2-web-template/templates"))
+
+            # 3. Lista de páginas a generar
+            paginas = {
+                "carrusel.html": "carrusel.html",
+                "entidades_colaboradoras.html": "entidades_colaboradoras.html",
+                "noticias.html": "noticias.html",
+                "agenda.html": "agenda.html",
+                "rafagas.html": "rafagas.html",
+                "proyectos.html": "proyectos.html",
+                "quienes_somos.html": "quienes_somos.html",
+                "publicaciones.html": "publicaciones.html",
+            }
+
+            output_dir = "geoso2-web-template/output"
+            os.makedirs(output_dir, exist_ok=True)
+
+            # 4. Renderizar cada plantilla
+            for plantilla, salida in paginas.items():
+                template = env.get_template(plantilla)
+                html = template.render(**datos)
+
+                ruta_salida = os.path.join(output_dir, salida)
+                with open(ruta_salida, "w", encoding="utf-8") as f:
+                    f.write(html)
+
+            # 5. Abrir la página principal
+            index_path = os.path.abspath(os.path.join(output_dir, "index.html"))
+            webbrowser.open_new_tab(f"file:///{index_path}")
+
+            messagebox.showinfo("Éxito", "Sitio web generado correctamente.")
+
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo generar el sitio web:\n{e}")
+
 
 
 # -----------------------------
