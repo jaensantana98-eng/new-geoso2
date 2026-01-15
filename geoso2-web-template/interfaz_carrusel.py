@@ -74,6 +74,8 @@ class DatosTab(ttk.Frame):
         self.entry_enlace = ttk.Entry(frm)
         self.entry_enlace.grid(row=1, column=1, sticky="ew", padx=5, pady=5)
         ttk.Button(frm, text="Probar enlace", command=self.probar_enlace).grid(row=1, column=2, padx=8)
+        ttk.Button(frm, text="Buscar archivo", command=self.select_file).grid(row=2, column=2, padx=8)
+
 
         frm.columnconfigure(1, weight=1)
 
@@ -94,6 +96,48 @@ class DatosTab(ttk.Frame):
         self.tree.heading("Enlace", text="Enlace")
 
         frm.rowconfigure(3, weight=1)
+    
+    def select_file(self):
+
+        # Carpeta Descargas del usuario
+        descargas = os.path.join(os.path.expanduser("~"), "Downloads")
+
+        if not os.path.isdir(descargas):
+            descargas = os.path.expanduser("~")
+
+        ruta = filedialog.askopenfilename(
+            initialdir=descargas,
+            initialfile="",   # ← ESTO OBLIGA A USAR initialdir
+            title="Seleccionar archivo",
+            filetypes=[
+                ("Documentos", "*.pdf;*.html;*.htm"),
+                ("PDF", "*.pdf"),
+                ("HTML", "*.html;*.htm"),
+                ("Todos los archivos", "*.*")
+            ]
+        )
+
+        if not ruta:
+            return
+
+        try:
+            destino_dir = "geoso2-web-template/imput/docs/carrusel"
+            os.makedirs(destino_dir, exist_ok=True)
+
+            nombre = os.path.basename(ruta)
+            destino = os.path.join(destino_dir, nombre)
+
+            with open(ruta, "rb") as f_src:
+                with open(destino, "wb") as f_dst:
+                    f_dst.write(f_src.read())
+
+            ruta_relativa = f"../imput/docs/carrusel/{nombre}"
+            self.entry_enlace.delete(0, tk.END)
+            self.entry_enlace.insert(0, ruta_relativa)
+
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo copiar el archivo:\n{e}")
+
 
     def select_imagen(self):
         ruta = filedialog.askopenfilename(filetypes=[("Imagen", "*.png;*.jpg;*.jpeg;*.gif")])
