@@ -57,11 +57,11 @@ class DatosTab(ttk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
         self.controller = controller
+        self.editing_index = None
 
         frm = ttk.Frame(self)
         frm.pack(fill="both", expand=True, padx=10, pady=10)
 
-        # Campos
         ttk.Label(frm, text="Imagen:").grid(row=0, column=0, sticky="w", pady=6)
         self.entry_imagen = ttk.Entry(frm)
         self.entry_imagen.grid(row=0, column=1, sticky="ew", pady=6)
@@ -75,47 +75,91 @@ class DatosTab(ttk.Frame):
         self.text_descripcion = tk.Text(frm, height=5)
         self.text_descripcion.grid(row=2, column=1, sticky="ew", pady=6)
 
-        ttk.Label(frm, text="Enlace (opcional):").grid(row=3, column=0, sticky="w")
-        self.entry_enlace = ttk.Entry(frm)
-        self.entry_enlace.grid(row=3, column=1, sticky="ew", pady=6)
-        ttk.Button(frm, text="Buscar archivo", command=self.select_file).grid(row=3, column=2, padx=8)
+        ttk.Label(frm, text="Texto del enlace:").grid(row=3, column=0, sticky="w", pady=6)
+        self.entry_enlace_texto = ttk.Entry(frm)
+        self.entry_enlace_texto.grid(row=3, column=1, sticky="ew", pady=6)
+
+        ttk.Label(frm, text="URL del enlace (URL o HTML):").grid(row=4, column=0, sticky="w", pady=6)
+
+        self.entry_enlace_url = ttk.Entry(frm)
+        self.entry_enlace_url.grid(row=4, column=1, sticky="ew", pady=6)
+
+        btn_enlace_frame = ttk.Frame(frm)
+        btn_enlace_frame.grid(row=5, column=1, sticky="ew", padx=8)
+
+        ttk.Button(btn_enlace_frame, text="Buscar archivo", command=self.select_file).pack(side="left", padx=4)
+        ttk.Button(btn_enlace_frame, text="Probar enlace", command=self.probar_enlace_url).pack(side="left", padx=4)
 
 
-        frm.columnconfigure(1, weight=1)
+        self.var_link_titulo = tk.BooleanVar(value=True)
+        self.var_link_portada = tk.BooleanVar(value=True)
 
-        # Botones
+        checkbox_frame = ttk.Frame(frm)
+        checkbox_frame.grid(row=6, column=1, sticky="w", pady=4)
+
+        ttk.Checkbutton(checkbox_frame, text="Usar enlace en título",
+                        variable=self.var_link_titulo).pack(side="left", padx=(0, 20))
+
+        ttk.Checkbutton(checkbox_frame, text="Usar enlace en portada",
+                        variable=self.var_link_portada).pack(side="left")
+
+
         btn_frame = ttk.Frame(frm)
-        btn_frame.grid(row=4, column=0, columnspan=3, pady=10)
+        btn_frame.grid(row=8, column=0, columnspan=3, pady=10)
 
         ttk.Button(btn_frame, text="Añadir", command=self.add_item).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Editar", command=self.edit_item).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Eliminar", command=self.delete_item).pack(side="left", padx=5)
 
-        # Tabla
         self.tree = ttk.Treeview(frm, columns=("Imagen", "Título"), show="headings", height=12)
-        self.tree.grid(row=5, column=0, columnspan=3, sticky="nsew")
+        self.tree.grid(row=9, column=0, columnspan=3, sticky="nsew")
 
         self.tree.heading("Imagen", text="Imagen")
         self.tree.heading("Título", text="Título")
 
-        frm.rowconfigure(5, weight=1)
-    
+        frm.columnconfigure(1, weight=1)
+        frm.rowconfigure(9, weight=1)
+
+    def probar_enlace_url(self):
+        enlace = self.entry_enlace_url.get().strip()
+
+        if not enlace:
+            messagebox.showwarning("Aviso", "No hay enlace para probar.")
+            return
+
+        try:
+            # Si es URL externa
+            if enlace.startswith(("http://", "https://")):
+                webbrowser.open_new_tab(enlace)
+                return
+
+            # Si es archivo HTML/PDF relativo
+            ruta = os.path.abspath(os.path.join("geoso2-web-template/output", enlace.replace("../", "")))
+
+            if os.path.exists(ruta):
+                webbrowser.open_new_tab(f"file:///{ruta}")
+            else:
+                messagebox.showerror("Error", f"No se encontró el archivo:\n{ruta}")
+
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo abrir el enlace:\n{e}")
+
+
+
+
     def select_file(self):
 
-        # Carpeta Descargas del usuario
         descargas = os.path.join(os.path.expanduser("~"), "Downloads")
-
         if not os.path.isdir(descargas):
             descargas = os.path.expanduser("~")
 
         ruta = filedialog.askopenfilename(
-            initialdir=descargas,
-            initialfile="",   # ← ESTO OBLIGA A USAR initialdir
+            initialdir="geoso2-web-template/output",
             title="Seleccionar archivo",
             filetypes=[
-                ("Documentos", "*.pdf;*.html;*.htm"),
+                ("Documentos", "*.pdf *.html *.htm"),
                 ("PDF", "*.pdf"),
-                ("HTML", "*.html;*.htm"),
+                ("HTML", "*.html *.htm"),
                 ("Todos los archivos", "*.*")
             ]
         )
@@ -124,22 +168,37 @@ class DatosTab(ttk.Frame):
             return
 
         try:
-            destino_dir = "geoso2-web-template/imput/docs/noticias"
-            os.makedirs(destino_dir, exist_ok=True)
-
             nombre = os.path.basename(ruta)
-            destino = os.path.join(destino_dir, nombre)
+            extension = nombre.lower().split(".")[-1]
 
-            with open(ruta, "rb") as f_src:
-                with open(destino, "wb") as f_dst:
-                    f_dst.write(f_src.read())
+            # -----------------------------
+            # SI ES PDF → copiar al directorio
+            # -----------------------------
+            if extension == "pdf":
+                destino_dir = "geoso2-web-template/imput/docs/noticias"
+                os.makedirs(destino_dir, exist_ok=True)
 
-            ruta_relativa = f"../imput/docs/noticias/{nombre}"
-            self.entry_enlace.delete(0, tk.END)
-            self.entry_enlace.insert(0, ruta_relativa)
+                destino = os.path.join(destino_dir, nombre)
+
+                with open(ruta, "rb") as f_src:
+                    with open(destino, "wb") as f_dst:
+                        f_dst.write(f_src.read())
+
+                ruta_relativa = f"../imput/docs/noticias/{nombre}"
+
+            # -----------------------------
+            # SI ES HTML → NO copiar
+            # -----------------------------
+            else:
+                ruta_relativa = f"../{nombre}"
+
+            # Insertar en el campo
+            self.entry_enlace_url.delete(0, tk.END)
+            self.entry_enlace_url.insert(0, ruta_relativa)
 
         except Exception as e:
-            messagebox.showerror("Error", f"No se pudo copiar el archivo:\n{e}")
+            messagebox.showerror("Error", f"No se pudo procesar el archivo:\n{e}")
+
 
 
     def edit_item(self):
@@ -147,8 +206,12 @@ class DatosTab(ttk.Frame):
         if not selected:
             messagebox.showwarning("Aviso", "Selecciona una noticia para editar.")
             return
+
         index = self.tree.index(selected[0])
         noticia = self.controller.state["noticias"][index]
+
+        # Guardamos el índice que se está editando
+        self.editing_index = index
 
         # Cargar datos en los campos
         self.entry_imagen.delete(0, tk.END)
@@ -160,11 +223,17 @@ class DatosTab(ttk.Frame):
         self.text_descripcion.delete("1.0", tk.END)
         self.text_descripcion.insert("1.0", noticia["descripcion"])
 
-        self.entry_enlace.delete(0, tk.END)
-        self.entry_enlace.insert(0, noticia["enlace"])
+        enlace = noticia.get("enlace", {})
 
-        # Guardar índice para saber qué elemento editar
-        self.editing_index = index
+        self.entry_enlace_texto.delete(0, tk.END)
+        self.entry_enlace_texto.insert(0, enlace.get("texto", ""))
+
+        self.entry_enlace_url.delete(0, tk.END)
+        self.entry_enlace_url.insert(0, enlace.get("url", ""))
+
+        self.var_link_titulo.set(enlace.get("usar_en_titulo", True))
+        self.var_link_portada.set(enlace.get("usar_en_portada", True))
+
 
 
     def select_imagen(self):
@@ -176,7 +245,7 @@ class DatosTab(ttk.Frame):
             destino = os.path.join("geoso2-web-template/imput/img/noticias", nombre)
 
             with Image.open(ruta) as img:
-                img = img.convert("RGBA")
+                img = img.convert("RGB")
                 img.save(destino)
 
             self.entry_imagen.delete(0, tk.END)
@@ -189,25 +258,47 @@ class DatosTab(ttk.Frame):
         imagen = self.entry_imagen.get().strip()
         titulo = self.entry_titulo.get().strip()
         descripcion = self.text_descripcion.get("1.0", tk.END).strip()
-        enlace = self.entry_enlace.get().strip()
+        enlace_texto = self.entry_enlace_texto.get().strip()
+        enlace_url = self.entry_enlace_url.get().strip()
+        usar_en_titulo = self.var_link_titulo.get()
+        usar_en_portada = self.var_link_portada.get()
 
         if not imagen or not titulo or not descripcion:
             messagebox.showwarning("Aviso", "Imagen, título y descripción son obligatorios.")
             return
 
-        self.controller.state["noticias"].append({
+        nuevo = {
             "imagen": imagen,
             "titulo": titulo,
             "descripcion": descripcion,
-            "enlace": enlace
-        })
+            "enlace": {
+                "texto": enlace_texto,
+                "url": enlace_url,
+                "usar_en_titulo": usar_en_titulo,
+                "usar_en_portada": usar_en_portada
+            }
+        }
+
+        # Si estamos editando → reemplazar
+        if self.editing_index is not None:
+            self.controller.state["noticias"][self.editing_index] = nuevo
+            self.editing_index = None
+        else:
+            # Si no → añadir
+            self.controller.state["noticias"].append(nuevo)
 
         self.refresh_table()
+        self.clear_fields()
 
+    def clear_fields(self):
         self.entry_imagen.delete(0, tk.END)
         self.entry_titulo.delete(0, tk.END)
         self.text_descripcion.delete("1.0", tk.END)
-        self.entry_enlace.delete(0, tk.END)
+        self.entry_enlace_texto.delete(0, tk.END)
+        self.entry_enlace_url.delete(0, tk.END)
+        self.var_link_titulo.set(True)
+        self.var_link_portada.set(True)
+
 
     def delete_item(self):
         selected = self.tree.selection()
@@ -262,10 +353,25 @@ class PreviewTab(tk.Frame):
 
         noticias_ajustadas = []
         for n in noticias:
-            nuevo = n.copy()
+            nuevo = copy.deepcopy(n)
+
+            # -----------------------------
+            # Ajustar ruta de la imagen
+            # -----------------------------
             imagen = nuevo["imagen"].replace("\\", "/")
-            nombre_archivo = os.path.basename(imagen)
-            nuevo["imagen"] = f"../imput/img/noticias/{nombre_archivo}"
+            nombre_img = os.path.basename(imagen)
+            nuevo["imagen"] = f"../imput/img/noticias/{nombre_img}"
+
+            # -----------------------------
+            # Ajustar ruta del enlace (PDF/HTML)
+            # -----------------------------
+            enlace = nuevo.get("enlace", {}).get("url", "")
+
+            if enlace.startswith("../"):
+                nombre_enlace = enlace.replace("../", "")
+                # En preview, los archivos PDF están en imput/docs/noticias/
+                nuevo["enlace"]["url"] = f"../imput/docs/noticias/{nombre_enlace}"
+
             noticias_ajustadas.append(nuevo)
 
         try:
@@ -283,6 +389,7 @@ class PreviewTab(tk.Frame):
 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo generar el preview HTML:\n{e}")
+
 
     def generate_html(self):
         noticias = self.controller.state.get("noticias", [])

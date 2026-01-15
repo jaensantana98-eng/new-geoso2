@@ -12,20 +12,49 @@
   {% for noticia in noticias %}
     <div class="imagenizq-texto">
 
+      {# ----------------------------- #}
+      {# IMAGEN (con enlace opcional) #}
+      {# ----------------------------- #}
       {% if noticia.imagen %}
-        <img src="{{ noticia.imagen }}" class="imagenizq img-marco">
+        {% if noticia.enlace.usar_en_portada and noticia.enlace.url %}
+          <a href="{{ noticia.enlace.url }}" target="_blank">
+            <img src="{{ noticia.imagen }}" class="imagenizq img-marco">
+          </a>
+        {% else %}
+          <img src="{{ noticia.imagen }}" class="imagenizq img-marco">
+        {% endif %}
       {% endif %}
 
       <div>
-        <h3><strong>{{ noticia.titulo }}</strong></h3>
 
+        {# ----------------------------- #}
+        {# TÍTULO (con enlace opcional) #}
+        {# ----------------------------- #}
+        {% if noticia.enlace.usar_en_titulo and noticia.enlace.url %}
+          <h3>
+            <strong>
+              <a href="{{ noticia.enlace.url }}" target="_blank" style="color: inherit; text-decoration: none;">
+                {{ noticia.titulo }}
+              </a>
+            </strong>
+          </h3>
+        {% else %}
+          <h3><strong>{{ noticia.titulo }}</strong></h3>
+        {% endif %}
+
+        {# ----------------------------- #}
+        {# DESCRIPCIÓN                   #}
+        {# ----------------------------- #}
         <p style="color:rgba(235, 245, 255, 0.775); white-space: pre-line;">
           {{ noticia.descripcion }}
         </p>
 
-        {% if noticia.enlace %}
-          <a href="{{ noticia.enlace }}" class="btn btn-primary" target="_blank">
-            Leer más
+        {# ----------------------------- #}
+        {# BOTÓN "LEER MÁS"             #}
+        {# ----------------------------- #}
+        {% if noticia.enlace.url %}
+          <a href="{{ noticia.enlace.url }}" class="btn btn-primary" target="_blank">
+            {{ noticia.enlace.texto if noticia.enlace.texto else "Leer más" }}
           </a>
         {% endif %}
 
