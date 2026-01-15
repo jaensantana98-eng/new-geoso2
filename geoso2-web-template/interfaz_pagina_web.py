@@ -443,6 +443,3 @@ class PreviewTab(tk.Frame):
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo abrir el HTML:\n{e}")
 
-
-            self.text_area = tk.Text(self, wrap="word")
-            self.text_area.pack(fill="both", expand=True, padx=16, pady=10)
