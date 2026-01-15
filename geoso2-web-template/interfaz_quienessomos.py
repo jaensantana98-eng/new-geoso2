@@ -76,12 +76,14 @@ class InvestigadoresTab(tk.Frame):
         self.text_bio = tk.Text(form, height=6, wrap="word")
         self.text_bio.grid(row=2, column=1, columnspan=2, sticky="ew", pady=4)
 
-        ttk.Label(form, text="Link:").grid(row=3, column=0, sticky="w", pady=4)
+        ttk.Label(form, text="Link:").grid(row=4, column=0, sticky="w", pady=4)
         self.entry_link = ttk.Entry(form)
-        self.entry_link.grid(row=3, column=1, sticky="ew", pady=4)
-        ttk.Button(form, text="Probar enlace", command=self.probar_enlace).grid(row=3, column=2, padx=5)
+        self.entry_link.grid(row=4, column=1, sticky="ew", pady=4)
+        ttk.Button(form, text="Probar enlace", command=self.probar_enlace).grid(row=4, column=2, padx=5)
+        ttk.Button(form, text="Buscar archivo", command=self.select_file).grid(row=5, column=2, padx=8)
 
-        ttk.Label(form, text="Texto del enlace:").grid(row=4, column=0, sticky="w", pady=4)
+
+        ttk.Label(form, text="Texto del enlace:").grid(row=3, column=0, sticky="w", pady=4)
         self.entry_link_text = ttk.Entry(form)
         self.entry_link_text.grid(row=4, column=1, sticky="ew", pady=4)
 
@@ -113,6 +115,48 @@ class InvestigadoresTab(tk.Frame):
         main.columnconfigure(0, weight=1)
 
         self.refresh_table()
+    
+    def select_file(self):
+
+        # Carpeta Descargas del usuario
+        descargas = os.path.join(os.path.expanduser("~"), "Downloads")
+
+        if not os.path.isdir(descargas):
+            descargas = os.path.expanduser("~")
+
+        ruta = filedialog.askopenfilename(
+            initialdir=descargas,
+            initialfile="",   # ← ESTO OBLIGA A USAR initialdir
+            title="Seleccionar archivo",
+            filetypes=[
+                ("Documentos", "*.pdf;*.html;*.htm"),
+                ("PDF", "*.pdf"),
+                ("HTML", "*.html;*.htm"),
+                ("Todos los archivos", "*.*")
+            ]
+        )
+
+        if not ruta:
+            return
+
+        try:
+            destino_dir = "geoso2-web-template/imput/docs/quienes-somos"
+            os.makedirs(destino_dir, exist_ok=True)
+
+            nombre = os.path.basename(ruta)
+            destino = os.path.join(destino_dir, nombre)
+
+            with open(ruta, "rb") as f_src:
+                with open(destino, "wb") as f_dst:
+                    f_dst.write(f_src.read())
+
+            ruta_relativa = f"../imput/docs/quienes-somos/{nombre}"
+            self.entry_link.delete(0, tk.END)
+            self.entry_link.insert(0, ruta_relativa)
+
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo copiar el archivo:\n{e}")
+
 
     def select_image(self):
         ruta = filedialog.askopenfilename(
@@ -598,6 +642,21 @@ class PreviewTab(tk.Frame):
             messagebox.showinfo("Éxito", f"Archivo HTML generado en:\n{output_path}")
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo generar el archivo HTML:\n{e}")
+    def open_output_html(self):
+        output_path = "geoso2-web-template/output/quienes-somos.html"
+        ruta_absoluta = os.path.abspath(output_path)
+
+        if not os.path.exists(ruta_absoluta):
+            messagebox.showerror(
+                "Error",
+                f"No se encontró el archivo HTML final:\n{ruta_absoluta}\n\nGenera el HTML primero."
+            )
+            return
+
+        try:
+            webbrowser.open_new_tab(f"file:///{ruta_absoluta}")
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo abrir el HTML:\n{e}")
 
 
 # ============================================================
@@ -653,19 +712,3 @@ class EditorWindow(tk.Toplevel):
         self.notebook.add(self.tab_investigadores, text="Investigadores")
         self.notebook.add(self.tab_colaboradores, text="Colaboradores")
         self.notebook.add(self.tab_preview, text="Preview y Generar")
-
-    def open_output_html(self):
-        output_path = "geoso2-web-template/output/quienes-somos.html"
-        ruta_absoluta = os.path.abspath(output_path)
-
-        if not os.path.exists(ruta_absoluta):
-            messagebox.showerror(
-                "Error",
-                f"No se encontró el archivo HTML final:\n{ruta_absoluta}\n\nGenera el HTML primero."
-            )
-            return
-
-        try:
-            webbrowser.open_new_tab(f"file:///{ruta_absoluta}")
-        except Exception as e:
-            messagebox.showerror("Error", f"No se pudo abrir el HTML:\n{e}")

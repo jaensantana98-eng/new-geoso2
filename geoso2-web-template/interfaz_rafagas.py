@@ -164,6 +164,7 @@ class FormTab(tk.Frame):
         self.entry_link.pack(side="left", fill="x", expand=True)
 
         ttk.Button(link_frame, text="Probar", command=self.probar_link).pack(side="left", padx=5)
+        ttk.Button(frm, text="Buscar archivo", command=self.select_file).grid(row=4, column=2, padx=8)
 
 
 
@@ -175,6 +176,48 @@ class FormTab(tk.Frame):
         ttk.Button(btns, text="Cancelar", command=self.cancel).pack(side="left", padx=10)
 
         frm.columnconfigure(1, weight=1)
+    
+    def select_file(self):
+
+        # Carpeta Descargas del usuario
+        descargas = os.path.join(os.path.expanduser("~"), "Downloads")
+
+        if not os.path.isdir(descargas):
+            descargas = os.path.expanduser("~")
+
+        ruta = filedialog.askopenfilename(
+            initialdir=descargas,
+            initialfile="",   # ← ESTO OBLIGA A USAR initialdir
+            title="Seleccionar archivo",
+            filetypes=[
+                ("Documentos", "*.pdf;*.html;*.htm"),
+                ("PDF", "*.pdf"),
+                ("HTML", "*.html;*.htm"),
+                ("Todos los archivos", "*.*")
+            ]
+        )
+
+        if not ruta:
+            return
+
+        try:
+            destino_dir = "geoso2-web-template/imput/docs/rafagas"
+            os.makedirs(destino_dir, exist_ok=True)
+
+            nombre = os.path.basename(ruta)
+            destino = os.path.join(destino_dir, nombre)
+
+            with open(ruta, "rb") as f_src:
+                with open(destino, "wb") as f_dst:
+                    f_dst.write(f_src.read())
+
+            ruta_relativa = f"../imput/docs/rafagas/{nombre}"
+            self.entry_link.delete(0, tk.END)
+            self.entry_link.insert(0, ruta_relativa)
+
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo copiar el archivo:\n{e}")
+
     
     def probar_link(self):
         url = self.entry_link.get().strip()
