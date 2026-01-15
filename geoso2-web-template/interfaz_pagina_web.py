@@ -135,7 +135,7 @@ class CuerpoTab(ttk.Frame):
         frm = ttk.Frame(self)
         frm.pack(fill="both", expand=True, padx=10, pady=10)
 
-        ttk.Label(frm, text="Texto:").grid(row=0, column=0, sticky="w", pady=6)
+        ttk.Label(frm, text="párrafo:").grid(row=0, column=0, sticky="w", pady=6)
         self.texto = tk.Text(frm, height=10, wrap="word")
         self.texto.grid(row=0, column=1, sticky="ew", pady=6)
 
@@ -167,12 +167,12 @@ class CuerpoTab(ttk.Frame):
 
         self.tree = ttk.Treeview(
             frm,
-            columns=("Texto", "Imagen", "Pie de imagen", "Enlace", "Texto del enlace"),
+            columns=("Párrafo", "Imagen", "Pie de imagen", "Enlace", "Texto del enlace"),
             show="headings",
             height=8
         )
         self.tree.grid(row=6, column=0, columnspan=3, sticky="nsew")
-        self.tree.heading("Texto", text="Texto")
+        self.tree.heading("Párrafo", text="Párrafo")
         self.tree.heading("Imagen", text="Imagen")
         self.tree.heading("Pie de imagen", text="Pie de Imagen")
         self.tree.heading("Enlace", text="Enlace")
@@ -334,8 +334,9 @@ class PreviewTab(tk.Frame):
         ttk.Button(toolbar, text="Guardar JSON", command=self.save_json).pack(side="left", padx=8)
         ttk.Button(toolbar, text="Previsualizar en web", command=self.preview_web).pack(side="left", padx=8)
         ttk.Button(toolbar, text="Generar HTML", command=self.generate_html).pack(side="right", padx=8)
+        ttk.Button(toolbar, text="Abrir Geoso2.es", command=self.open_output_html).pack(side="right", padx=8)
 
-        self.text_area = tk.Text(self, wrap="word")
+        self.text_area = tk.Text(self, wrap="word") 
         self.text_area.pack(fill="both", expand=True, padx=16, pady=10)
 
     def update_preview(self):
@@ -425,3 +426,23 @@ class PreviewTab(tk.Frame):
             messagebox.showinfo("Éxito", f"Archivo HTML generado en:\n{output_path}")
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo generar el archivo HTML de página:\n{e}")
+
+    def open_output_html(self):
+        output_path = "geoso2-web-template/output/index.html"
+        ruta_absoluta = os.path.abspath(output_path)
+
+        if not os.path.exists(ruta_absoluta):
+            messagebox.showerror(
+                "Error",
+                f"No se encontró el archivo HTML final:\n{ruta_absoluta}\n\nGenera el HTML primero."
+            )
+            return
+
+        try:
+            webbrowser.open_new_tab(f"file:///{ruta_absoluta}")
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo abrir el HTML:\n{e}")
+
+
+            self.text_area = tk.Text(self, wrap="word")
+            self.text_area.pack(fill="both", expand=True, padx=16, pady=10)
