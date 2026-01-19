@@ -10,16 +10,36 @@
 
   {% for evento in agenda %}
   <div class="imagenizq-texto">
-    <img src="{{ evento.imagen }}" alt="{{ evento.alt }}" class="imagenizq img-marco">
+
+    {# Imagen con protección #}
+    {% if evento.imagen %}
+      <img src="{{ evento.imagen }}" alt="{{ evento.alt or '' }}" class="imagenizq img-marco">
+    {% else %}
+      <img src="../imput/img/default.png" alt="" class="imagenizq img-marco">
+    {% endif %}
+
     <div>
       <h3><strong>{{ evento.titulo }}</strong></h3>
+
       <p style="color:rgba(235, 245, 255, 0.775);">
-        Fecha: {{ evento.fecha }}<br>
+        {% if evento.fecha %}Fecha: {{ evento.fecha }}<br>{% endif %}
         {% if evento.hora %}Hora: {{ evento.hora }}<br>{% endif %}
-        Lugar: {{ evento.lugar }}<br><br>
+        {% if evento.lugar %}Lugar: {{ evento.lugar }}<br><br>{% endif %}
         {{ evento.descripcion }}
       </p>
-      <a href="{{ evento.link }}" class="btn btn-primary" target="_blank">{{ evento.texto_link }}</a><br><br>
+
+      {# Botón con protección #}
+      {% if evento.link %}
+        <a href="{{ evento.link }}" class="btn btn-primary" target="_blank">
+          {{ evento.texto_link or "Más información" }}
+        </a>
+      {% else %}
+        <span class="btn btn-secondary disabled">
+          {{ evento.texto_link or "Sin enlace" }}
+        </span>
+      {% endif %}
+
+      <br><br>
     </div>
   </div>
   <hr>

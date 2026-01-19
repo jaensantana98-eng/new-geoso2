@@ -1,22 +1,30 @@
 {% extends "index_base.html" %}
 {% block title %}Inicio{% endblock %}
-<br><br>
+
 {% block content %}
-<br>
-<br>
+<br><br>
+
 <div id="miCarrusel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="4000">
   <div class="carousel-inner">
+
     {% for item in index_page.carousel %}
       <div class="carousel-item {% if loop.first %}active{% endif %}">
+
         {% if item.link %}
           <a href="{{ item.link }}" target="_blank">
-            <img src="{{ item.src }}" alt="{{ item.alt }}" class="d-block w-100">
+            <img src="{{ item.src or '../imput/img/default.png' }}"
+                 alt="{{ item.alt or '' }}"
+                 class="d-block w-100">
           </a>
         {% else %}
-          <img src="{{ item.src }}" alt="{{ item.alt }}" class="d-block w-100">
+          <img src="{{ item.src or '../imput/img/default.png' }}"
+               alt="{{ item.alt or '' }}"
+               class="d-block w-100">
         {% endif %}
+
       </div>
     {% endfor %}
+
   </div>
 
   <button class="carousel-control-prev" type="button" data-bs-target="#miCarrusel" data-bs-slide="prev">
@@ -26,53 +34,103 @@
     <span class="carousel-control-next-icon"></span>
   </button>
 </div>
+
 <hr>
-   <h3>Noticias</h3>
+<h3>Noticias</h3>
 
 {% for noticia in index_page.noticias %}
   <div class="imagenizq-texto">
-    <a href="{{ noticia.link }}">
-      <img src="{{ noticia.imagen }}" alt="{{ noticia.titulo }}">
-    </a>
+
+    {% if noticia.link %}
+      <a href="{{ noticia.link }}">
+        <img src="{{ noticia.imagen or '../imput/img/default.png' }}" alt="{{ noticia.titulo or '' }}">
+      </a>
+    {% else %}
+      <img src="{{ noticia.imagen or '../imput/img/default.png' }}" alt="{{ noticia.titulo or '' }}">
+    {% endif %}
 
     <div><br>
-      <a style="text-decoration: none; color: white;" href="{{ noticia.link }}">
-        <h4>{{ noticia.titulo }}</h4>
-      </a>
 
-      <p>{{ noticia.descripcion }}</p>
+      {% if noticia.link %}
+        <a style="text-decoration: none; color: white;" href="{{ noticia.link }}">
+          <h4>{{ noticia.titulo or '' }}</h4>
+        </a>
+      {% else %}
+        <h4>{{ noticia.titulo or '' }}</h4>
+      {% endif %}
 
-      <a href="{{ noticia.link }}">{{ noticia.link_text }}</a>
+      <p>{{ noticia.descripcion or '' }}</p>
+
+      {% if noticia.link %}
+        <a href="{{ noticia.link }}">{{ noticia.link_text or "Leer más" }}</a>
+      {% endif %}
+
     </div>
   </div>
 {% endfor %}
-  </div>
+
 <hr>
 <br>
-    <a style="color: white; font-weight:700; text-decoration:none;" href="../output/agenda.html"><h3>Agenda</h3></a>
-    {% for evento in index_page.agenda %}
+
+<a style="color: white; font-weight:700; text-decoration:none;" href="../output/agenda.html">
+  <h3>Agenda</h3>
+</a>
+
+{% for evento in index_page.agenda %}
   <div class="col-md-4 text-center imagenizq-texto">
-      <a href="{{ evento.link }}"><img src="{{ evento.imagen }}" style="width:200px"></a>
-    </div>
-    <div><br>
-      <a style="color: white; font-weight:700; text-decoration:none;" href="{{ evento.link }}"><h4>{{ evento.titulo }}</h4></a>
-      <p>{{ evento.descripcion }}</p>
+
+    {% if evento.link %}
+      <a href="{{ evento.link }}">
+        <img src="{{ evento.imagen or '../imput/img/default.png' }}" style="width:200px">
+      </a>
+    {% else %}
+      <img src="{{ evento.imagen or '../imput/img/default.png' }}" style="width:200px">
+    {% endif %}
+
+  </div>
+
+  <div><br>
+
+    {% if evento.link %}
+      <a style="color: white; font-weight:700; text-decoration:none;" href="{{ evento.link }}">
+        <h4>{{ evento.titulo or '' }}</h4>
+      </a>
+    {% else %}
+      <h4>{{ evento.titulo or '' }}</h4>
+    {% endif %}
+
+    <p>{{ evento.descripcion or '' }}</p>
+
+    {% if evento.link %}
       <a href="{{ evento.link }}">Leer Más</a>
-    </div>
+    {% endif %}
+
   </div>
-    {% endfor %}
-  </div>
-</div>
+{% endfor %}
 
 <hr><br>
+
 <h3>Entidades colaboradoras</h3>
 <div class="row text-center">
+
   {% for col in index_page.colaboradores %}
     <div class="col">
-      <a href="{{ col.link }}" target="_blank">
-        <img src="{{ col.imagen }}" alt="{{ col.nombre }}" class="img-fluid">
-      </a>
+
+      {% if col.link %}
+        <a href="{{ col.link }}" target="_blank">
+          <img src="{{ col.imagen or '../imput/img/default.png' }}"
+               alt="{{ col.nombre or '' }}"
+               class="img-fluid">
+        </a>
+      {% else %}
+        <img src="{{ col.imagen or '../imput/img/default.png' }}"
+             alt="{{ col.nombre or '' }}"
+             class="img-fluid">
+      {% endif %}
+
     </div>
   {% endfor %}
+
 </div>
+
 {% endblock %}

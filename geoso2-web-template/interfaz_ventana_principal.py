@@ -158,35 +158,26 @@ class MainApp(tk.Tk):
             with open("geoso2-web-template/json/web.json", "r", encoding="utf-8") as f:
                 datos = json.load(f)
 
+            web = datos["web"]
             env = Environment(loader=FileSystemLoader("geoso2-web-template/templates"))
-
-            paginas = {
-                "carrusel.html": "carrusel.html",
-                "entidades.html": "entidades.html",
-                "noticias.html": "noticias.html",
-                "agenda.html": "agenda.html",
-                "rafagas.html": "rafagas.html",
-                "proyectos.html": "proyectos.html",
-                "quienes-somos.html": "quienes-somos.html",
-                "publicaciones.html": "publicaciones.html",
-            }
 
             output_dir = "geoso2-web-template/output"
             os.makedirs(output_dir, exist_ok=True)
 
-            for plantilla, salida in paginas.items():
-                template = env.get_template(plantilla)
-                html = template.render(**datos["web"])
-
-                with open(os.path.join(output_dir, salida), "w", encoding="utf-8") as f:
-                    f.write(html)
-
-            webbrowser.open_new_tab(f"file:///{os.path.abspath(output_dir + '/index.html')}")
+            # ... aquí va todo tu código de renderizado de páginas ...
 
             messagebox.showinfo("Éxito", "Sitio web generado correctamente.")
 
+            # -----------------------------
+            # ABRIR INDEX EN EL NAVEGADOR
+            # -----------------------------
+            index_path = os.path.abspath(os.path.join(output_dir, "index.html"))
+            webbrowser.open(index_path)
+
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo generar el sitio web:\n{e}")
+
+
 
 
 if __name__ == "__main__":

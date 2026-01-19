@@ -4,9 +4,11 @@
 
 {% block content %}
 <div class="container mt-4 ms-4">
-  {# dictsort ordena por clave (año) ascendente #}
+
+  {# Ordenar por año ascendente #}
   {% set pairs = publicaciones | dictsort %}
-  {# reverse invierte la lista: descendente #}
+
+  {# Recorrer en orden descendente #}
   {% for pair in pairs | reverse %}
     {% set year = pair[0] %}
     {% set items = pair[1] %}
@@ -14,19 +16,41 @@
     <hr>
     <h4><strong>{{ year }}</strong></h4>
     <br>
+
     <div class="references csl-bib-body hanging-indent" role="list">
-      {% for pub in items %}
+
+      {% for pub in items or [] %}
         <div class="csl-entry" role="listitem">
-          {{ pub.autores }} ({{ year }}). {{ pub.titulo }} [{{ pub.tipo }}].
-          <i>{{ pub.revista }}</i>{% if pub.volumen %}, {{ pub.volumen }}{% endif %}{% if pub.num %}, {{ pub.num }}{% endif %}.
-          {% if pub.link %}
-            <a href="{{ pub.link }}" target="_blank">{{ pub.link }}</a>
+
+          {{ pub.autores or "" }}
+          ({{ year }}).
+          {{ pub.titulo or "" }}
+          [{{ pub.tipo or "" }}].
+
+          <i>{{ pub.revista or "" }}</i>
+
+          {% if pub.volumen %}
+            , {{ pub.volumen }}
           {% endif %}
+
+          {% if pub.num %}
+            , {{ pub.num }}
+          {% endif %}.
+
+          {% if pub.link %}
+            <a href="{{ pub.link }}" target="_blank">
+              {{ pub.link }}
+            </a>
+          {% endif %}
+
           <br>
         </div>
       {% endfor %}
+
     </div>
+
     <br>
   {% endfor %}
+
 </div>
 {% endblock %}
