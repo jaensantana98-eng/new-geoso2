@@ -126,7 +126,7 @@ class MainApp(tk.Tk):
             interfaz_proyectos.EditorProyectosWindow(filepath=ruta)
 
     def abrir_quienes_somos(self, mode, parent_win):
-        ruta = self.abrir_json_directo(mode, parent_win, "quienes_somos")
+        ruta = self.abrir_json_directo(mode, parent_win, "quienes-somos")
         if ruta:
             interfaz_quienessomos.EditorWindow(mode=mode, filepath=ruta)
 

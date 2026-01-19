@@ -100,8 +100,6 @@ class DatosTab(ttk.Frame):
         ttk.Button(btn_frame, text="Editar", command=self.edit_item).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Eliminar", command=self.delete_item).pack(side="left", padx=5)
 
-        ttk.Button(btn_frame, text="Guardar cambios", command=self.save_json).pack(side="right", padx=20)
-
         # Tabla
         self.tree = ttk.Treeview(frm, columns=("Imagen", "Título"), show="headings", height=12)
         self.tree.grid(row=8, column=0, columnspan=3, sticky="nsew")
@@ -111,6 +109,8 @@ class DatosTab(ttk.Frame):
 
         frm.columnconfigure(1, weight=1)
         frm.rowconfigure(8, weight=1)
+
+        ttk.Button(frm, text="Guardar cambios", command=self.save_json).grid(row=9, column=1, sticky="s", pady=10)
 
     def select_file(self):
         ruta = filedialog.askopenfilename(
