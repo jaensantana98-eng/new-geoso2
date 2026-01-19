@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk, filedialog, messagebox
+from tkinter import ttk, messagebox
 import interfaz_noticias
 import interfaz_agenda
 import interfaz_carrusel
@@ -14,40 +14,26 @@ import json
 import webbrowser
 from jinja2 import Environment, FileSystemLoader
 
-# -----------------------------
-# Ventana principal
-# -----------------------------
+
 class MainApp(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Gestor de Geoso2")
         self.geometry("500x250")
 
-        ttk.Label(
-            self,
-            text="Selecciona una opción:",
-            font=("Segoe UI", 14, "bold")
-        ).pack(pady=20)
+        ttk.Label(self, text="Selecciona una opción:", font=("Segoe UI", 14, "bold")).pack(pady=20)
 
         btns = ttk.Frame(self)
         btns.pack(pady=10)
 
-        ttk.Button(
-            btns,
-            text="Editar sitio web",
-            width=18,
-            command=lambda: self.open_section_menu("edit")
-        ).grid(row=0, column=0, padx=10)
+        ttk.Button(btns, text="Editar sitio web", width=18,
+                   command=lambda: self.open_section_menu("edit")).grid(row=0, column=0, padx=10)
 
-        ttk.Button(
-            btns,
-            text="Generar sitio web",
-            width=18,
-            command=lambda: self.generar_sitio_web()
-        ).grid(row=2, column=0, padx=10, pady=20)
+        ttk.Button(btns, text="Generar sitio web", width=18,
+                   command=self.generar_sitio_web).grid(row=2, column=0, padx=10, pady=20)
 
-        firma = ttk.Label(self, text="© Creado por Jesús Jaén Santana v.1.0/2025", font=("Segoe UI", 10, "italic"))
-        firma.pack(side="bottom", pady=10)
+        ttk.Label(self, text="© Creado por Jesús Jaén Santana v.1.0/2025",
+                  font=("Segoe UI", 10, "italic")).pack(side="bottom", pady=10)
 
     # -----------------------------
     # Ventana de selección
@@ -57,225 +43,123 @@ class MainApp(tk.Tk):
         win.title("Selecciona la sección")
         win.geometry("400x600")
 
-        text = (
-            "Selecciona la sección a crear:"
-            if mode == "create"
-            else "Selecciona el JSON a editar:"
-        )
-
-        ttk.Label(
-            win,
-            text=text,
-            font=("Segoe UI", 12, "bold")
-        ).pack(pady=15)
+        ttk.Label(win,
+                  text="Selecciona el JSON a editar:",
+                  font=("Segoe UI", 12, "bold")).pack(pady=15)
 
         frm = ttk.Frame(win)
         frm.pack(pady=10)
 
-        # ---------- BOTONES DIRECTOS ----------
-        
-        ttk.Label(frm, text="Gestionar imagenes de:", font=("Segoe UI", 11)).pack(pady=8)
+        ttk.Label(frm, text="Gestionar imágenes de:", font=("Segoe UI", 11)).pack(pady=8)
 
-        ttk.Button(
-            frm,
-            text="Carrusel",
-            width=20,
-            command=lambda: self.abrir_carrusel(mode, win)
-        ).pack(pady=4)
+        ttk.Button(frm, text="Carrusel", width=20,
+                   command=lambda: self.abrir_carrusel(mode, win)).pack(pady=4)
 
-        ttk.Button(
-            frm,
-            text="Entidades Colaboradoras",
-            width=20,
-            command=lambda: self.abrir_entidades_colaboradoras(mode, win)
-        ).pack(pady=4)
+        ttk.Button(frm, text="Entidades Colaboradoras", width=20,
+                   command=lambda: self.abrir_entidades_colaboradoras(mode, win)).pack(pady=4)
 
         ttk.Separator(frm).pack(fill="x", pady=8)
 
         ttk.Label(frm, text="Secciones de la página principal:", font=("Segoe UI", 11)).pack(pady=8)
 
-        ttk.Button(
-            frm,
-            text="Noticias",
-            width=20,
-            command=lambda: self.abrir_noticias(mode, win)
-        ).pack(pady=4)
+        ttk.Button(frm, text="Noticias", width=20,
+                   command=lambda: self.abrir_noticias(mode, win)).pack(pady=4)
 
-        ttk.Button(
-                frm,
-                text="Agenda",
-                width=20,
-                command=lambda: self.abrir_agenda(mode, win)
-            ).pack(pady=4)
+        ttk.Button(frm, text="Agenda", width=20,
+                   command=lambda: self.abrir_agenda(mode, win)).pack(pady=4)
 
         ttk.Separator(frm).pack(fill="x", pady=8)
 
         ttk.Label(frm, text="Otras secciones:", font=("Segoe UI", 11)).pack(pady=8)
 
-        ttk.Button(
-            frm,
-            text="Ráfagas",
-            width=20,
-            command=lambda: self.abrir_rafagas(mode, win)
-        ).pack(pady=4)
+        ttk.Button(frm, text="Ráfagas", width=20,
+                   command=lambda: self.abrir_rafagas(mode, win)).pack(pady=4)
 
-        ttk.Button(
-            frm,
-            text="Proyectos",
-            width=20,
-            command=lambda: self.abrir_proyectos(mode, win)
-        ).pack(pady=4)
+        ttk.Button(frm, text="Proyectos", width=20,
+                   command=lambda: self.abrir_proyectos(mode, win)).pack(pady=4)
 
-        ttk.Button(
-            frm,
-            text="Quienes Somos",
-            width=20,
-            command=lambda: self.abrir_quienes_somos(mode, win)
-        ).pack(pady=4)
-        ttk.Button(
-            frm,
-            text="Publicaciones",
-            width=20,
-            command=lambda: self.abrir_publicaciones(mode, win)
-        ).pack(pady=4)
+        ttk.Button(frm, text="Quienes Somos", width=20,
+                   command=lambda: self.abrir_quienes_somos(mode, win)).pack(pady=4)
+
+        ttk.Button(frm, text="Publicaciones", width=20,
+                   command=lambda: self.abrir_publicaciones(mode, win)).pack(pady=4)
 
         ttk.Separator(frm).pack(fill="x", pady=8)
 
         ttk.Label(frm, text="Gestión de Página Web:", font=("Segoe UI", 11)).pack(pady=8)
-        ttk.Button(
-            frm,
-            text="Página Web",
-            width=20,
-            command=lambda: self.abrir_pagina_web(mode, win)
-        ).pack(pady=4)
 
+        ttk.Button(frm, text="Página Web", width=20,
+                   command=lambda: self.abrir_pagina_web(mode, win)).pack(pady=4)
 
     # -----------------------------
-    # BOTONES -> ARCHIVOS
+    # Métodos abre-directo
     # -----------------------------
-    
-    def abrir_noticias(self, mode, parent_win):
+    def abrir_json_directo(self, mode, parent_win, filename):
         parent_win.destroy()
-        filepath = self.seleccionar_json(mode, "Noticias")
-        if mode == "edit" and not filepath:
-            return
-        interfaz_noticias.NoticiasWindow(mode=mode, filepath=filepath)
+
+        ruta = f"geoso2-web-template/json/{filename}.json"
+
+        if mode == "edit" and not os.path.exists(ruta):
+            messagebox.showerror("Error", f"No se encontró el archivo:\n{ruta}")
+            return None
+
+        return ruta
+
+    def abrir_noticias(self, mode, parent_win):
+        ruta = self.abrir_json_directo(mode, parent_win, "noticias")
+        if ruta:
+            interfaz_noticias.NoticiasWindow(mode=mode, filepath=ruta)
+
+    def abrir_agenda(self, mode, parent_win):
+        ruta = self.abrir_json_directo(mode, parent_win, "agenda")
+        if ruta:
+            interfaz_agenda.EditorWindow(mode=mode, filepath=ruta)
 
     def abrir_rafagas(self, mode, parent_win):
-        parent_win.destroy()
-        filepath = self.seleccionar_json(mode, "Ráfagas")
-        if mode == "edit" and not filepath:
-            return
-        interfaz_rafagas.EditorRafagasWindow(filepath=filepath)
+        ruta = self.abrir_json_directo(mode, parent_win, "rafagas")
+        if ruta:
+            interfaz_rafagas.EditorRafagasWindow(filepath=ruta)
 
     def abrir_proyectos(self, mode, parent_win):
-        parent_win.destroy()
-        filepath = self.seleccionar_json(mode, "Proyectos")
-        if mode == "edit" and not filepath:
-            return
-        interfaz_proyectos.EditorProyectosWindow(filepath=filepath)
+        ruta = self.abrir_json_directo(mode, parent_win, "proyectos")
+        if ruta:
+            interfaz_proyectos.EditorProyectosWindow(filepath=ruta)
 
     def abrir_quienes_somos(self, mode, parent_win):
-        parent_win.destroy()
-        filepath = self.seleccionar_json(mode, "Quienes Somos")
-        if mode == "edit" and not filepath:
-            return
-        interfaz_quienessomos.EditorWindow(mode=mode, filepath=filepath)
-    
+        ruta = self.abrir_json_directo(mode, parent_win, "quienes_somos")
+        if ruta:
+            interfaz_quienessomos.EditorWindow(mode=mode, filepath=ruta)
+
     def abrir_publicaciones(self, mode, parent_win):
-        parent_win.destroy()
-        filepath = self.seleccionar_json(mode, "Publicaciones")
-        if mode == "edit" and not filepath:
-            return
-        interfaz_publicaciones.EditorWindow(mode=mode, filepath=filepath)
-    
-    def abrir_agenda(self, mode, parent_win):
-        parent_win.destroy()
-        filepath = self.seleccionar_json(mode, "Agenda")
-        if mode == "edit" and not filepath:
-            return
-        interfaz_agenda.EditorWindow(mode=mode, filepath=filepath)
+        ruta = self.abrir_json_directo(mode, parent_win, "publicaciones")
+        if ruta:
+            interfaz_publicaciones.EditorWindow(mode=mode, filepath=ruta)
 
-            
     def abrir_carrusel(self, mode, parent_win):
-        parent_win.destroy()
-
-        filepath = None
-        if mode == "edit":
-            filepath = filedialog.askopenfilename(
-                title="Selecciona el JSON de Carrusel",
-                filetypes=[("JSON files", "*.json")],
-                initialdir="geoso2-web-template/json"
-            )
-
-            if not filepath or not os.path.exists(filepath):
-                messagebox.showwarning(
-                    "Aviso",
-                    "No se seleccionó ningún archivo válido."
-                )
-                return
-        interfaz_carrusel.CarruselWindow(mode=mode, filepath=filepath)
-
+        ruta = self.abrir_json_directo(mode, parent_win, "carrusel")
+        if ruta:
+            interfaz_carrusel.CarruselWindow(mode=mode, filepath=ruta)
 
     def abrir_entidades_colaboradoras(self, mode, parent_win):
-        parent_win.destroy()
-
-        filepath = None
-        if mode == "edit":
-            filepath = filedialog.askopenfilename(
-                title="Selecciona el JSON de Entidades Colaboradoras",
-                filetypes=[("JSON files", "*.json")],
-                initialdir="geoso2-web-template/json"
-            )
-
-            if not filepath or not os.path.exists(filepath):
-                messagebox.showwarning(
-                    "Aviso",
-                    "No se seleccionó ningún archivo válido."
-                )
-                return
-        interfaz_entidades_colaboradoras.EntidadesWindow(mode=mode, filepath=filepath)
+        ruta = self.abrir_json_directo(mode, parent_win, "entidades_colaboradoras")
+        if ruta:
+            interfaz_entidades_colaboradoras.EntidadesWindow(mode=mode, filepath=ruta)
 
     def abrir_pagina_web(self, mode, parent_win):
-        parent_win.destroy()
-
-        filepath = self.seleccionar_json(mode, "Página Web")
-        if mode == "edit" and not filepath:
-            return
-        interfaz_pagina_web.paginaWindow(mode=mode, filepath=filepath)
+        ruta = self.abrir_json_directo(mode, parent_win, "web")
+        if ruta:
+            interfaz_pagina_web.paginaWindow(mode=mode, filepath=ruta)
 
     # -----------------------------
-    # Selector de JSON (reutilizable)
+    # Generar sitio web
     # -----------------------------
-    def seleccionar_json(self, mode, section_name):
-        if mode != "edit":
-            return None
-
-        filepath = filedialog.askopenfilename(
-            title=f"Selecciona el JSON de {section_name}",
-            filetypes=[("JSON files", "*.json")],
-            initialdir="geoso2-web-template/json"
-        )
-
-        if not filepath or not os.path.exists(filepath):
-            messagebox.showwarning(
-                "Aviso",
-                "No se seleccionó ningún archivo válido."
-            )
-            return None
-
-        return filepath
-    
     def generar_sitio_web(self):
         try:
-            # 1. Cargar JSON general
             with open("geoso2-web-template/json/web.json", "r", encoding="utf-8") as f:
                 datos = json.load(f)
 
-            # 2. Preparar motor de plantillas
             env = Environment(loader=FileSystemLoader("geoso2-web-template/templates"))
 
-            # 3. Lista de páginas a generar
             paginas = {
                 "carrusel.html": "carrusel.html",
                 "entidades_colaboradoras.html": "entidades_colaboradoras.html",
@@ -290,18 +174,14 @@ class MainApp(tk.Tk):
             output_dir = "geoso2-web-template/output"
             os.makedirs(output_dir, exist_ok=True)
 
-            # 4. Renderizar cada plantilla
             for plantilla, salida in paginas.items():
                 template = env.get_template(plantilla)
                 html = template.render(**datos)
 
-                ruta_salida = os.path.join(output_dir, salida)
-                with open(ruta_salida, "w", encoding="utf-8") as f:
+                with open(os.path.join(output_dir, salida), "w", encoding="utf-8") as f:
                     f.write(html)
 
-            # 5. Abrir la página principal
-            index_path = os.path.abspath(os.path.join(output_dir, "index.html"))
-            webbrowser.open_new_tab(f"file:///{index_path}")
+            webbrowser.open_new_tab(f"file:///{os.path.abspath(output_dir + '/index.html')}")
 
             messagebox.showinfo("Éxito", "Sitio web generado correctamente.")
 
@@ -309,10 +189,6 @@ class MainApp(tk.Tk):
             messagebox.showerror("Error", f"No se pudo generar el sitio web:\n{e}")
 
 
-
-# -----------------------------
-# Ejecutar app
-# -----------------------------
 if __name__ == "__main__":
     app = MainApp()
     app.mainloop()

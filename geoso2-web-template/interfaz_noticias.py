@@ -2,10 +2,8 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import json
 import os
-import webbrowser
 from PIL import Image
 import copy
-from jinja2 import Environment, FileSystemLoader
 
 
 class NoticiasWindow(tk.Toplevel):
@@ -38,19 +36,13 @@ class NoticiasWindow(tk.Toplevel):
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo cargar el JSON:\n{e}")
 
-        # Notebook
-        self.notebook = ttk.Notebook(self)
-        self.notebook.pack(fill="both", expand=True)
+        # Solo una pestaña: Datos
+        self.tab_datos = DatosTab(self, self)
+        self.tab_datos.pack(fill="both", expand=True)
 
-        self.tab_datos = DatosTab(self.notebook, self)
-        self.tab_preview = PreviewTab(self.notebook, self)
-
-        self.notebook.add(self.tab_datos, text="Datos")
-        self.notebook.add(self.tab_preview, text="Preview y Generar")
-
+        # Si estamos editando, refrescar tabla
         if mode == "edit":
             self.tab_datos.refresh_table()
-            self.tab_preview.update_preview()
 
 
 class DatosTab(ttk.Frame):
@@ -80,7 +72,6 @@ class DatosTab(ttk.Frame):
         self.entry_enlace_texto.grid(row=3, column=1, sticky="ew", pady=6)
 
         ttk.Label(frm, text="URL del enlace (URL o HTML):").grid(row=4, column=0, sticky="w", pady=6)
-
         self.entry_enlace_url = ttk.Entry(frm)
         self.entry_enlace_url.grid(row=4, column=1, sticky="ew", pady=6)
 
@@ -88,8 +79,6 @@ class DatosTab(ttk.Frame):
         btn_enlace_frame.grid(row=5, column=1, sticky="ew", padx=8)
 
         ttk.Button(btn_enlace_frame, text="Buscar archivo", command=self.select_file).pack(side="left", padx=4)
-        ttk.Button(btn_enlace_frame, text="Probar enlace", command=self.probar_enlace_url).pack(side="left", padx=4)
-
 
         self.var_link_titulo = tk.BooleanVar(value=True)
         self.var_link_portada = tk.BooleanVar(value=True)
@@ -103,55 +92,27 @@ class DatosTab(ttk.Frame):
         ttk.Checkbutton(checkbox_frame, text="Usar enlace en portada",
                         variable=self.var_link_portada).pack(side="left")
 
-
+        # Botones principales
         btn_frame = ttk.Frame(frm)
-        btn_frame.grid(row=8, column=0, columnspan=3, pady=10)
+        btn_frame.grid(row=7, column=0, columnspan=3, pady=10)
 
         ttk.Button(btn_frame, text="Añadir", command=self.add_item).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Editar", command=self.edit_item).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Eliminar", command=self.delete_item).pack(side="left", padx=5)
 
+        ttk.Button(btn_frame, text="Guardar cambios", command=self.save_json).pack(side="right", padx=20)
+
+        # Tabla
         self.tree = ttk.Treeview(frm, columns=("Imagen", "Título"), show="headings", height=12)
-        self.tree.grid(row=9, column=0, columnspan=3, sticky="nsew")
+        self.tree.grid(row=8, column=0, columnspan=3, sticky="nsew")
 
         self.tree.heading("Imagen", text="Imagen")
         self.tree.heading("Título", text="Título")
 
         frm.columnconfigure(1, weight=1)
-        frm.rowconfigure(9, weight=1)
-
-    def probar_enlace_url(self):
-        enlace = self.entry_enlace_url.get().strip()
-
-        if not enlace:
-            messagebox.showwarning("Aviso", "No hay enlace para probar.")
-            return
-
-        try:
-            # Si es URL externa
-            if enlace.startswith(("http://", "https://")):
-                webbrowser.open_new_tab(enlace)
-                return
-
-            # Si es archivo HTML/PDF relativo
-            ruta = os.path.abspath(os.path.join("geoso2-web-template/output", enlace.replace("../", "")))
-
-            if os.path.exists(ruta):
-                webbrowser.open_new_tab(f"file:///{ruta}")
-            else:
-                messagebox.showerror("Error", f"No se encontró el archivo:\n{ruta}")
-
-        except Exception as e:
-            messagebox.showerror("Error", f"No se pudo abrir el enlace:\n{e}")
-
-
-
+        frm.rowconfigure(8, weight=1)
 
     def select_file(self):
-        descargas = os.path.join(os.path.expanduser("~"), "Downloads")
-        if not os.path.isdir(descargas):
-            descargas = os.path.expanduser("~")
-
         ruta = filedialog.askopenfilename(
             initialdir="geoso2-web-template/output",
             title="Seleccionar archivo",
@@ -180,54 +141,16 @@ class DatosTab(ttk.Frame):
                     with open(destino, "wb") as f_dst:
                         f_dst.write(f_src.read())
 
-                # En el JSON guardamos la ruta que usará el HTML final
                 ruta_relativa = f"../imput/docs/noticias/{nombre}"
 
-            else:  # HTML → NO copiar, solo guardar el nombre
-                ruta_relativa = nombre   # ← IMPORTANTE: sin "../"
+            else:
+                ruta_relativa = nombre
 
             self.entry_enlace_url.delete(0, tk.END)
             self.entry_enlace_url.insert(0, ruta_relativa)
 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo procesar el archivo:\n{e}")
-
-
-
-    def edit_item(self):
-        selected = self.tree.selection()
-        if not selected:
-            messagebox.showwarning("Aviso", "Selecciona una noticia para editar.")
-            return
-
-        index = self.tree.index(selected[0])
-        noticia = self.controller.state["noticias"][index]
-
-        # Guardamos el índice que se está editando
-        self.editing_index = index
-
-        # Cargar datos en los campos
-        self.entry_imagen.delete(0, tk.END)
-        self.entry_imagen.insert(0, noticia["imagen"])
-
-        self.entry_titulo.delete(0, tk.END)
-        self.entry_titulo.insert(0, noticia["titulo"])
-
-        self.text_descripcion.delete("1.0", tk.END)
-        self.text_descripcion.insert("1.0", noticia["descripcion"])
-
-        enlace = noticia.get("enlace", {})
-
-        self.entry_enlace_texto.delete(0, tk.END)
-        self.entry_enlace_texto.insert(0, enlace.get("texto", ""))
-
-        self.entry_enlace_url.delete(0, tk.END)
-        self.entry_enlace_url.insert(0, enlace.get("url", ""))
-
-        self.var_link_titulo.set(enlace.get("usar_en_titulo", True))
-        self.var_link_portada.set(enlace.get("usar_en_portada", True))
-
-
 
     def select_imagen(self):
         ruta = filedialog.askopenfilename(filetypes=[("Imagen", "*.png;*.jpg;*.jpeg;*.gif")])
@@ -272,26 +195,44 @@ class DatosTab(ttk.Frame):
             }
         }
 
-        # Si estamos editando → reemplazar
         if self.editing_index is not None:
             self.controller.state["noticias"][self.editing_index] = nuevo
             self.editing_index = None
         else:
-            # Si no → añadir
             self.controller.state["noticias"].append(nuevo)
 
         self.refresh_table()
         self.clear_fields()
 
-    def clear_fields(self):
-        self.entry_imagen.delete(0, tk.END)
-        self.entry_titulo.delete(0, tk.END)
-        self.text_descripcion.delete("1.0", tk.END)
-        self.entry_enlace_texto.delete(0, tk.END)
-        self.entry_enlace_url.delete(0, tk.END)
-        self.var_link_titulo.set(True)
-        self.var_link_portada.set(True)
+    def edit_item(self):
+        selected = self.tree.selection()
+        if not selected:
+            messagebox.showwarning("Aviso", "Selecciona una noticia para editar.")
+            return
 
+        index = self.tree.index(selected[0])
+        noticia = self.controller.state["noticias"][index]
+        self.editing_index = index
+
+        self.entry_imagen.delete(0, tk.END)
+        self.entry_imagen.insert(0, noticia["imagen"])
+
+        self.entry_titulo.delete(0, tk.END)
+        self.entry_titulo.insert(0, noticia["titulo"])
+
+        self.text_descripcion.delete("1.0", tk.END)
+        self.text_descripcion.insert("1.0", noticia["descripcion"])
+
+        enlace = noticia.get("enlace", {})
+
+        self.entry_enlace_texto.delete(0, tk.END)
+        self.entry_enlace_texto.insert(0, enlace.get("texto", ""))
+
+        self.entry_enlace_url.delete(0, tk.END)
+        self.entry_enlace_url.insert(0, enlace.get("url", ""))
+
+        self.var_link_titulo.set(enlace.get("usar_en_titulo", True))
+        self.var_link_portada.set(enlace.get("usar_en_portada", True))
 
     def delete_item(self):
         selected = self.tree.selection()
@@ -307,148 +248,21 @@ class DatosTab(ttk.Frame):
         for elem in self.controller.state["noticias"]:
             self.tree.insert("", tk.END, values=(elem["imagen"], elem["titulo"]))
 
-
-class PreviewTab(tk.Frame):
-    def __init__(self, parent, controller):
-        super().__init__(parent)
-        self.controller = controller
-
-        toolbar = ttk.Frame(self)
-        toolbar.pack(fill="x", padx=16, pady=10)
-
-        ttk.Button(toolbar, text="Actualizar preview", command=self.update_preview).pack(side="left")
-        ttk.Button(toolbar, text="Guardar JSON", command=self.save_json).pack(side="left", padx=8)
-        ttk.Button(toolbar, text="Previsualizar en web", command=self.preview_web).pack(side="left", padx=8)
-        ttk.Button(toolbar, text="Generar HTML", command=self.generate_html).pack(side="right", padx=8)
-        ttk.Button(toolbar, text="Abrir Geoso2.es", command=self.open_output_html).pack(side="right")
-
-        self.text_area = tk.Text(self, wrap="word")
-        self.text_area.pack(fill="both", expand=True, padx=16, pady=10)
-
-    def update_preview(self):
-        datos = copy.deepcopy(self.controller.state)
-        preview = json.dumps(datos, indent=4, ensure_ascii=False)
-        self.text_area.delete("1.0", tk.END)
-        self.text_area.insert(tk.END, preview)
-
     def save_json(self):
         datos = self.controller.state.copy()
-        ruta = filedialog.asksaveasfilename(defaultextension=".json",
-                                            filetypes=[("JSON files", "*.json")],
-                                            initialdir="geoso2-web-template/json")
-        if ruta:
+
+        # Ruta fija
+        ruta = "geoso2-web-template/json/noticias.json"
+
+        # Asegurar que la carpeta existe
+        os.makedirs(os.path.dirname(ruta), exist_ok=True)
+
+        try:
             with open(ruta, "w", encoding="utf-8") as f:
                 json.dump(datos, f, indent=4, ensure_ascii=False)
-            messagebox.showinfo("Guardado", f"Archivo JSON guardado en {ruta}")
 
-    def preview_web(self):
-        noticias = self.controller.state.get("noticias", [])
-
-        noticias_ajustadas = []
-        for n in noticias:
-            nuevo = copy.deepcopy(n)
-
-            # Imagen
-            imagen = nuevo["imagen"].replace("\\", "/")
-            nombre_img = os.path.basename(imagen)
-            nuevo["imagen"] = f"../imput/img/noticias/{nombre_img}"
-
-            # Enlace
-            enlace = nuevo.get("enlace", {}).get("url", "")
-
-            if enlace.lower().endswith(".pdf"):
-                # Ya viene como ../imput/docs/noticias/archivo.pdf → lo dejamos tal cual
-                nuevo["enlace"]["url"] = enlace
-
-            elif enlace.lower().endswith(".html"):
-                # Solo tenemos el nombre → apuntamos a ../output/
-                nombre_html = os.path.basename(enlace)
-                nuevo["enlace"]["url"] = f"../output/{nombre_html}"
-
-            noticias_ajustadas.append(nuevo)
-
-        try:
-            env = Environment(loader=FileSystemLoader("geoso2-web-template/templates"))
-            template = env.get_template("noticias.html")
-            html = template.render(noticias=noticias_ajustadas)
-
-            ruta = "geoso2-web-template/data/preview_noticias.html"
-            os.makedirs("geoso2-web-template/data", exist_ok=True)
-
-            with open(ruta, "w", encoding="utf-8") as f:
-                f.write(html)
-
-            webbrowser.open_new_tab(f"file:///{os.path.abspath(ruta)}")
+            messagebox.showinfo("Guardado", f"Archivo JSON guardado en:\n{ruta}")
 
         except Exception as e:
-            messagebox.showerror("Error", f"No se pudo generar el preview HTML:\n{e}")
+            messagebox.showerror("Error", f"No se pudo guardar el archivo:\n{e}")
 
-
-    def generate_html(self):
-        noticias = self.controller.state.get("noticias", [])
-
-        noticias_ajustadas = []
-        for n in noticias:
-            nuevo = copy.deepcopy(n)
-
-            # -----------------------------
-            # Ajustar ruta de la imagen
-            # -----------------------------
-            imagen = nuevo["imagen"].replace("\\", "/")
-            nombre_img = os.path.basename(imagen)
-            nuevo["imagen"] = f"../imput/img/noticias/{nombre_img}"
-
-            # -----------------------------
-            # Ajustar ruta del enlace (PDF / HTML)
-            # -----------------------------
-            enlace = nuevo.get("enlace", {}).get("url", "")
-
-            if enlace.lower().endswith(".pdf"):
-                # PDF → ya viene como ../imput/docs/noticias/archivo.pdf
-                nuevo["enlace"]["url"] = enlace
-
-            elif enlace.lower().endswith(".html"):
-                # HTML → solo guardamos el nombre en el JSON (ej: noticia01.html)
-                # En el HTML final debe apuntar a la carpeta output
-                nombre_html = os.path.basename(enlace)
-                nuevo["enlace"]["url"] = f"../output/{nombre_html}"
-
-            # Añadir a la lista final
-            noticias_ajustadas.append(nuevo)
-
-        # -----------------------------
-        # Renderizar plantilla
-        # -----------------------------
-        env = Environment(loader=FileSystemLoader("geoso2-web-template/templates"))
-        template = env.get_template("noticias.html")
-
-        html_output = template.render(noticias=noticias_ajustadas)
-
-        output_dir = "geoso2-web-template/output"
-        os.makedirs(output_dir, exist_ok=True)
-
-        output_path = os.path.join(output_dir, "noticias.html")
-
-        try:
-            with open(output_path, "w", encoding="utf-8") as f:
-                f.write(html_output)
-            messagebox.showinfo("Éxito", f"Archivo HTML generado en:\n{output_path}")
-        except Exception as e:
-            messagebox.showerror("Error", f"No se pudo generar el archivo:\n{e}")
-
-
-    def open_output_html(self):
-        output_path = "geoso2-web-template/output/noticias.html"
-        ruta_absoluta = os.path.abspath(output_path)
-
-        if not os.path.exists(ruta_absoluta):
-            messagebox.showerror(
-                "Error",
-                f"No se encontró el archivo HTML final:\n{ruta_absoluta}\n\nGenera el HTML primero."
-            )
-            return
-
-        try:
-            webbrowser.open_new_tab(f"file:///{ruta_absoluta}")
-        except Exception as e:
-            messagebox.showerror("Error", f"No se pudo abrir el HTML:\n{e}")
