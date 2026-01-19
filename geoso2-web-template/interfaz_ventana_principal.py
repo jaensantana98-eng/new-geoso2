@@ -162,7 +162,7 @@ class MainApp(tk.Tk):
 
             paginas = {
                 "carrusel.html": "carrusel.html",
-                "entidades_colaboradoras.html": "entidades_colaboradoras.html",
+                "entidades.html": "entidades.html",
                 "noticias.html": "noticias.html",
                 "agenda.html": "agenda.html",
                 "rafagas.html": "rafagas.html",
