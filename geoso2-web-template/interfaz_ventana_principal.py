@@ -162,12 +162,12 @@ class MainApp(tk.Tk):
 
             paginas = {
                 "carrusel.html": "carrusel.html",
-                "entidades_colaboradoras.html": "entidades_colaboradoras.html",
+                "entidades.html": "entidades.html",
                 "noticias.html": "noticias.html",
                 "agenda.html": "agenda.html",
                 "rafagas.html": "rafagas.html",
                 "proyectos.html": "proyectos.html",
-                "quienes_somos.html": "quienes_somos.html",
+                "quienes-somos.html": "quienes-somos.html",
                 "publicaciones.html": "publicaciones.html",
             }
 
@@ -176,7 +176,7 @@ class MainApp(tk.Tk):
 
             for plantilla, salida in paginas.items():
                 template = env.get_template(plantilla)
-                html = template.render(**datos)
+                html = template.render(**datos["web"])
 
                 with open(os.path.join(output_dir, salida), "w", encoding="utf-8") as f:
                     f.write(html)
