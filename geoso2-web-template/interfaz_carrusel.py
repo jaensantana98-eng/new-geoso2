@@ -3,9 +3,8 @@ from tkinter import ttk, filedialog, messagebox
 import json
 import os
 import webbrowser
-from PIL import Image, ImageTk
-import copy
-from jinja2 import Environment, FileSystemLoader
+from PIL import Image
+
 
 class CarruselWindow(tk.Toplevel):
     def __init__(self, mode="create", filepath=None):
@@ -13,49 +12,63 @@ class CarruselWindow(tk.Toplevel):
         self.title("Editor de Carrusel JSON")
         self.geometry("980x640")
 
-        # Estado: lista de elementos del carrusel
+        # Estado
         self.state = {
             "carrusel": []
         }
 
         os.makedirs("geoso2-web-template/imput/img/carrusel", exist_ok=True)
 
-        # Si es edición, cargar datos desde JSON
+        # Cargar JSON si estamos editando
         if mode == "edit" and filepath:
             try:
                 with open(filepath, "r", encoding="utf-8") as f:
                     datos = json.load(f)
 
-                # Aceptar ambos formatos posibles
                 if isinstance(datos, dict) and "carrusel" in datos:
                     self.state["carrusel"] = datos["carrusel"]
-
                 elif isinstance(datos, list):
                     self.state["carrusel"] = datos
-
                 else:
                     self.state["carrusel"] = []
 
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo cargar el JSON:\n{e}")
 
-
-        # Notebook
+        # Notebook con solo una pestaña
         self.notebook = ttk.Notebook(self)
         self.notebook.pack(fill="both", expand=True)
 
-        # Pestañas
         self.tab_datos = DatosTab(self.notebook, self)
-        self.tab_preview = PreviewTab(self.notebook, self)
-
         self.notebook.add(self.tab_datos, text="Datos")
-        self.notebook.add(self.tab_preview, text="Preview y Generar")
 
+        # Botón guardar cambios centrado
+        save_frame = ttk.Frame(self)
+        save_frame.pack(fill="x", pady=15)
+        ttk.Button(save_frame, text="Guardar cambios", command=self.save_json).pack(anchor="center")
+
+        # Cargar datos si estamos editando
         if mode == "edit":
             self.tab_datos.refresh_table()
-            self.tab_preview.update_preview()
+
+    # Guardar JSON automáticamente
+    def save_json(self):
+        ruta = "geoso2-web-template/json/carrusel.json"
+        os.makedirs(os.path.dirname(ruta), exist_ok=True)
+
+        try:
+            with open(ruta, "w", encoding="utf-8") as f:
+                json.dump({"carrusel": self.state["carrusel"]}, f, indent=4, ensure_ascii=False)
+
+            messagebox.showinfo("Guardado", f"Archivo guardado en:\n{ruta}")
+
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo guardar el archivo:\n{e}")
 
 
+# ============================================================
+#   PESTAÑA DATOS
+# ============================================================
 class DatosTab(ttk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
@@ -64,7 +77,9 @@ class DatosTab(ttk.Frame):
         frm = ttk.Frame(self)
         frm.pack(fill="both", expand=True, padx=10, pady=10)
 
-        # --- Campos de entrada ---
+        # -----------------------------
+        # CAMPOS
+        # -----------------------------
         ttk.Label(frm, text="Imagen:").grid(row=0, column=0, sticky="w", pady=6)
         self.entry_imagen = ttk.Entry(frm)
         self.entry_imagen.grid(row=0, column=1, sticky="ew", pady=6)
@@ -76,10 +91,11 @@ class DatosTab(ttk.Frame):
         ttk.Button(frm, text="Probar enlace", command=self.probar_enlace).grid(row=1, column=2, padx=8)
         ttk.Button(frm, text="Buscar archivo", command=self.select_file).grid(row=2, column=2, padx=8)
 
-
         frm.columnconfigure(1, weight=1)
 
-        # --- Botones de gestión ---
+        # -----------------------------
+        # BOTONES CRUD
+        # -----------------------------
         btn_frame = ttk.Frame(frm)
         btn_frame.grid(row=2, column=0, columnspan=3, pady=10)
 
@@ -88,7 +104,9 @@ class DatosTab(ttk.Frame):
         ttk.Button(btn_frame, text="Subir", command=self.move_up).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Bajar", command=self.move_down).pack(side="left", padx=5)
 
-        # --- Tabla Treeview ---
+        # -----------------------------
+        # TABLA
+        # -----------------------------
         self.tree = ttk.Treeview(frm, columns=("Imagen", "Enlace"), show="headings", height=12)
         self.tree.grid(row=3, column=0, columnspan=3, sticky="nsew")
 
@@ -96,18 +114,12 @@ class DatosTab(ttk.Frame):
         self.tree.heading("Enlace", text="Enlace")
 
         frm.rowconfigure(3, weight=1)
-    
+
+    # -----------------------------
+    # FUNCIONES
+    # -----------------------------
     def select_file(self):
-
-        # Carpeta Descargas del usuario
-        descargas = os.path.join(os.path.expanduser("~"), "Downloads")
-
-        if not os.path.isdir(descargas):
-            descargas = os.path.expanduser("~")
-
         ruta = filedialog.askopenfilename(
-            initialdir=descargas,
-            initialfile="",   # ← ESTO OBLIGA A USAR initialdir
             title="Seleccionar archivo",
             filetypes=[
                 ("Documentos", "*.pdf;*.html;*.htm"),
@@ -127,32 +139,33 @@ class DatosTab(ttk.Frame):
             nombre = os.path.basename(ruta)
             destino = os.path.join(destino_dir, nombre)
 
-            with open(ruta, "rb") as f_src:
-                with open(destino, "wb") as f_dst:
-                    f_dst.write(f_src.read())
+            with open(ruta, "rb") as f_src, open(destino, "wb") as f_dst:
+                f_dst.write(f_src.read())
 
-            ruta_relativa = f"../imput/docs/carrusel/{nombre}"
             self.entry_enlace.delete(0, tk.END)
-            self.entry_enlace.insert(0, ruta_relativa)
+            self.entry_enlace.insert(0, f"../imput/docs/carrusel/{nombre}")
 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo copiar el archivo:\n{e}")
-
 
     def select_imagen(self):
         ruta = filedialog.askopenfilename(filetypes=[("Imagen", "*.png;*.jpg;*.jpeg;*.gif")])
         if not ruta:
             return
+
         try:
             nombre = os.path.basename(ruta)
             destino = os.path.join("geoso2-web-template/imput/img/carrusel", nombre)
+
             with Image.open(ruta) as img:
                 img = img.convert("RGB")
-                img.save(destino, quality=90) # guardar tal cual, sin redimensionar 
-                self.entry_imagen.delete(0, tk.END)
-                self.entry_imagen.insert(0, destino)
+                img.save(destino, quality=90)
+
+            self.entry_imagen.delete(0, tk.END)
+            self.entry_imagen.insert(0, destino)
+
         except Exception as e:
-                messagebox.showerror("Error", f"No se pudo procesar la imagen:\n{e}")
+            messagebox.showerror("Error", f"No se pudo procesar la imagen:\n{e}")
 
     def probar_enlace(self):
         url = self.entry_enlace.get().strip()
@@ -162,18 +175,16 @@ class DatosTab(ttk.Frame):
             return
 
         try:
-            # Si es un archivo HTML dentro del proyecto
-            if url.endswith(".html") and os.path.exists(url):
-                ruta_absoluta = os.path.abspath(url)
-                webbrowser.open_new_tab(f"file:///{ruta_absoluta}")
-            # Si es un enlace web normal
-            elif url.startswith(("http://", "https://")):
+            if url.startswith(("http://", "https://")):
                 webbrowser.open_new_tab(url)
             else:
-                messagebox.showerror("Error", "El enlace debe ser una URL válida o un archivo .html del proyecto.")
+                ruta = os.path.abspath(url)
+                if os.path.exists(ruta):
+                    webbrowser.open_new_tab(f"file:///{ruta}")
+                else:
+                    messagebox.showerror("Error", f"No se encontró el archivo:\n{ruta}")
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo abrir el enlace:\n{e}")
-
 
     def add_item(self):
         imagen = self.entry_imagen.get().strip()
@@ -183,7 +194,6 @@ class DatosTab(ttk.Frame):
             messagebox.showwarning("Aviso", "Debes seleccionar una imagen y escribir un enlace.")
             return
 
-        # AÑADIR AL ESTADO (esto faltaba)
         self.controller.state["carrusel"].append({
             "imagen": imagen,
             "enlace": enlace
@@ -192,8 +202,6 @@ class DatosTab(ttk.Frame):
         self.refresh_table()
         self.entry_imagen.delete(0, tk.END)
         self.entry_enlace.delete(0, tk.END)
-
-
 
     def delete_item(self):
         selected = self.tree.selection()
@@ -208,9 +216,10 @@ class DatosTab(ttk.Frame):
         if not selected:
             return
         index = self.tree.index(selected[0])
+        arr = self.controller.state["carrusel"]
+
         if index > 0:
-            self.controller.state["carrusel"][index - 1], self.controller.state["carrusel"][index] = \
-                self.controller.state["carrusel"][index], self.controller.state["carrusel"][index - 1]
+            arr[index - 1], arr[index] = arr[index], arr[index - 1]
             self.refresh_table()
             self.tree.selection_set(self.tree.get_children()[index - 1])
 
@@ -219,139 +228,20 @@ class DatosTab(ttk.Frame):
         if not selected:
             return
         index = self.tree.index(selected[0])
-        if index < len(self.controller.state["carrusel"]) - 1:
-            self.controller.state["carrusel"][index + 1], self.controller.state["carrusel"][index] = \
-                self.controller.state["carrusel"][index], self.controller.state["carrusel"][index + 1]
+        arr = self.controller.state["carrusel"]
+
+        if index < len(arr) - 1:
+            arr[index + 1], arr[index] = arr[index], arr[index + 1]
             self.refresh_table()
             self.tree.selection_set(self.tree.get_children()[index + 1])
 
     def refresh_table(self):
         for item in self.tree.get_children():
             self.tree.delete(item)
+
         for elem in self.controller.state["carrusel"]:
             self.tree.insert("", tk.END, values=(elem["imagen"], elem["enlace"]))
 
-
-class PreviewTab(tk.Frame):
-    def __init__(self, parent, controller):
-        super().__init__(parent)
-        self.controller = controller
-
-        toolbar = ttk.Frame(self)
-        toolbar.pack(fill="x", padx=16, pady=10)
-
-        ttk.Button(toolbar, text="Actualizar preview", command=self.update_preview).pack(side="left")
-        ttk.Button(toolbar, text="Guardar JSON", command=self.save_json).pack(side="left", padx=8)
-        ttk.Button(toolbar, text="Previsualizar en web", command=self.preview_web).pack(side="left", padx=8)
-        ttk.Button(toolbar, text="Generar archivo HTML", command=self.generate_html).pack(side="right", padx=8)
-        ttk.Button(toolbar, text="Abrir Geoso2.es", command=self.open_output_html).pack(side="right")
-
-        self.text_area = tk.Text(self, wrap="word")
-        self.text_area.pack(fill="both", expand=True, padx=16, pady=10)
-
-
-    def update_preview(self):
-        datos = copy.deepcopy(self.controller.state)
-
-        preview = json.dumps(datos, indent=4, ensure_ascii=False)
-        self.text_area.delete("1.0", tk.END)
-        self.text_area.insert(tk.END, preview)
-
-
-    def save_json(self):
-        datos = self.controller.state.copy()
-        ruta = filedialog.asksaveasfilename(defaultextension=".json",
-                                            filetypes=[("JSON files", "*.json")],
-                                            initialdir="geoso2-web-template/json",)
-        if ruta:
-            try:
-                with open(ruta, "w", encoding="utf-8") as f:
-                    json.dump(datos, f, indent=4, ensure_ascii=False)
-                messagebox.showinfo("Guardado", f"Archivo JSON guardado en {ruta}")
-            except Exception as e:
-                messagebox.showerror("Error", f"No se pudo guardar el JSON:\n{e}")
-
-    def preview_web(self):
-        datos = {
-            "carrusel": self.controller.state.get("carrusel", [])
-        }
-
-        # Ajustar rutas de imagen para que funcionen desde /geoso2-web-template/data/
-        carrusel_ajustado = []
-        for item in datos["carrusel"]:
-            nuevo = item.copy()
-
-            imagen = nuevo.get("imagen", "").replace("\\", "/")
-            nombre_archivo = os.path.basename(imagen)
-
-            # Ruta relativa correcta desde preview
-            nuevo["imagen"] = f"../imput/img/carrusel/{nombre_archivo}"
-
-            carrusel_ajustado.append(nuevo)
-
-        # Renderizar usando el template real
-        try:
-            env = Environment(loader=FileSystemLoader("geoso2-web-template/templates"))
-            template = env.get_template("carrusel.html")
-            html = template.render(carrusel=carrusel_ajustado)
-
-            ruta = "geoso2-web-template/data/preview_carrusel.html"
-            os.makedirs("geoso2-web-template/data", exist_ok=True)
-
-            with open(ruta, "w", encoding="utf-8") as f:
-                f.write(html)
-
-            webbrowser.open_new_tab(f"file:///{os.path.abspath(ruta)}")
-
-        except Exception as e:
-            messagebox.showerror("Error", f"No se pudo generar el preview HTML del carrusel:\n{e}")
-
-
-
-    def generate_html(self):
-        # Datos para la plantilla
-        datos = {
-            "carrusel": self.controller.state.get("carrusel", []),
-        }
-
-        # Cargar plantilla desde /templates
-        env = Environment(loader=FileSystemLoader("geoso2-web-template/templates"))
-
-        # Plantilla del carrusel
-        template = env.get_template("carrusel.html")
-
-        # Renderizar HTML
-        html_output = template.render(carrusel=datos["carrusel"])
-
-        # Carpeta de salida
-        output_dir = "geoso2-web-template/output"
-        os.makedirs(output_dir, exist_ok=True)
-
-        # Nombre fijo del archivo
-        output_path = os.path.join(output_dir, "carrusel.html")
-
-        # Guardar archivo automáticamente
-        try:
-            with open(output_path, "w", encoding="utf-8") as f:
-                f.write(html_output)
-            messagebox.showinfo("Éxito", f"Archivo HTML generado en:\n{output_path}")
-        except Exception as e:
-            messagebox.showerror("Error", f"No se pudo generar el archivo:\n{e}")
-
-    def open_output_html(self):
-        output_path = "geoso2-web-template/output/index.html"
-        ruta_absoluta = os.path.abspath(output_path)
-
-        if not os.path.exists(ruta_absoluta):
-            messagebox.showerror(
-                "Error",
-                f"No se encontró el archivo HTML final:\n{ruta_absoluta}\n\nGenera el HTML primero."
-            )
-            return
-
-        try:
-            webbrowser.open_new_tab(f"file:///{ruta_absoluta}")
-        except Exception as e:
-            messagebox.showerror("Error", f"No se pudo abrir el HTML:\n{e}")
-
-
+    def set_data(self, datos):
+        self.controller.state["carrusel"] = datos.get("carrusel", [])
+        self.refresh_table()
