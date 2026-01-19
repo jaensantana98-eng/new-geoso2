@@ -4,6 +4,7 @@ import json
 import os
 from PIL import Image
 import copy
+import webbrowser
 
 
 class NoticiasWindow(tk.Toplevel):
@@ -79,6 +80,7 @@ class DatosTab(ttk.Frame):
         btn_enlace_frame.grid(row=5, column=1, sticky="ew", padx=8)
 
         ttk.Button(btn_enlace_frame, text="Buscar archivo", command=self.select_file).pack(side="left", padx=4)
+        ttk.Button(btn_enlace_frame, text="Probar enlace", command=lambda: webbrowser.open_new_tab(self.entry_enlace_url.get().strip())).pack(side="left", padx=4)
 
         self.var_link_titulo = tk.BooleanVar(value=True)
         self.var_link_portada = tk.BooleanVar(value=True)
