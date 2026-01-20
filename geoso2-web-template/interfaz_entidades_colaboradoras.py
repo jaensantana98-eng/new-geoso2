@@ -27,12 +27,10 @@ class EntidadesWindow(tk.Toplevel):
                 with open(filepath, "r", encoding="utf-8") as f:
                     datos = json.load(f)
 
-                if isinstance(datos, dict) and "entidades" in datos:
-                    self.state["entidades"] = datos["entidades"]
-                elif isinstance(datos, list):
-                    self.state["entidades"] = datos
-                else:
-                    self.state["entidades"] = []
+                # Cargar entidades desde la ruta correcta
+                self.state["entidades"] = datos.get("web", {}) \
+                                            .get("Entidades", {}) \
+                                            .get("entidades", [])
 
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo cargar el JSON:\n{e}")
@@ -216,14 +214,31 @@ class PreviewTab(tk.Frame):
         self.text_area.insert(tk.END, preview)
 
     def save_json(self):
-        datos = self.controller.state.copy()
-        ruta = filedialog.asksaveasfilename(defaultextension=".json",
-                                            filetypes=[("JSON files", "*.json")],
-                                            initialdir="geoso2-web-template/json")
-        if ruta:
+        ruta = "geoso2-web-template/json/web.json"
+
+        try:
+            # Cargar JSON completo
+            with open(ruta, "r", encoding="utf-8") as f:
+                datos_completos = json.load(f)
+
+            # Asegurar estructura
+            if "web" not in datos_completos:
+                datos_completos["web"] = {}
+
+            if "index_page" not in datos_completos["web"]:
+                datos_completos["web"]["index_page"] = {}
+
+            # Guardar entidades en la ruta correcta
+            datos_completos["web"]["index_page"]["entidades"] = self.controller.state["entidades"]
+
+            # Guardar JSON completo
             with open(ruta, "w", encoding="utf-8") as f:
-                json.dump(datos, f, indent=4, ensure_ascii=False)
-            messagebox.showinfo("Guardado", f"Archivo JSON guardado en {ruta}")
+                json.dump(datos_completos, f, indent=4, ensure_ascii=False)
+
+            messagebox.showinfo("Guardado", f"Archivo JSON actualizado:\n{ruta}")
+
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo guardar el archivo:\n{e}")
 
     def preview_web(self):
         entidades = self.controller.state.get("entidades", [])

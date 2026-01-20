@@ -6,9 +6,6 @@ import webbrowser
 from PIL import Image
 
 
-# ============================================================
-# VENTANA PRINCIPAL DEL EDITOR DE PROYECTOS
-# ============================================================
 class EditorProyectosWindow(tk.Toplevel):
     def __init__(self, filepath=None):
         super().__init__()
@@ -27,12 +24,19 @@ class EditorProyectosWindow(tk.Toplevel):
             }
         }
 
-        # Cargar JSON si existe
         if filepath and os.path.exists(filepath):
             with open(filepath, "r", encoding="utf-8") as f:
-                self.state = json.load(f)
+                datos = json.load(f)
 
-        # Notebook sin preview
+            # Cargar proyectos desde la ruta correcta
+            self.state["proyectos"] = datos.get("web", {}) \
+                                        .get("proyectos", {
+                                            "encurso": [],
+                                            "anteriores": [],
+                                            "trabajosacademicos": []
+                                        })
+
+
         self.notebook = ttk.Notebook(self)
         self.notebook.pack(fill="both", expand=True)
 
@@ -42,7 +46,6 @@ class EditorProyectosWindow(tk.Toplevel):
         self.notebook.add(self.tab_lista, text="Lista")
         self.notebook.add(self.tab_form, text="Formulario")
 
-        # Botón guardar cambios centrado
         save_frame = ttk.Frame(self)
         save_frame.pack(fill="x", pady=15)
         ttk.Button(save_frame, text="Guardar cambios", command=self.save_json).pack(anchor="center")
@@ -51,22 +54,34 @@ class EditorProyectosWindow(tk.Toplevel):
 
     # Guardar JSON automáticamente
     def save_json(self):
-        ruta = "geoso2-web-template/json/proyectos.json"
-        os.makedirs(os.path.dirname(ruta), exist_ok=True)
+        ruta = "geoso2-web-template/json/web.json"
 
         try:
-            with open(ruta, "w", encoding="utf-8") as f:
-                json.dump(self.state, f, indent=4, ensure_ascii=False)
+            # Cargar JSON completo
+            with open(ruta, "r", encoding="utf-8") as f:
+                datos_completos = json.load(f)
 
-            messagebox.showinfo("Guardado", f"Archivo guardado en:\n{ruta}")
+            # Asegurar estructura
+            if "web" not in datos_completos:
+                datos_completos["web"] = {}
+
+            if "index_page" not in datos_completos["web"]:
+                datos_completos["web"]["index_page"] = {}
+
+            # Guardar proyectos en la ruta correcta
+            datos_completos["web"]["index_page"]["proyectos"] = self.state["proyectos"]
+
+            # Guardar JSON completo
+            with open(ruta, "w", encoding="utf-8") as f:
+                json.dump(datos_completos, f, indent=4, ensure_ascii=False)
+
+            messagebox.showinfo("Guardado", f"Archivo JSON actualizado:\n{ruta}")
 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo guardar el archivo:\n{e}")
 
 
-# ============================================================
-# TABLA DE PROYECTOS
-# ============================================================
+
 class ListaTab(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
@@ -180,9 +195,6 @@ class ListaTab(tk.Frame):
         self.refresh_table()
 
 
-# ============================================================
-# FORMULARIO DE PROYECTO
-# ============================================================
 class FormTab(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
