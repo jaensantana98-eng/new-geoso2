@@ -22,23 +22,20 @@ class EditorWindow(tk.Toplevel):
 
         os.makedirs("data/img", exist_ok=True)
 
-        # Cargar JSON si estamos editando
+
         if mode == "edit" and filepath:
             try:
                 with open(filepath, "r", encoding="utf-8") as f:
                     datos = json.load(f)
 
-                if isinstance(datos, dict) and isinstance(datos.get("agenda"), list):
-                    eventos_raw = datos["agenda"]
-                elif isinstance(datos, list):
-                    eventos_raw = datos
-                else:
-                    eventos_raw = []
-
-                self.state["agenda"] = [self.normalize_event(ev) for ev in eventos_raw]
+                # Cargar agenda desde la ruta correcta
+                self.state["agenda"] = datos.get("web", {}) \
+                                            .get("index_page", {}) \
+                                            .get("agenda", [])
 
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo cargar el JSON:\n{e}")
+
 
         # Notebook con solo una pestaña
         self.notebook = ttk.Notebook(self)
@@ -68,17 +65,32 @@ class EditorWindow(tk.Toplevel):
 
     # Guardar JSON automáticamente
     def save_json(self):
-        ruta = "geoso2-web-template/json/agenda.json"
-        os.makedirs(os.path.dirname(ruta), exist_ok=True)
+        ruta = "geoso2-web-template/json/web.json"
 
         try:
-            with open(ruta, "w", encoding="utf-8") as f:
-                json.dump({"agenda": self.state["agenda"]}, f, indent=4, ensure_ascii=False)
+            # Cargar JSON completo
+            with open(ruta, "r", encoding="utf-8") as f:
+                datos_completos = json.load(f)
 
-            messagebox.showinfo("Guardado", f"Archivo guardado en:\n{ruta}")
+            # Asegurar estructura
+            if "web" not in datos_completos:
+                datos_completos["web"] = {}
+
+            if "index_page" not in datos_completos["web"]:
+                datos_completos["web"]["index_page"] = {}
+
+            # Guardar agenda en la ruta correcta
+            datos_completos["web"]["index_page"]["agenda"] = self.state["agenda"]
+
+            # Guardar JSON completo
+            with open(ruta, "w", encoding="utf-8") as f:
+                json.dump(datos_completos, f, indent=4, ensure_ascii=False)
+
+            messagebox.showinfo("Guardado", f"Archivo JSON actualizado:\n{ruta}")
 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo guardar el archivo:\n{e}")
+
 
 
 # ============================================================
