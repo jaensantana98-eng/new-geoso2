@@ -11,12 +11,21 @@
 
         {% for e in entidades %}
         <div class="col-6 col-md-3">
-            <a href="{{ e.enlace }}" target="_blank">
-                <img src="{{ e.imagen }}" 
+
+            {% if e.enlace %}
+                <a href="{{ e.enlace }}" target="_blank">
+                    <img src="{{ e.imagen or '../imput/img/default.png' }}" 
+                         class="img-fluid" 
+                         alt="Entidad {{ loop.index }}"
+                         style="max-height: 120px; object-fit: contain;">
+                </a>
+            {% else %}
+                <img src="{{ e.imagen or '../imput/img/default.png' }}" 
                      class="img-fluid" 
                      alt="Entidad {{ loop.index }}"
                      style="max-height: 120px; object-fit: contain;">
-            </a>
+            {% endif %}
+
         </div>
         {% endfor %}
 

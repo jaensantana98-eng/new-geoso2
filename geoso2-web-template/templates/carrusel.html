@@ -23,9 +23,15 @@
     {% for item in carrusel %}
       <div class="carousel-item {% if loop.first %}active{% endif %}">
 
-        <img src="{{ item.imagen }}"
-             class="d-block w-100"
-             alt="Imagen {{ loop.index }}">
+        {% if item.imagen %}
+          <img src="{{ item.imagen }}"
+               class="d-block w-100"
+               alt="Imagen {{ loop.index }}">
+        {% else %}
+          <img src="../imput/img/default.png"
+               class="d-block w-100"
+               alt="Sin imagen">
+        {% endif %}
 
       </div>
     {% endfor %}

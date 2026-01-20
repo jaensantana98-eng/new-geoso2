@@ -8,57 +8,138 @@
 <a class="marco2" style="text-decoration: none; color: white;" href="#anteriores">Anteriores</a>
 <a class="marco2" style="text-decoration: none; color: white;" href="#trabajosacademicos">Trabajos académicos</a>
 <hr>
+
+{# ============================== #}
+{#   SECCIÓN: EN CURSO            #}
+{# ============================== #}
 <div id="encurso" class="marco2">
   <h1>En curso</h1>
 </div>
-{% for proyecto in proyectos.encurso %}
+
+{% for proyecto in proyectos.encurso or [] %}
 <div class="container my-4">
   <div class="row align-items-center">
+
     <div class="col-md-4 text-center imagenizq-texto">
-      <a href="{{ proyecto.link }}"><img src="{{ proyecto.imagen }}" style="width:300px"></a>
+      {% if proyecto.link %}
+        <a href="{{ proyecto.link }}">
+          <img src="{{ proyecto.imagen or '../imput/img/default.png' }}" style="width:300px">
+        </a>
+      {% else %}
+        <img src="{{ proyecto.imagen or '../imput/img/default.png' }}" style="width:300px">
+      {% endif %}
     </div>
+
     <div class="col-md-8">
-      <p><a style="color:#003366; font-weight:700; text-decoration:none;" href="{{ proyecto.link }}"><h4>{{ proyecto.titulo }}</h4></a></p>
-      <p>{{ proyecto.descripcion }}</p>
-      <p><a style="color: #003366" href="{{ proyecto.link }}">Leer Más</a></p>
+      {% if proyecto.link %}
+        <p>
+          <a style="color:#003366; font-weight:700; text-decoration:none;" href="{{ proyecto.link }}">
+            <h4>{{ proyecto.titulo or '' }}</h4>
+          </a>
+        </p>
+      {% else %}
+        <h4>{{ proyecto.titulo or '' }}</h4>
+      {% endif %}
+
+      <p>{{ proyecto.descripcion or '' }}</p>
+
+      {% if proyecto.link %}
+        <p><a style="color: #003366" href="{{ proyecto.link }}">Leer Más</a></p>
+      {% endif %}
     </div>
+
   </div>
 </div>
 {% endfor %}
+
 <hr>
+
+{# ============================== #}
+{#   SECCIÓN: ANTERIORES          #}
+{# ============================== #}
 <div id="anteriores" class="marco2">
   <h1>Anteriores</h1>
 </div>
-{% for proyecto in proyectos.anteriores %}
+
+{% for proyecto in proyectos.anteriores or [] %}
 <div class="container my-4">
   <div class="row align-items-center">
+
     <div class="col-md-4 text-center imagenizq-texto">
-      <a href="{{ proyecto.link }}"><img src="{{ proyecto.imagen }}" style="width:300px"></a>
+      {% if proyecto.link %}
+        <a href="{{ proyecto.link }}">
+          <img src="{{ proyecto.imagen or '../imput/img/default.png' }}" style="width:300px">
+        </a>
+      {% else %}
+        <img src="{{ proyecto.imagen or '../imput/img/default.png' }}" style="width:300px">
+      {% endif %}
     </div>
+
     <div class="col-md-8">
-      <p><a style="color:#003366; font-weight:700; text-decoration:none;" href="{{ proyecto.link }}"><h4>{{ proyecto.titulo }}</h4></a></p>
-      <p>{{ proyecto.descripcion }}</p>
-      <p><a style="color: #003366" href="{{ proyecto.link }}">Leer Más</a></p>
+      {% if proyecto.link %}
+        <p>
+          <a style="color:#003366; font-weight:700; text-decoration:none;" href="{{ proyecto.link }}">
+            <h4>{{ proyecto.titulo or '' }}</h4>
+          </a>
+        </p>
+      {% else %}
+        <h4>{{ proyecto.titulo or '' }}</h4>
+      {% endif %}
+
+      <p>{{ proyecto.descripcion or '' }}</p>
+
+      {% if proyecto.link %}
+        <p><a style="color: #003366" href="{{ proyecto.link }}">Leer Más</a></p>
+      {% endif %}
     </div>
+
   </div>
 </div>
 {% endfor %}
+
 <hr>
+
+{# ============================== #}
+{#   SECCIÓN: TRABAJOS ACADÉMICOS #}
+{# ============================== #}
 <div id="trabajosacademicos" class="marco2">
   <h1>Trabajos académicos</h1>
 </div>
-{% for trabajo in proyectos.trabajosacademicos %}
+
+{% for trabajo in proyectos.trabajosacademicos or [] %}
 <div class="container my-4">
   <div class="row align-items-center">
+
     <div class="col-md-4 text-center imagenizq-texto">
-      <a href="{{ trabajo.link }}"><img src="{{ trabajo.imagen }}" style="width:300px"></a>
+      {% if trabajo.link %}
+        <a href="{{ trabajo.link }}">
+          <img src="{{ trabajo.imagen or '../imput/img/default.png' }}" style="width:300px">
+        </a>
+      {% else %}
+        <img src="{{ trabajo.imagen or '../imput/img/default.png' }}" style="width:300px">
+      {% endif %}
     </div>
+
     <div class="col-md-8">
-      <p><a style="color:#003366; font-weight:700; text-decoration:none;" href="{{ trabajo.link }}"><h4>{{ trabajo.titulo }}</h4></a></p>
-      <p>{{ trabajo.descripcion }}</p>
-      <p><a style="color: #003366" href="{{ trabajo.link }}">Leer Más</a></p>
+      {% if trabajo.link %}
+        <p>
+          <a style="color:#003366; font-weight:700; text-decoration:none;" href="{{ trabajo.link }}">
+            <h4>{{ trabajo.titulo or '' }}</h4>
+          </a>
+        </p>
+      {% else %}
+        <h4>{{ trabajo.titulo or '' }}</h4>
+      {% endif %}
+
+      <p>{{ trabajo.descripcion or '' }}</p>
+
+      {% if trabajo.link %}
+        <p><a style="color: #003366" href="{{ trabajo.link }}">Leer Más</a></p>
+      {% endif %}
     </div>
+
   </div>
 </div>
 {% endfor %}
+
 {% endblock %}
