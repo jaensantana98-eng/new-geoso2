@@ -21,21 +21,19 @@ class NoticiasWindow(tk.Toplevel):
         # Carpeta correcta
         os.makedirs("geoso2-web-template/imput/img/noticias", exist_ok=True)
 
-        # Cargar JSON si estamos editando
+        
         if mode == "edit" and filepath:
             try:
                 with open(filepath, "r", encoding="utf-8") as f:
                     datos = json.load(f)
 
-                if isinstance(datos, dict) and "noticias" in datos:
-                    self.state["noticias"] = datos["noticias"]
-                elif isinstance(datos, list):
-                    self.state["noticias"] = datos
-                else:
-                    self.state["noticias"] = []
+                self.state["noticias"] = datos.get("web", {}) \
+                                            .get("index_page", {}) \
+                                            .get("noticias", [])
 
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo cargar el JSON:\n{e}")
+
 
         # Solo una pestaña: Datos
         self.tab_datos = DatosTab(self, self)
@@ -254,7 +252,7 @@ class DatosTab(ttk.Frame):
         datos = self.controller.state.copy()
 
         # Ruta fija
-        ruta = "geoso2-web-template/json/noticias.json"
+        ruta = "geoso2-web-template/json/web.json"
 
         # Asegurar que la carpeta existe
         os.makedirs(os.path.dirname(ruta), exist_ok=True)
