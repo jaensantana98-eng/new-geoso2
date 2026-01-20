@@ -106,42 +106,42 @@ class MainApp(tk.Tk):
         return ruta
 
     def abrir_noticias(self, mode, parent_win):
-        ruta = self.abrir_json_directo(mode, parent_win, "noticias")
+        ruta = self.abrir_json_directo(mode, parent_win, "web")
         if ruta:
             interfaz_noticias.NoticiasWindow(mode=mode, filepath=ruta)
 
     def abrir_agenda(self, mode, parent_win):
-        ruta = self.abrir_json_directo(mode, parent_win, "agenda")
+        ruta = self.abrir_json_directo(mode, parent_win, "web")
         if ruta:
             interfaz_agenda.EditorWindow(mode=mode, filepath=ruta)
 
     def abrir_rafagas(self, mode, parent_win):
-        ruta = self.abrir_json_directo(mode, parent_win, "rafagas")
+        ruta = self.abrir_json_directo(mode, parent_win, "web")
         if ruta:
             interfaz_rafagas.EditorRafagasWindow(filepath=ruta)
 
     def abrir_proyectos(self, mode, parent_win):
-        ruta = self.abrir_json_directo(mode, parent_win, "proyectos")
+        ruta = self.abrir_json_directo(mode, parent_win, "web")
         if ruta:
             interfaz_proyectos.EditorProyectosWindow(filepath=ruta)
 
     def abrir_quienes_somos(self, mode, parent_win):
-        ruta = self.abrir_json_directo(mode, parent_win, "quienes-somos")
+        ruta = self.abrir_json_directo(mode, parent_win, "web")
         if ruta:
             interfaz_quienessomos.EditorWindow(mode=mode, filepath=ruta)
 
     def abrir_publicaciones(self, mode, parent_win):
-        ruta = self.abrir_json_directo(mode, parent_win, "publicaciones")
+        ruta = self.abrir_json_directo(mode, parent_win, "web")
         if ruta:
             interfaz_publicaciones.EditorWindow(mode=mode, filepath=ruta)
 
     def abrir_carrusel(self, mode, parent_win):
-        ruta = self.abrir_json_directo(mode, parent_win, "carrusel")
+        ruta = self.abrir_json_directo(mode, parent_win, "web")
         if ruta:
             interfaz_carrusel.CarruselWindow(mode=mode, filepath=ruta)
 
     def abrir_entidades_colaboradoras(self, mode, parent_win):
-        ruta = self.abrir_json_directo(mode, parent_win, "entidades_colaboradoras")
+        ruta = self.abrir_json_directo(mode, parent_win, "web")
         if ruta:
             interfaz_entidades_colaboradoras.EntidadesWindow(mode=mode, filepath=ruta)
 
