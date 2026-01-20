@@ -20,20 +20,22 @@ class CarruselWindow(tk.Toplevel):
         os.makedirs("geoso2-web-template/imput/img/carrusel", exist_ok=True)
 
         # Cargar JSON si estamos editando
+        # -----------------------------
+# CARGAR JSON CORRECTAMENTE
+# -----------------------------
         if mode == "edit" and filepath:
             try:
                 with open(filepath, "r", encoding="utf-8") as f:
                     datos = json.load(f)
 
-                if isinstance(datos, dict) and "carrusel" in datos:
-                    self.state["carrusel"] = datos["carrusel"]
-                elif isinstance(datos, list):
-                    self.state["carrusel"] = datos
-                else:
-                    self.state["carrusel"] = []
+                # Cargar carrusel desde la ruta correcta
+                self.state["carrusel"] = datos.get("web", {}) \
+                                            .get("index_page", {}) \
+                                            .get("carrusel", [])
 
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo cargar el JSON:\n{e}")
+
 
         # Notebook con solo una pestaña
         self.notebook = ttk.Notebook(self)
@@ -53,17 +55,32 @@ class CarruselWindow(tk.Toplevel):
 
     # Guardar JSON automáticamente
     def save_json(self):
-        ruta = "geoso2-web-template/json/carrusel.json"
-        os.makedirs(os.path.dirname(ruta), exist_ok=True)
+        ruta = "geoso2-web-template/json/web.json"
 
         try:
-            with open(ruta, "w", encoding="utf-8") as f:
-                json.dump({"carrusel": self.state["carrusel"]}, f, indent=4, ensure_ascii=False)
+            # Cargar JSON completo
+            with open(ruta, "r", encoding="utf-8") as f:
+                datos_completos = json.load(f)
 
-            messagebox.showinfo("Guardado", f"Archivo guardado en:\n{ruta}")
+            # Asegurar estructura
+            if "web" not in datos_completos:
+                datos_completos["web"] = {}
+
+            if "index_page" not in datos_completos["web"]:
+                datos_completos["web"]["index_page"] = {}
+
+            # Guardar carrusel en la ruta correcta
+            datos_completos["web"]["index_page"]["carrusel"] = self.state["carrusel"]
+
+            # Guardar JSON completo
+            with open(ruta, "w", encoding="utf-8") as f:
+                json.dump(datos_completos, f, indent=4, ensure_ascii=False)
+
+            messagebox.showinfo("Guardado", f"Archivo JSON actualizado:\n{ruta}")
 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo guardar el archivo:\n{e}")
+
 
 
 # ============================================================

@@ -249,20 +249,30 @@ class DatosTab(ttk.Frame):
             self.tree.insert("", tk.END, values=(elem["imagen"], elem["titulo"]))
 
     def save_json(self):
-        datos = self.controller.state.copy()
-
-        # Ruta fija
         ruta = "geoso2-web-template/json/web.json"
 
-        # Asegurar que la carpeta existe
-        os.makedirs(os.path.dirname(ruta), exist_ok=True)
-
         try:
-            with open(ruta, "w", encoding="utf-8") as f:
-                json.dump(datos, f, indent=4, ensure_ascii=False)
+            # Cargar JSON completo
+            with open(ruta, "r", encoding="utf-8") as f:
+                datos_completos = json.load(f)
 
-            messagebox.showinfo("Guardado", f"Archivo JSON guardado en:\n{ruta}")
+            # Asegurar estructura
+            if "web" not in datos_completos:
+                datos_completos["web"] = {}
+
+            if "index_page" not in datos_completos["web"]:
+                datos_completos["web"]["index_page"] = {}
+
+            # Guardar noticias en la ruta correcta
+            datos_completos["web"]["index_page"]["noticias"] = self.state["noticias"]
+
+            # Guardar JSON completo
+            with open(ruta, "w", encoding="utf-8") as f:
+                json.dump(datos_completos, f, indent=4, ensure_ascii=False)
+
+            messagebox.showinfo("Guardado", f"Archivo JSON actualizado:\n{ruta}")
 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo guardar el archivo:\n{e}")
+
 
