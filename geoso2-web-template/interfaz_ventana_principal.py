@@ -172,7 +172,7 @@ class MainApp(tk.Tk):
             # ABRIR INDEX EN EL NAVEGADOR
             # -----------------------------
             index_path = os.path.abspath(os.path.join(output_dir, "index.html"))
-            webbrowser.open(index_path)
+            webbrowser.open(f"file:///{index_path}")
 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo generar el sitio web:\n{e}")
