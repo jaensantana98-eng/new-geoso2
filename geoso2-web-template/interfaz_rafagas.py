@@ -21,9 +21,15 @@ class EditorRafagasWindow(tk.Toplevel):
 
         # Cargar JSON si existe
         if filepath and os.path.exists(filepath):
-            with open(filepath, "r", encoding="utf-8") as f:
-                datos = json.load(f)
-                self.state["rafagas"] = datos.get("rafagas", [])
+            try:
+                with open(filepath, "r", encoding="utf-8") as f:
+                    datos = json.load(f)
+
+                # Cargar ráfagas desde la ruta correcta
+                self.state["rafagas"] = datos.get("web", {}).get("pagina1", {}).get("rafagas", [])
+
+            except Exception as e:
+                messagebox.showerror("Error", f"No se pudo cargar el JSON:\n{e}")
 
         # Notebook sin preview
         self.notebook = ttk.Notebook(self)
@@ -44,17 +50,32 @@ class EditorRafagasWindow(tk.Toplevel):
 
     # Guardar JSON automáticamente
     def save_json(self):
-        ruta = "geoso2-web-template/json/rafagas.json"
-        os.makedirs(os.path.dirname(ruta), exist_ok=True)
+        ruta = "geoso2-web-template/json/web.json"
 
         try:
-            with open(ruta, "w", encoding="utf-8") as f:
-                json.dump({"rafagas": self.state["rafagas"]}, f, indent=4, ensure_ascii=False)
+            with open(ruta, "r", encoding="utf-8") as f:
+                datos_completos = json.load(f)
 
-            messagebox.showinfo("Guardado", f"Archivo guardado en:\n{ruta}")
+            # Asegurar estructura
+            if "web" not in datos_completos:
+                datos_completos["web"] = {}
+
+            if "pagina1" not in datos_completos["web"]:
+                datos_completos["web"]["pagina1"] = {}
+
+            # Guardar ráfagas en la ruta correcta
+            datos_completos["web"]["pagina1"]["rafagas"] = self.state["rafagas"]
+
+            # Guardar JSON completo
+            with open(ruta, "w", encoding="utf-8") as f:
+                json.dump(datos_completos, f, indent=4, ensure_ascii=False)
+
+            messagebox.showinfo("Guardado", "Ráfagas actualizadas correctamente.")
 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo guardar el archivo:\n{e}")
+
+
 
 
 # ============================================================
