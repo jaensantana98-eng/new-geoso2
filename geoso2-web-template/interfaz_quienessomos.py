@@ -461,8 +461,12 @@ class EditorWindow(tk.Toplevel):
             try:
                 with open(filepath, "r", encoding="utf-8") as f:
                     datos = json.load(f)
-                if "quienes_somos" in datos:
-                    self.state["quienes_somos"] = datos["quienes_somos"]
+                    qs = datos.get("web", {}).get("quienes_somos", {})
+
+                    self.state["quienes_somos"]["secciones"] = qs.get("secciones", [])
+                    self.state["quienes_somos"]["investigadores"] = qs.get("investigadores", [])
+                    self.state["quienes_somos"]["colaboradores"] = qs.get("colaboradores", [])
+
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo cargar el JSON:\n{e}")
 
@@ -485,17 +489,22 @@ class EditorWindow(tk.Toplevel):
         self.tab_colaboradores.refresh_table()
 
     def save_json(self):
-        # Guardar secciones antes de exportar
-        datos = {
-            "quienes_somos": self.state["quienes_somos"]
-        }
-
-        ruta = "geoso2-web-template/json/quienes-somos.json"
-        os.makedirs(os.path.dirname(ruta), exist_ok=True)
+        ruta = "geoso2-web-template/json/web.json"
 
         try:
+            with open(ruta, "r", encoding="utf-8") as f:
+                datos_completos = json.load(f)
+
+            if "web" not in datos_completos:
+                datos_completos["web"] = {}
+
+            datos_completos["web"]["quienes_somos"] = self.state["quienes_somos"]
+
             with open(ruta, "w", encoding="utf-8") as f:
-                json.dump(datos, f, indent=4, ensure_ascii=False)
-            messagebox.showinfo("Guardado", f"Archivo guardado en:\n{ruta}")
+                json.dump(datos_completos, f, indent=4, ensure_ascii=False)
+
+            messagebox.showinfo("Guardado", "Datos de 'Quiénes Somos' actualizados correctamente.")
+
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo guardar el archivo:\n{e}")
+
