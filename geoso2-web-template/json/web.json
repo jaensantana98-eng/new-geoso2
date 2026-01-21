@@ -3,10 +3,6 @@
         "index_page": {
             "carrusel": [
                 {
-                    "imagen": "geoso2-web-template/imput/img/carrusel\\CARRUSEL PRUEBA 1.jpg",
-                    "enlace": "geoso2-web-template/imput/img/carrusel\\CARRUSEL PRUEBA 1.jpg"
-                },
-                {
                     "imagen": "../imput/img/carrusel/foto1.jpg",
                     "enlace": "https://12jcm.ingegraf.es/"
                 },
@@ -29,6 +25,18 @@
                 {
                     "imagen": "../imput/img/carrusel/foto6.jpg",
                     "enlace": "GEOSO2_FICHA_INCIO_CARRUSEL_DEFENSATESISCAROLINA_presentacion.pdf"
+                },
+                {
+                    "imagen": "../imput/img/carrusel/CARRUSEL PRUEBA 1.jpg",
+                    "enlace": "google.es"
+                },
+                {
+                    "imagen": "../imput/img/carrusel/img1.png",
+                    "enlace": "www.google.es"
+                },
+                {
+                    "imagen": "geoso2-web-template/imput/img/carrusel/imgplantilla2.png",
+                    "enlace": "https://www.google.es"
                 }
             ],
             "noticias": [
@@ -177,6 +185,12 @@
                     "imagen": "../imput/img/rafagas/pagina2/rafagas2_01.jpg",
                     "titulo": "Ejemplo de visor de temperaturas en la España Peninsular (en pruebas)",
                     "descripcion": "Se trata de un ejemplo de visor para manejar datos ráster en grandes extensiones, en este caso temperaturas medias en la España Peninsular. Los datos que se muestran son ficticios y solo se utilizan para ilustrar la variación de una variable en el espacio."
+                },
+                {
+                    "imagen": "/Users/jesus/Desktop/misc/img1.png",
+                    "titulo": "prueba rafaga 1",
+                    "descripcion": "pruebasdfsdfdsgfdsgdsgdfgsdgdsgvdsfgdfnksdnjdsjdsjkdsjkdsjkdsjdssjdsdjsdjkdsjkdsjkdsjkdsjkdsjksdjksjksdjkdsdsjkdsdjskdjskdsjkdsjkdsjkdsjkdskjhjhjefahjfeshjf\nsdhfdshfhsdjfhidsfhisdfhdsifdfshisdfihfsdhijdfshijsdfhidfhsdjdf",
+                    "link": "google.es"
                 }
             ]
         },

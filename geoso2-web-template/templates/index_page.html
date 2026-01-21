@@ -8,22 +8,23 @@
   <div class="carousel-inner">
 
     {% for item in index_page.carousel %}
-      <div class="carousel-item {% if loop.first %}active{% endif %}">
+  <div class="carousel-item {% if loop.first %}active{% endif %}">
 
-        {% if item.link %}
-          <a href="{{ item.link }}" target="_blank">
-            <img src="{{ item.src or '../imput/img/default.png' }}"
-                 alt="{{ item.alt or '' }}"
-                 class="d-block w-100">
-          </a>
-        {% else %}
-          <img src="{{ item.src or '../imput/img/default.png' }}"
-               alt="{{ item.alt or '' }}"
-               class="d-block w-100">
-        {% endif %}
+    {% if item.enlace %}
+      <a href="{{ item.enlace }}" target="_blank">
+        <img src="{{ item.imagen or '../imput/img/default.png' }}"
+             alt=""
+             class="d-block w-100">
+      </a>
+    {% else %}
+      <img src="{{ item.imagen or '../imput/img/default.png' }}"
+           alt=""
+           class="d-block w-100">
+    {% endif %}
 
-      </div>
-    {% endfor %}
+  </div>
+{% endfor %}
+
 
   </div>
 

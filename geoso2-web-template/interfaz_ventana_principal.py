@@ -150,27 +150,59 @@ class MainApp(tk.Tk):
         if ruta:
             interfaz_pagina_web.paginaWindow(mode=mode, filepath=ruta)
 
-    # -----------------------------
     # Generar sitio web
     # -----------------------------
     def generar_sitio_web(self):
         try:
+            # Cargar JSON principal
             with open("geoso2-web-template/json/web.json", "r", encoding="utf-8") as f:
                 datos = json.load(f)
 
             web = datos["web"]
+
+            # Cargar entorno Jinja
             env = Environment(loader=FileSystemLoader("geoso2-web-template/templates"))
 
+            # Carpeta de salida
             output_dir = "geoso2-web-template/output"
             os.makedirs(output_dir, exist_ok=True)
 
-            # ... aquí va todo tu código de renderizado de páginas ...
+            # ============================================================
+            # RENDERIZAR INDEX (PÁGINA PRINCIPAL)
+            # ============================================================
+            template_index = env.get_template("index_page.html")
 
+            html_index = template_index.render(
+                index_page = {
+                    "carousel": web["index_page"].get("carrusel", []),
+                    "noticias": web["index_page"].get("noticias", []),
+                    "agenda": web["index_page"].get("agenda", []),
+                    "colaboradores": web.get("entidades_colaboradoras", [])
+                }
+            )
+
+            with open(os.path.join(output_dir, "index.html"), "w", encoding="utf-8") as f:
+                f.write(html_index)
+
+            # ============================================================
+            # RENDERIZAR PÁGINA DEL CARRUSEL (si existe)
+            # ============================================================
+            if os.path.exists("geoso2-web-template/templates/carrusel.html"):
+                template_carrusel = env.get_template("carrusel.html")
+
+                html_carrusel = template_carrusel.render(
+                    carrusel = web["index_page"].get("carrusel", [])
+                )
+
+                with open(os.path.join(output_dir, "carrusel.html"), "w", encoding="utf-8") as f:
+                    f.write(html_carrusel)
+
+            # ============================================================
+            # FIN
+            # ============================================================
             messagebox.showinfo("Éxito", "Sitio web generado correctamente.")
 
-            # -----------------------------
-            # ABRIR INDEX EN EL NAVEGADOR
-            # -----------------------------
+            # Abrir index en el navegador
             index_path = os.path.abspath(os.path.join(output_dir, "index.html"))
             webbrowser.open(f"file:///{index_path}")
 
@@ -179,7 +211,6 @@ class MainApp(tk.Tk):
 
 
 
-
 if __name__ == "__main__":
-    app = MainApp()
-    app.mainloop()
+        app = MainApp()
+        app.mainloop()

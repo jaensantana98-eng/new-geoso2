@@ -330,3 +330,33 @@ html {
 .carousel-item {
   transition: transform 1s ease-in-out, opacity 1s ease-in-out;
 }
+
+/* ============================
+   CARRUSEL EN PROPORCIÓN 16:9
+   ============================ */
+
+#miCarrusel {
+    width: 100%;
+}
+
+#miCarrusel .carousel-inner {
+    position: relative;
+    width: 100%;
+    padding-top: 25.25%; /* 16:9 */
+}
+
+#miCarrusel .carousel-item {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+#miCarrusel .carousel-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;   /* rellena sin deformar */
+    object-position: center;
+}
+
