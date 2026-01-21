@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import json
 import os
+import shutil
 import webbrowser
 from PIL import Image
 
@@ -279,13 +280,36 @@ class FormTab(tk.Frame):
         self.entry_link.insert(0, data.get("link", ""))
         self.text_desc.insert("1.0", data.get("descripcion", ""))
 
-    def select_image(self):
+    def select_imagen(self):
         ruta = filedialog.askopenfilename(
-            filetypes=[("Imágenes", "*.jpg;*.jpeg;*.png;*.gif")]
+            filetypes=[("Imagen", "*.png;*.jpg;*.jpeg;*.gif")]
         )
-        if ruta:
+        if not ruta:
+            return
+
+        try:
+            nombre = os.path.basename(ruta)
+            destino_dir = "geoso2-web-template/imput/img/proyectos"
+            os.makedirs(destino_dir, exist_ok=True)
+
+            destino = os.path.join(destino_dir, nombre)
+
+            # Miniatura 300x300
+            with Image.open(ruta) as img:
+                img = img.convert("RGB")
+                img.thumbnail((300, 300), Image.LANCZOS)
+
+                canvas = Image.new("RGB", (300, 300), "white")
+                x = (300 - img.width) // 2
+                y = (300 - img.height) // 2
+                canvas.paste(img, (x, y))
+                canvas.save(destino, quality=90)
+
             self.entry_imagen.delete(0, tk.END)
-            self.entry_imagen.insert(0, ruta)
+            self.entry_imagen.insert(0, f"../imput/img/proyectos/{nombre}")
+
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo procesar la imagen:\n{e}")
 
     def probar_link(self):
         url = self.entry_link.get().strip()
