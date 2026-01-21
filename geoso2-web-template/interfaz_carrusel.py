@@ -3,6 +3,7 @@ from tkinter import ttk, filedialog, messagebox
 import json
 import os
 import webbrowser
+import shutil
 from PIL import Image
 
 
@@ -166,23 +167,35 @@ class DatosTab(ttk.Frame):
             messagebox.showerror("Error", f"No se pudo copiar el archivo:\n{e}")
 
     def select_imagen(self):
-        ruta = filedialog.askopenfilename(filetypes=[("Imagen", "*.png;*.jpg;*.jpeg;*.gif")])
+        ruta = filedialog.askopenfilename(
+            filetypes=[("Imagen", "*.png;*.jpg;*.jpeg;*.gif")]
+        )
         if not ruta:
             return
 
         try:
             nombre = os.path.basename(ruta)
-            destino = os.path.join("geoso2-web-template/imput/img/carrusel", nombre)
 
-            with Image.open(ruta) as img:
-                img = img.convert("RGB")
-                img.save(destino, quality=90)
+            # Carpeta destino REAL dentro del proyecto
+            carpeta_destino = os.path.join(
+                "geoso2-web-template", "imput", "img", "carrusel"
+            )
+            os.makedirs(carpeta_destino, exist_ok=True)
+
+            destino = os.path.join(carpeta_destino, nombre)
+
+            # Copiar la imagen (sin usar rutas absolutas)
+            shutil.copy(ruta, destino)
+
+            # Ruta relativa que irá al JSON
+            ruta_relativa = f"../imput/img/carrusel/{nombre}"
 
             self.entry_imagen.delete(0, tk.END)
-            self.entry_imagen.insert(0, destino)
+            self.entry_imagen.insert(0, ruta_relativa)
 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo procesar la imagen:\n{e}")
+
 
     def probar_enlace(self):
         url = self.entry_enlace.get().strip()
