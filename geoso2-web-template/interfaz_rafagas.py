@@ -42,10 +42,16 @@ class EditorRafagasWindow(tk.Toplevel):
         self.notebook.add(self.tab_lista, text="Lista")
         self.notebook.add(self.tab_form, text="Formulario")
 
-        # Botón guardar cambios centrado
-        save_frame = ttk.Frame(self)
-        save_frame.pack(fill="x", pady=15)
-        ttk.Button(save_frame, text="Guardar cambios", command=self.save_json).pack(anchor="center")
+        # Marco inferior para botones
+        bottom_frame = ttk.Frame(self)
+        bottom_frame.pack(fill="x", pady=10)
+
+        # Botón de instrucciones (abajo a la izquierda)
+        ttk.Button(bottom_frame, text="Instrucciones", command=self.tab_lista.instrucciones).pack(side="left", padx=10)
+
+        # Botón guardar cambios (centrado)
+        ttk.Button(bottom_frame, text="Guardar cambios", command=self.save_json).pack(side="top", pady=5)
+
 
         self.tab_lista.refresh_table()
 
@@ -166,6 +172,21 @@ class ListaTab(tk.Frame):
         arr[index + 1], arr[index] = arr[index], arr[index + 1]
         self.refresh_table()
 
+    def instrucciones(self):
+        instrucciones = (
+            "Instrucciones para editar las Ráfagas:\n\n"
+            "1. Imagen: Selecciona una imagen representativa para la ráfaga. "
+            "La imagen se redimensionará automáticamente a 300x300 píxeles.\n\n"
+            "2. Título: Escribe un título breve y descriptivo para la ráfaga.\n\n"
+            "3. Descripción: Proporciona una descripción detallada de la ráfaga. "
+            "Puedes incluir información relevante que quieras destacar.\n\n"
+            "4. Link: Introduce un enlace relacionado con la ráfaga. "
+            "Puedes seleccionar un archivo local o introducir una URL externa.\n\n"
+            "5. Guardar: Una vez completados los campos, haz clic en 'Guardar' "
+            "para añadir o actualizar la ráfaga en la lista.\n\n"
+            "6. Cancelar: Si deseas descartar los cambios, haz clic en 'Cancelar'."
+        )
+        messagebox.showinfo("Instrucciones", instrucciones)
 
 # ============================================================
 # FORMULARIO DE EDICIÓN
@@ -325,3 +346,4 @@ class FormTab(tk.Frame):
 
     def cancel(self):
         self.controller.notebook.select(self.controller.tab_lista)
+

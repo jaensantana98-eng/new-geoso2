@@ -47,10 +47,16 @@ class EntidadesWindow(tk.Toplevel):
         self.tab_datos = DatosTab(self.notebook, self)
         self.notebook.add(self.tab_datos, text="Datos")
 
-        # Botón guardar cambios centrado
-        save_frame = ttk.Frame(self)
-        save_frame.pack(fill="x", pady=15)
-        ttk.Button(save_frame, text="Guardar cambios", command=self.save_json).pack(anchor="center")
+        # Marco inferior para botones
+        bottom_frame = ttk.Frame(self)
+        bottom_frame.pack(fill="x", pady=10)
+
+        # Botón de instrucciones (abajo a la izquierda)
+        ttk.Button(bottom_frame, text="Instrucciones", command=self.tab_datos.instrucciones).pack(side="left", padx=10)
+
+        # Botón guardar cambios (centrado)
+        ttk.Button(bottom_frame, text="Guardar cambios", command=self.save_json).pack(side="top", pady=5)
+
 
         # Cargar datos en la tabla
         self.tab_datos.refresh_table()
@@ -272,3 +278,18 @@ class DatosTab(ttk.Frame):
 
         for elem in self.controller.state["entidades"]:
             self.tree.insert("", tk.END, values=(elem["imagen"], elem["enlace"]))
+
+    def instrucciones(self):
+        instrucciones = (
+            "Instrucciones para editar Entidades Colaboradoras:\n\n"
+            "1. Imagen: Selecciona una imagen representativa de la entidad. "
+            "La imagen se copiará automáticamente a la carpeta del proyecto.\n\n"
+            "2. Enlace: Puedes proporcionar un enlace a un documento (PDF o HTML) "
+            "relacionado con la entidad. Puedes escribir una URL o seleccionar un archivo local.\n\n"
+            "3. Añadir: Después de completar los campos, haz clic en 'Añadir' para agregar la entidad a la lista.\n\n"
+            "4. Eliminar: Selecciona una entidad en la tabla y haz clic en 'Eliminar' para borrarla.\n\n"
+            "5. Subir/Bajar: Usa estos botones para cambiar el orden de las entidades en la lista.\n\n"
+            "6. Guardar cambios: Una vez que hayas terminado de editar, haz clic en 'Guardar cambios' "
+            "para actualizar el archivo JSON del proyecto."
+        )
+        messagebox.showinfo("Instrucciones", instrucciones)

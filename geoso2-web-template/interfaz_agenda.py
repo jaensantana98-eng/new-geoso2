@@ -202,15 +202,16 @@ class DatosTab(tk.Frame):
 
         frm.rowconfigure(10, weight=1)
 
-        # ============================================================
-        # BOTÓN GUARDAR CAMBIOS (centrado)
-        # ============================================================
+        # Marco inferior para botones
+        bottom_frame = ttk.Frame(self)
+        bottom_frame.pack(fill="x", pady=10)
 
-        save_frame = ttk.Frame(self)
-        save_frame.pack(fill="x", pady=15)
+        # Botón de instrucciones (abajo a la izquierda)
+        ttk.Button(bottom_frame, text="Instrucciones", command=self.tab_datos.instrucciones).pack(side="left", padx=10)
 
-        ttk.Button(save_frame, text="Guardar cambios", command=self.controller.save_json)\
-            .pack(anchor="center")
+        # Botón guardar cambios (centrado)
+        ttk.Button(bottom_frame, text="Guardar cambios", command=self.save_json).pack(side="top", pady=5)
+
 
     # -----------------------------
     # FUNCIONES
@@ -411,3 +412,15 @@ class DatosTab(tk.Frame):
     def set_data(self, datos):
         self.controller.state["agenda"] = datos.get("agenda", [])
         self.refresh_table()
+
+    def instrucciones(self):
+        instrucciones = (
+            "Instrucciones para la Agenda:\n\n"
+            "1. Rellena los campos del formulario superior con los datos del evento.\n"
+            "2. Usa el botón 'Buscar' para seleccionar una imagen desde tu equipo.\n"
+            "3. El campo 'Título del evento' es obligatorio.\n"
+            "4. Puedes añadir, editar o eliminar eventos usando los botones correspondientes.\n"
+            "5. Usa los botones 'Subir' y 'Bajar' para cambiar el orden de los eventos en la lista.\n"
+            "6. Una vez que hayas terminado, haz clic en 'Guardar cambios' para actualizar el archivo JSON."
+        )
+        messagebox.showinfo("Instrucciones", instrucciones)

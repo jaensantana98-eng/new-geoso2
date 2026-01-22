@@ -50,10 +50,16 @@ class EditorProyectosWindow(tk.Toplevel):
         self.notebook.add(self.tab_lista, text="Lista")
         self.notebook.add(self.tab_form, text="Formulario")
 
-        # Botón guardar
-        save_frame = ttk.Frame(self)
-        save_frame.pack(fill="x", pady=15)
-        ttk.Button(save_frame, text="Guardar cambios", command=self.save_json).pack(anchor="center")
+        # Marco inferior para botones
+        bottom_frame = ttk.Frame(self)
+        bottom_frame.pack(fill="x", pady=10)
+
+        # Botón de instrucciones (abajo a la izquierda)
+        ttk.Button(bottom_frame, text="Instrucciones", command=self.tab_lista.instrucciones).pack(side="left", padx=10)
+
+        # Botón guardar cambios (centrado)
+        ttk.Button(bottom_frame, text="Guardar cambios", command=self.save_json).pack(side="top", pady=5)
+
 
         self.tab_lista.refresh_table()
 
@@ -197,6 +203,18 @@ class ListaTab(tk.Frame):
         arr[index + 1], arr[index] = arr[index], arr[index + 1]
         self.refresh_table()
 
+    def instrucciones(self):
+        instrucciones = (
+            "Instrucciones para editar proyectos:\n\n"
+            "1. Imagen: Selecciona una imagen representativa del proyecto. "
+            "Se redimensionará automáticamente a 300x300 píxeles.\n\n"
+            "2. Título: Escribe el título del proyecto.\n\n"
+            "3. Link: Proporciona un enlace al documento del proyecto (PDF, HTML, etc.) "
+            "o una URL externa. Puedes probar el enlace con el botón 'Probar'.\n\n"
+            "4. Descripción: Añade una breve descripción del proyecto.\n\n"
+            "5. Guarda los cambios con el botón 'Guardar'."
+        )
+        messagebox.showinfo("Instrucciones", instrucciones)
 
 # ============================================================
 # FORMULARIO DE PROYECTOS

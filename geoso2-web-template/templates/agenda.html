@@ -19,7 +19,20 @@
     {% endif %}
 
     <div>
-      <h3><strong>{{ evento.titulo }}</strong></h3>
+
+      {# ----------------------------- #}
+      {# TÍTULO BLANCO UNIFICADO      #}
+      {# ----------------------------- #}
+
+      <h3 class="titulos">
+        {% if evento.link %}
+          <a href="{{ evento.link }}" target="_blank" class="link-reset">
+            {{ evento.titulo }}
+          </a>
+        {% else %}
+          {{ evento.titulo }}
+        {% endif %}
+      </h3>
 
       <p style="color:rgba(235, 245, 255, 0.775);">
         {% if evento.fecha %}Fecha: {{ evento.fecha }}<br>{% endif %}
@@ -42,7 +55,11 @@
       <br><br>
     </div>
   </div>
-  <hr>
+
+  {% if not loop.last %}
+    <hr>
+  {% endif %}
+
   {% endfor %}
 </div>
 {% endblock %}

@@ -20,6 +20,7 @@ class InvestigadoresTab(tk.Frame):
         form = ttk.Frame(main)
         form.grid(row=0, column=0, sticky="nsew")
 
+
         ttk.Label(form, text="Nombre:").grid(row=0, column=0, sticky="w", pady=4)
         self.entry_nombre = ttk.Entry(form)
         self.entry_nombre.grid(row=0, column=1, sticky="ew", pady=4)
@@ -212,7 +213,24 @@ class InvestigadoresTab(tk.Frame):
                     inv.get("link_text", "")
                 )
             )
-
+    def instrucciones(self):
+        instrucciones = (
+            "Instrucciones para la sección 'Quiénes Somos':\n\n"
+            "1. Añadir Investigadores y Colaboradores:\n"
+            "   - Rellene los campos del formulario y haga clic en 'Añadir'.\n"
+            "   - La imagen debe ser un archivo válido (PNG, JPG, GIF).\n"
+            "   - El enlace debe comenzar con 'http://' o 'https://'.\n\n"
+            "2. Editar elementos:\n"
+            "   - Seleccione un elemento de la tabla y haga clic en 'Editar'.\n"
+            "   - Modifique los campos y vuelva a hacer clic en 'Añadir' para guardar los cambios.\n\n"
+            "3. Eliminar elementos:\n"
+            "   - Seleccione un elemento de la tabla y haga clic en 'Eliminar'.\n\n"
+            "4. Reordenar elementos:\n"
+            "   - Use los botones 'Subir' y 'Bajar' para cambiar el orden de los elementos en la tabla.\n\n"
+            "5. Guardar cambios:\n"
+            "   - Haga clic en 'Guardar cambios' en la parte inferior de la ventana principal para actualizar el archivo JSON."
+        )
+        messagebox.showinfo("Instrucciones", instrucciones)
 
 # ============================================================
 #   PESTAÑA 3 — COLABORADORES
@@ -421,7 +439,6 @@ class ColaboradoresTab(tk.Frame):
                 )
             )
 
-
 # ============================================================
 #   CLASE PRINCIPAL — EDITORWINDOW
 # ============================================================
@@ -474,10 +491,28 @@ class EditorWindow(tk.Toplevel):
         self.notebook.add(self.tab_investigadores, text="Investigadores")
         self.notebook.add(self.tab_colaboradores, text="Colaboradores")
 
-        ttk.Button(self, text="Guardar cambios", command=self.save_json).pack(pady=10)
+        # ============================
+        #  FOOTER: Instrucciones + Guardar
+        # ============================
+        footer = ttk.Frame(self)
+        footer.pack(fill="x", side="bottom", pady=10)
+
+        ttk.Button(
+            footer,
+            text="Instrucciones",
+            command=self.tab_investigadores.instrucciones
+        ).pack(side="left", padx=10)
+
+        ttk.Button(
+            footer,
+            text="Guardar cambios",
+            command=self.save_json
+        ).pack(side="top", padx=10)
 
         self.tab_investigadores.refresh_table()
         self.tab_colaboradores.refresh_table()
+
+
 
     def save_json(self):
         ruta = "geoso2-web-template/json/web.json"

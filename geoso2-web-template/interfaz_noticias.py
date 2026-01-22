@@ -39,6 +39,27 @@ class NoticiasWindow(tk.Toplevel):
         self.tab_datos = DatosTab(self, self)
         self.tab_datos.pack(fill="both", expand=True)
 
+        # ============================
+        #  FOOTER: Instrucciones + Guardar
+        # ============================
+        footer = ttk.Frame(self)
+        footer.pack(fill="x", pady=10)
+
+        # Botón de instrucciones (abajo izquierda)
+        ttk.Button(
+            footer,
+            text="Instrucciones",
+            command=self.tab_datos.instrucciones
+        ).pack(side="left", padx=10)
+
+        # Botón guardar (centrado)
+        ttk.Button(
+            footer,
+            text="Guardar cambios",
+            command=self.save_json
+        ).pack(side="top", pady=5)
+
+
         # Cargar tabla si estamos editando
         if mode == "edit":
             self.tab_datos.refresh_table()
@@ -123,8 +144,6 @@ class DatosTab(ttk.Frame):
 
         frm.columnconfigure(1, weight=1)
         frm.rowconfigure(6, weight=1)
-
-        ttk.Button(frm, text="Guardar cambios", command=self.controller.save_json).grid(row=7, column=1, pady=10)
 
     # -------------------------
     # ARCHIVOS
@@ -257,3 +276,20 @@ class DatosTab(ttk.Frame):
         self.entry_enlace_texto.delete(0, tk.END)
         self.entry_enlace_url.delete(0, tk.END)
         self.editing_index = None
+
+    def instrucciones(self):
+        instrucciones = (
+            "Instrucciones para la sección de Noticias:\n\n"
+            "1. Añadir Noticia:\n"
+            "   - Rellena los campos de Imagen, Título, Descripción, Texto del enlace y URL del enlace.\n"
+            "   - Haz clic en 'Añadir' para agregar la noticia a la lista.\n\n"
+            "2. Editar Noticia:\n"
+            "   - Selecciona una noticia de la tabla.\n"
+            "   - Haz clic en 'Editar' para cargar sus datos en los campos.\n"
+            "   - Modifica los campos según sea necesario y haz clic en 'Añadir' para guardar los cambios.\n\n"
+            "3. Eliminar Noticia:\n"
+            "   - Selecciona una noticia de la tabla y haz clic en 'Eliminar' para borrarla.\n\n"
+            "4. Guardar Cambios:\n"
+            "   - Una vez que hayas terminado de editar las noticias, haz clic en 'Guardar cambios' para actualizar el archivo JSON."
+        )
+        messagebox.showinfo("Instrucciones", instrucciones)

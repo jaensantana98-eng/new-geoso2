@@ -54,14 +54,19 @@
     {% endif %}
 
     <div><br>
-
+      
       {% if noticia.link %}
-        <a style="text-decoration: none; color: white;" href="{{ noticia.link }}">
-          <h4>{{ noticia.titulo or '' }}</h4>
-        </a>
-      {% else %}
-        <h4>{{ noticia.titulo or '' }}</h4>
-      {% endif %}
+  <h4 class="titulos">
+    <a class="link-reset" href="{{ noticia.link }}">
+      {{ noticia.titulo or '' }}
+    </a>
+  </h4>
+{% else %}
+  <h4 class="titulos">
+    {{ noticia.titulo or '' }}
+  </h4>
+{% endif %}
+
 
       <p>{{ noticia.descripcion or '' }}</p>
 
@@ -103,15 +108,16 @@
 
     <div><br>
 
-      <h4>
-        {% if evento.link %}
-          <a class="link-reset" href="{{ evento.link }}" target="_blank">
-            {{ evento.titulo or '' }}
-          </a>
-        {% else %}
-          {{ evento.titulo or '' }}
-        {% endif %}
-      </h4>
+      <h4 class="titulos">
+  {% if evento.link %}
+    <a class="link-reset" href="{{ evento.link }}" target="_blank">
+      {{ evento.titulo or '' }}
+    </a>
+  {% else %}
+    {{ evento.titulo or '' }}
+  {% endif %}
+</h4>
+
 
       <p>{{ evento.descripcion or '' }}</p>
 

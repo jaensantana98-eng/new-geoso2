@@ -16,14 +16,12 @@
       {# IMAGEN (con enlace opcional) #}
       {# ----------------------------- #}
 
-      {% if noticia.imagen %}
-        {% if noticia.enlace and noticia.enlace.usar_en_portada and noticia.enlace.url %}
-          <a href="{{ noticia.enlace.url }}" target="_blank">
-            <img src="{{ noticia.imagen }}" class="imagenizq img-marco">
-          </a>
-        {% else %}
+      {% if noticia.link %}
+        <a href="{{ noticia.link }}" target="_blank">
           <img src="{{ noticia.imagen }}" class="imagenizq img-marco">
-        {% endif %}
+        </a>
+      {% else %}
+        <img src="{{ noticia.imagen }}" class="imagenizq img-marco">
       {% endif %}
 
       <div>
@@ -32,17 +30,15 @@
         {# TÍTULO (con enlace opcional) #}
         {# ----------------------------- #}
 
-        {% if noticia.enlace and noticia.enlace.usar_en_titulo and noticia.enlace.url %}
-          <h3>
-            <strong>
-              <a href="{{ noticia.enlace.url }}" target="_blank" style="color: inherit; text-decoration: none;">
-                {{ noticia.titulo }}
-              </a>
-            </strong>
-          </h3>
-        {% else %}
-          <h3><strong>{{ noticia.titulo }}</strong></h3>
-        {% endif %}
+        <h3 class="titulos">
+          {% if noticia.link %}
+            <a href="{{ noticia.link }}" target="_blank" class="link-reset">
+              {{ noticia.titulo }}
+            </a>
+          {% else %}
+            {{ noticia.titulo }}
+          {% endif %}
+        </h3>
 
         {# ----------------------------- #}
         {# DESCRIPCIÓN                   #}
@@ -56,17 +52,25 @@
         {# BOTÓN "LEER MÁS"             #}
         {# ----------------------------- #}
 
-        {% if noticia.enlace and noticia.enlace.url %}
-          <a href="{{ noticia.enlace.url }}" class="btn btn-primary" target="_blank">
-            {{ noticia.enlace.texto or "Leer más" }}
+        {% if noticia.link %}
+          <a href="{{ noticia.link }}" class="btn btn-primary mt-2" target="_blank">
+            {{ noticia.link_text or "Leer más" }}
           </a>
+        {% else %}
+          <span class="btn btn-secondary disabled mt-2">
+            Sin enlace
+          </span>
         {% endif %}
 
         <br><br>
       </div>
 
     </div>
-    <hr>
+
+    {% if not loop.last %}
+      <hr>
+    {% endif %}
+
   {% endfor %}
 
 </div>

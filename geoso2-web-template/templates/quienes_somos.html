@@ -22,7 +22,7 @@
 {# SECCIONES                      #}
 {# ============================== #}
 {% for secciones in quienes_somos.secciones or [] %}
-  <div class="marco2">
+  <div class="mx-3 mt-4">
 
     <p class="texto-justificado">
       {{ secciones.pregunta1 or "" }} {{ secciones.respuesta1 or "" }}
@@ -74,7 +74,7 @@
 
         {% if inv.link %}
           <p>
-            <a style="color:#003366; font-weight:700; text-decoration:none;" href="{{ inv.link }}">
+            <a style="color:#ffffff; font-weight:700; text-decoration:none;" href="{{ inv.link }}">
               <h4>{{ inv.nombre or "" }}</h4>
             </a>
           </p>
@@ -119,7 +119,7 @@
 
         {% if col.link %}
           <p>
-            <a style="color:#003366; font-weight:700; text-decoration:none;" href="{{ col.link }}">
+            <a style="color:#ffffff; font-weight:700; text-decoration:none;" href="{{ col.link }}">
               <h4>{{ col.nombre or "" }}</h4>
             </a>
           </p>

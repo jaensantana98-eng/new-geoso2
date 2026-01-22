@@ -10,9 +10,6 @@
 <a class="marco1" href="#trabajosacademicos">Trabajos académicos</a>
 <hr>
 
-{# ============================== #}
-{#   SECCIÓN: EN CURSO            #}
-{# ============================== #}
 <div id="encurso" class="marco2">
   <h1>En curso</h1>
 </div>
@@ -33,7 +30,15 @@
 
     <div class="col-md-8">
 
-      <h4>{{ proyecto.titulo or '' }}</h4>
+      <h4 class="titulos">
+        {% if proyecto.link %}
+          <a class="link-reset" href="{{ proyecto.link }}" target="_blank">
+            {{ proyecto.titulo or '' }}
+          </a>
+        {% else %}
+          {{ proyecto.titulo or '' }}
+        {% endif %}
+      </h4>
 
       <p>{{ proyecto.descripcion or '' }}</p>
 
@@ -51,18 +56,14 @@
 
   </div>
 </div>
+
 {% if not loop.last %}
 <hr>
 {% endif %}
-
 {% endfor %}
-
 <hr>
 
-{# ============================== #}
-{#   SECCIÓN: ANTERIORES          #}
-{# ============================== #}
-<div id="anteriores" class="marco2">
+{<div id="anteriores" class="marco2">
   <h1>Anteriores</h1>
 </div>
 
@@ -82,7 +83,15 @@
 
     <div class="col-md-8">
 
-      <h4>{{ proyecto.titulo or '' }}</h4>
+      <h4 class="titulos">
+        {% if proyecto.link %}
+          <a class="link-reset" href="{{ proyecto.link }}" target="_blank">
+            {{ proyecto.titulo or '' }}
+          </a>
+        {% else %}
+          {{ proyecto.titulo or '' }}
+        {% endif %}
+      </h4>
 
       <p>{{ proyecto.descripcion or '' }}</p>
 
@@ -100,17 +109,15 @@
 
   </div>
 </div>
+
 {% if not loop.last %}
 <hr>
 {% endif %}
-
 {% endfor %}
+
 
 <hr>
 
-{# ============================== #}
-{#   SECCIÓN: TRABAJOS ACADÉMICOS #}
-{# ============================== #}
 <div id="trabajosacademicos" class="marco2">
   <h1>Trabajos académicos</h1>
 </div>
@@ -131,7 +138,15 @@
 
     <div class="col-md-8">
 
-      <h4>{{ trabajo.titulo or '' }}</h4>
+      <h4 class="titulos">
+        {% if trabajo.link %}
+          <a class="link-reset" href="{{ trabajo.link }}" target="_blank">
+            {{ trabajo.titulo or '' }}
+          </a>
+        {% else %}
+          {{ trabajo.titulo or '' }}
+        {% endif %}
+      </h4>
 
       <p>{{ trabajo.descripcion or '' }}</p>
 
@@ -149,6 +164,7 @@
 
   </div>
 </div>
+
 {% if not loop.last %}
 <hr>
 {% endif %}

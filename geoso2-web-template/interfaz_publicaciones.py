@@ -39,10 +39,16 @@ class EditorWindow(tk.Toplevel):
         self.tab_datos = DatosTab(self.notebook, self)
         self.notebook.add(self.tab_datos, text="Datos")
 
-        # Botón guardar
-        save_frame = ttk.Frame(self)
-        save_frame.pack(fill="x", pady=15)
-        ttk.Button(save_frame, text="Guardar cambios", command=self.save_json).pack(anchor="center")
+        # Marco inferior para botones
+        bottom_frame = ttk.Frame(self)
+        bottom_frame.pack(fill="x", pady=10)
+
+        # Botón de instrucciones (abajo a la izquierda)
+        ttk.Button(bottom_frame, text="Instrucciones", command=self.tab_datos.instrucciones).pack(side="left", padx=10)
+
+        # Botón guardar cambios (centrado)
+        ttk.Button(bottom_frame, text="Guardar cambios", command=self.save_json).pack(side="top", pady=5)
+
 
         # Inicializar datos
         self.tab_datos.set_data(self.state)
@@ -391,3 +397,25 @@ class DatosTab(tk.Frame):
         self.controller.state["publicaciones"] = datos.get("publicaciones", {})
         self.refresh_years()
         self.refresh_table()
+
+    def instrucciones(self):
+        instrucciones = (
+            "Instrucciones para el editor de Publicaciones:\n\n"
+            "1. Añadir un año:\n"
+            "   - Haz clic en 'Añadir año' e introduce el año deseado.\n\n"
+            "2. Eliminar un año:\n"
+            "   - Selecciona el año en el desplegable y haz clic en 'Eliminar año'.\n\n"
+            "3. Añadir una publicación:\n"
+            "   - Rellena los campos correspondientes y haz clic en 'Añadir'.\n\n"
+            "4. Editar una publicación:\n"
+            "   - Selecciona una publicación en la tabla, haz clic en 'Editar', modifica los campos y vuelve a hacer clic en 'Añadir'.\n\n"
+            "5. Eliminar una publicación:\n"
+            "   - Selecciona una publicación en la tabla y haz clic en 'Eliminar'.\n\n"
+            "6. Mover publicaciones:\n"
+            "   - Selecciona una publicación y usa 'Subir' o 'Bajar' para cambiar su posición.\n\n"
+            "7. Probar enlace:\n"
+            "   - Introduce una URL en el campo correspondiente y haz clic en 'Probar enlace' para abrirla en el navegador.\n\n"
+            "8. Guardar cambios:\n"
+            "   - Haz clic en 'Guardar cambios' para actualizar el archivo JSON con las modificaciones realizadas."
+        )
+        messagebox.showinfo("Instrucciones", instrucciones)

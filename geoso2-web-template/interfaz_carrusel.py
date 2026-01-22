@@ -45,12 +45,15 @@ class CarruselWindow(tk.Toplevel):
         self.tab_datos = DatosTab(self.notebook, self)
         self.notebook.add(self.tab_datos, text="Datos")
 
-        # Botón guardar cambios centrado
-        save_frame = ttk.Frame(self)
-        save_frame.pack(fill="x", pady=15)
-        ttk.Button(save_frame, text="Guardar cambios", command=self.save_json).pack(anchor="center")
+        
+        bottom_frame = ttk.Frame(self)
+        bottom_frame.pack(fill="x", pady=10)
 
-        # Cargar datos si estamos editando
+        ttk.Button(bottom_frame, text="Instrucciones", command=self.tab_datos.instrucciones).pack(side="left", padx=10)
+
+        ttk.Button(bottom_frame, text="Guardar cambios", command=self.save_json).pack(side="top", pady=5)
+
+
         if mode == "edit":
             self.tab_datos.refresh_table()
 
@@ -106,8 +109,7 @@ class DatosTab(ttk.Frame):
         ttk.Label(frm, text="Enlace:").grid(row=1, column=0, sticky="w")
         self.entry_enlace = ttk.Entry(frm)
         self.entry_enlace.grid(row=1, column=1, sticky="ew", padx=5, pady=5)
-        ttk.Button(frm, text="Probar enlace", command=self.probar_enlace).grid(row=1, column=2, padx=8)
-        ttk.Button(frm, text="Buscar archivo", command=self.select_file).grid(row=2, column=2, padx=8)
+        ttk.Button(frm, text="Buscar archivo", command=self.select_file).grid(row=1, column=2, padx=8)
 
         frm.columnconfigure(1, weight=1)
 
@@ -119,6 +121,7 @@ class DatosTab(ttk.Frame):
 
         ttk.Button(btn_frame, text="Añadir", command=self.add_item).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Eliminar", command=self.delete_item).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Editar", command=self.edit_item).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Subir", command=self.move_up).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Bajar", command=self.move_down).pack(side="left", padx=5)
 
@@ -197,25 +200,6 @@ class DatosTab(ttk.Frame):
             messagebox.showerror("Error", f"No se pudo procesar la imagen:\n{e}")
 
 
-    def probar_enlace(self):
-        url = self.entry_enlace.get().strip()
-
-        if not url:
-            messagebox.showwarning("Aviso", "No hay ninguna URL para probar.")
-            return
-
-        try:
-            if url.startswith(("http://", "https://")):
-                webbrowser.open_new_tab(url)
-            else:
-                ruta = os.path.abspath(url)
-                if os.path.exists(ruta):
-                    webbrowser.open_new_tab(f"file:///{ruta}")
-                else:
-                    messagebox.showerror("Error", f"No se encontró el archivo:\n{ruta}")
-        except Exception as e:
-            messagebox.showerror("Error", f"No se pudo abrir el enlace:\n{e}")
-
     def add_item(self):
         imagen = self.entry_imagen.get().strip()
         enlace = self.entry_enlace.get().strip()
@@ -265,6 +249,9 @@ class DatosTab(ttk.Frame):
             self.refresh_table()
             self.tree.selection_set(self.tree.get_children()[index + 1])
 
+    def edit_item(self):
+        pass  # No se implementa edición en este caso
+
     def refresh_table(self):
         for item in self.tree.get_children():
             self.tree.delete(item)
@@ -275,3 +262,14 @@ class DatosTab(ttk.Frame):
     def set_data(self, datos):
         self.controller.state["carrusel"] = datos.get("carrusel", [])
         self.refresh_table()
+
+    def instrucciones(self):
+        instrucciones = (
+            "Instrucciones para el Carrusel:\n\n"
+            "1. Añadir imágenes y enlaces para el carrusel de la página principal.\n"
+            "2. Las imágenes deben estar en formato PNG, JPG o GIF.\n"
+            "3. Los enlaces pueden ser archivos PDF o HTML.\n"
+            "4. Usa los botones para añadir, eliminar o mover elementos en el carrusel.\n"
+            "5. Guarda los cambios para actualizar el archivo JSON."
+        )
+        messagebox.showinfo("Instrucciones", instrucciones)

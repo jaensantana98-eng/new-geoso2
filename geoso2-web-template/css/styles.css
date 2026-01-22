@@ -228,6 +228,14 @@ html, body {
     width: 250px;
     height: 250px;
 }
+
+.titulos {
+    color: white;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+    text-decoration: none;
+}
+
 .body-rafagas {
   display: flex;
   justify-content: space-between;
