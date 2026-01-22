@@ -23,13 +23,12 @@ class EditorWindow(tk.Toplevel):
 
         os.makedirs("data/img", exist_ok=True)
 
-
+        # Cargar JSON si estamos editando
         if mode == "edit" and filepath:
             try:
                 with open(filepath, "r", encoding="utf-8") as f:
                     datos = json.load(f)
 
-                # Cargar agenda desde la ruta correcta
                 self.state["agenda"] = datos.get("web", {}) \
                                             .get("index_page", {}) \
                                             .get("agenda", [])
@@ -37,53 +36,46 @@ class EditorWindow(tk.Toplevel):
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo cargar el JSON:\n{e}")
 
-
-        # Notebook con solo una pestaña
+        # Notebook
         self.notebook = ttk.Notebook(self)
         self.notebook.pack(fill="both", expand=True)
 
         self.tab_datos = DatosTab(self.notebook, self)
         self.notebook.add(self.tab_datos, text="Datos")
 
+        # Footer (Instrucciones + Guardar)
+        footer = ttk.Frame(self)
+        footer.pack(fill="x", side="bottom", pady=10)
+
+        ttk.Button(
+            footer,
+            text="Instrucciones",
+            command=self.tab_datos.instrucciones
+        ).pack(side="left", padx=10)
+
+        ttk.Button(
+            footer,
+            text="Guardar cambios",
+            command=self.save_json
+        ).pack(side="top", padx=10)
 
         # Cargar datos si estamos editando
         if mode == "edit":
             self.tab_datos.set_data(self.state)
 
-    # Normalizar evento
-    def normalize_event(self, ev):
-        return {
-            "titulo": ev.get("titulo", ""),
-            "descripcion": ev.get("descripcion", ""),
-            "fecha": ev.get("fecha", ""),
-            "hora": ev.get("hora", ""),
-            "lugar": ev.get("lugar", ""),
-            "imagen": ev.get("imagen", ""),
-            "alt": ev.get("alt", ""),
-            "link": ev.get("link", ""),
-            "texto_link": ev.get("texto_link", "")
-        }
-
-    # Guardar JSON automáticamente
+    # Guardar JSON
     def save_json(self):
         ruta = "geoso2-web-template/json/web.json"
 
         try:
-            # Cargar JSON completo
             with open(ruta, "r", encoding="utf-8") as f:
                 datos_completos = json.load(f)
 
-            # Asegurar estructura
-            if "web" not in datos_completos:
-                datos_completos["web"] = {}
+            datos_completos.setdefault("web", {})
+            datos_completos["web"].setdefault("index_page", {})
 
-            if "index_page" not in datos_completos["web"]:
-                datos_completos["web"]["index_page"] = {}
-
-            # Guardar agenda en la ruta correcta
             datos_completos["web"]["index_page"]["agenda"] = self.state["agenda"]
 
-            # Guardar JSON completo
             with open(ruta, "w", encoding="utf-8") as f:
                 json.dump(datos_completos, f, indent=4, ensure_ascii=False)
 
@@ -91,7 +83,6 @@ class EditorWindow(tk.Toplevel):
 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo guardar el archivo:\n{e}")
-
 
 
 # ============================================================
@@ -102,14 +93,12 @@ class DatosTab(tk.Frame):
         super().__init__(parent)
         self.controller = controller
 
-        # Marco principal
         frm = ttk.Frame(self)
         frm.pack(fill="both", expand=True, padx=20, pady=20)
 
-        # ============================================================
+        # -----------------------------
         # CAMPOS SUPERIORES
-        # ============================================================
-
+        # -----------------------------
         ttk.Label(frm, text="Imagen:").grid(row=0, column=0, sticky="w", pady=4)
         self.entry_imagen = ttk.Entry(frm)
         self.entry_imagen.grid(row=0, column=1, sticky="ew", pady=4)
@@ -123,25 +112,23 @@ class DatosTab(tk.Frame):
         self.text_titulo = tk.Text(frm, wrap="word", height=2)
         self.text_titulo.grid(row=2, column=1, sticky="ew", pady=4)
 
-        # ============================================================
-        # DESCRIPCIÓN (más pequeña)
-        # ============================================================
-
+        # -----------------------------
+        # DESCRIPCIÓN
+        # -----------------------------
         ttk.Label(frm, text="Descripción:").grid(row=3, column=0, sticky="nw", pady=4)
         desc_frame = ttk.Frame(frm)
         desc_frame.grid(row=3, column=1, sticky="ew", pady=4)
 
-        self.text_descripcion = tk.Text(desc_frame, wrap="word", height=4)  # ← MÁS PEQUEÑO
+        self.text_descripcion = tk.Text(desc_frame, wrap="word", height=4)
         self.text_descripcion.pack(side="left", fill="both", expand=True)
 
         scroll_desc = ttk.Scrollbar(desc_frame, orient="vertical", command=self.text_descripcion.yview)
         scroll_desc.pack(side="right", fill="y")
         self.text_descripcion.config(yscrollcommand=scroll_desc.set)
 
-        # ============================================================
+        # -----------------------------
         # CAMPOS INFERIORES
-        # ============================================================
-
+        # -----------------------------
         ttk.Label(frm, text="Fecha:").grid(row=4, column=0, sticky="w", pady=4)
         self.entry_fecha = ttk.Entry(frm)
         self.entry_fecha.grid(row=4, column=1, sticky="ew", pady=4)
@@ -169,10 +156,9 @@ class DatosTab(tk.Frame):
 
         frm.columnconfigure(1, weight=1)
 
-        # ============================================================
+        # -----------------------------
         # BOTONES CRUD
-        # ============================================================
-
+        # -----------------------------
         btn_frame = ttk.Frame(frm)
         btn_frame.grid(row=9, column=0, columnspan=3, pady=10)
 
@@ -182,10 +168,9 @@ class DatosTab(tk.Frame):
         ttk.Button(btn_frame, text="Subir", command=self.move_up).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Bajar", command=self.move_down).pack(side="left", padx=5)
 
-        # ============================================================
+        # -----------------------------
         # TABLA
-        # ============================================================
-
+        # -----------------------------
         self.tree = ttk.Treeview(
             frm,
             columns=("Imagen", "Título", "Fecha", "Lugar", "Link"),
@@ -201,17 +186,6 @@ class DatosTab(tk.Frame):
         self.tree.heading("Link", text="Link")
 
         frm.rowconfigure(10, weight=1)
-
-        # Marco inferior para botones
-        bottom_frame = ttk.Frame(self)
-        bottom_frame.pack(fill="x", pady=10)
-
-        # Botón de instrucciones (abajo a la izquierda)
-        ttk.Button(bottom_frame, text="Instrucciones", command=self.tab_datos.instrucciones).pack(side="left", padx=10)
-
-        # Botón guardar cambios (centrado)
-        ttk.Button(bottom_frame, text="Guardar cambios", command=self.save_json).pack(side="top", pady=5)
-
 
     # -----------------------------
     # FUNCIONES
@@ -240,7 +214,6 @@ class DatosTab(tk.Frame):
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo copiar el archivo:\n{e}")
 
-
     def select_imagen(self):
         ruta = filedialog.askopenfilename(
             filetypes=[("Imagen", "*.png;*.jpg;*.jpeg;*.gif")]
@@ -250,16 +223,11 @@ class DatosTab(tk.Frame):
 
         try:
             nombre = os.path.basename(ruta)
-
-            # Carpeta destino REAL dentro del proyecto
-            carpeta_destino = os.path.join(
-                "geoso2-web-template", "imput", "img", "agenda"
-            )
+            carpeta_destino = os.path.join("geoso2-web-template", "imput", "img", "agenda")
             os.makedirs(carpeta_destino, exist_ok=True)
 
             destino = os.path.join(carpeta_destino, nombre)
 
-            # Procesar y guardar la miniatura
             with Image.open(ruta) as img:
                 img = img.convert("RGB")
                 img.thumbnail((300, 300), Image.LANCZOS)
@@ -270,15 +238,11 @@ class DatosTab(tk.Frame):
                 canvas.paste(img, (x, y))
                 canvas.save(destino, quality=90)
 
-            # Ruta relativa para el JSON
-            ruta_relativa = f"../imput/img/agenda/{nombre}"
-
             self.entry_imagen.delete(0, tk.END)
-            self.entry_imagen.insert(0, ruta_relativa)
+            self.entry_imagen.insert(0, f"../imput/img/agenda/{nombre}")
 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo procesar la imagen:\n{e}")
-
 
     def probar_enlace(self):
         url = self.entry_link.get().strip()
@@ -417,10 +381,10 @@ class DatosTab(tk.Frame):
         instrucciones = (
             "Instrucciones para la Agenda:\n\n"
             "1. Rellena los campos del formulario superior con los datos del evento.\n"
-            "2. Usa el botón 'Buscar' para seleccionar una imagen desde tu equipo.\n"
-            "3. El campo 'Título del evento' es obligatorio.\n"
-            "4. Puedes añadir, editar o eliminar eventos usando los botones correspondientes.\n"
-            "5. Usa los botones 'Subir' y 'Bajar' para cambiar el orden de los eventos en la lista.\n"
-            "6. Una vez que hayas terminado, haz clic en 'Guardar cambios' para actualizar el archivo JSON."
+            "2. Usa el botón 'Buscar' para seleccionar una imagen.\n"
+            "3. El título del evento es obligatorio.\n"
+            "4. Puedes añadir, editar o eliminar eventos.\n"
+            "5. Usa 'Subir' y 'Bajar' para reordenar.\n"
+            "6. Haz clic en 'Guardar cambios' para actualizar el JSON."
         )
         messagebox.showinfo("Instrucciones", instrucciones)
