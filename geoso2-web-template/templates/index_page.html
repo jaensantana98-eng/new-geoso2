@@ -66,11 +66,21 @@
       <p>{{ noticia.descripcion or '' }}</p>
 
       {% if noticia.link %}
-        <a href="{{ noticia.link }}">{{ noticia.link_text or "Leer más" }}</a>
-      {% endif %}
+  <a href="{{ noticia.link }}" class="btn btn-primary mt-2" target="_blank">
+    {{ noticia.link_text or "Leer más" }}
+  </a>
+{% else %}
+  <span class="btn btn-secondary disabled mt-2">
+    Sin enlace
+  </span>
+{% endif %}
+
 
     </div>
   </div>
+  {% if not loop.last %}
+<hr>
+{% endif %}
 {% endfor %}
 
 <hr>
@@ -81,36 +91,50 @@
 </a>
 
 {% for evento in index_page.agenda %}
-  <div class="col-md-4 text-center imagenizq-texto">
+  <div class="imagenizq-texto">
 
     {% if evento.link %}
-      <a href="{{ evento.link }}">
-        <img src="{{ evento.imagen or '../imput/img/default.png' }}" style="width:200px">
+      <a href="{{ evento.link }}" target="_blank">
+        <img src="{{ evento.imagen or '../imput/img/default.png' }}" alt="{{ evento.titulo or '' }}">
       </a>
     {% else %}
-      <img src="{{ evento.imagen or '../imput/img/default.png' }}" style="width:200px">
+      <img src="{{ evento.imagen or '../imput/img/default.png' }}" alt="{{ evento.titulo or '' }}">
     {% endif %}
+
+    <div><br>
+
+      <h4>
+        {% if evento.link %}
+          <a class="link-reset" href="{{ evento.link }}" target="_blank">
+            {{ evento.titulo or '' }}
+          </a>
+        {% else %}
+          {{ evento.titulo or '' }}
+        {% endif %}
+      </h4>
+
+      <p>{{ evento.descripcion or '' }}</p>
+
+      {% if evento.link %}
+        <a href="{{ evento.link }}" class="btn btn-primary mt-2" target="_blank">
+          Leer más
+        </a>
+      {% else %}
+        <span class="btn btn-secondary disabled mt-2">
+          Sin enlace
+        </span>
+      {% endif %}
+
+    </div>
 
   </div>
 
-  <div><br>
+  {% if not loop.last %}
+    <hr>
+  {% endif %}
 
-    {% if evento.link %}
-      <a style="color: white; font-weight:700; text-decoration:none;" href="{{ evento.link }}">
-        <h4>{{ evento.titulo or '' }}</h4>
-      </a>
-    {% else %}
-      <h4>{{ evento.titulo or '' }}</h4>
-    {% endif %}
-
-    <p>{{ evento.descripcion or '' }}</p>
-
-    {% if evento.link %}
-      <a href="{{ evento.link }}">Leer Más</a>
-    {% endif %}
-
-  </div>
 {% endfor %}
+
 
 <hr><br>
 

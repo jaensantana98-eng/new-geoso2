@@ -4,9 +4,10 @@
 
 {% block content %}
 <br><br>
-<a class="marco2" style="text-decoration: none; color: white;" href="#encurso">En curso</a>
-<a class="marco2" style="text-decoration: none; color: white;" href="#anteriores">Anteriores</a>
-<a class="marco2" style="text-decoration: none; color: white;" href="#trabajosacademicos">Trabajos académicos</a>
+
+<a class="marco1" href="#encurso">En curso</a>
+<a class="marco1" href="#anteriores">Anteriores</a>
+<a class="marco1" href="#trabajosacademicos">Trabajos académicos</a>
 <hr>
 
 {# ============================== #}
@@ -22,7 +23,7 @@
 
     <div class="col-md-4 text-center imagenizq-texto">
       {% if proyecto.link %}
-        <a href="{{ proyecto.link }}">
+        <a href="{{ proyecto.link }}" target="_blank">
           <img src="{{ proyecto.imagen or '../imput/img/default.png' }}" style="width:300px">
         </a>
       {% else %}
@@ -31,25 +32,29 @@
     </div>
 
     <div class="col-md-8">
-      {% if proyecto.link %}
-        <p>
-          <a style="color:#003366; font-weight:700; text-decoration:none;" href="{{ proyecto.link }}">
-            <h4>{{ proyecto.titulo or '' }}</h4>
-          </a>
-        </p>
-      {% else %}
-        <h4>{{ proyecto.titulo or '' }}</h4>
-      {% endif %}
+
+      <h4>{{ proyecto.titulo or '' }}</h4>
 
       <p>{{ proyecto.descripcion or '' }}</p>
 
       {% if proyecto.link %}
-        <p><a style="color: #003366" href="{{ proyecto.link }}">Leer Más</a></p>
+        <a href="{{ proyecto.link }}" class="btn btn-primary mt-2" target="_blank">
+          Leer más
+        </a>
+      {% else %}
+        <span class="btn btn-secondary disabled mt-2">
+          Sin enlace
+        </span>
       {% endif %}
+
     </div>
 
   </div>
 </div>
+{% if not loop.last %}
+<hr>
+{% endif %}
+
 {% endfor %}
 
 <hr>
@@ -67,7 +72,7 @@
 
     <div class="col-md-4 text-center imagenizq-texto">
       {% if proyecto.link %}
-        <a href="{{ proyecto.link }}">
+        <a href="{{ proyecto.link }}" target="_blank">
           <img src="{{ proyecto.imagen or '../imput/img/default.png' }}" style="width:300px">
         </a>
       {% else %}
@@ -76,25 +81,29 @@
     </div>
 
     <div class="col-md-8">
-      {% if proyecto.link %}
-        <p>
-          <a style="color:#003366; font-weight:700; text-decoration:none;" href="{{ proyecto.link }}">
-            <h4>{{ proyecto.titulo or '' }}</h4>
-          </a>
-        </p>
-      {% else %}
-        <h4>{{ proyecto.titulo or '' }}</h4>
-      {% endif %}
+
+      <h4>{{ proyecto.titulo or '' }}</h4>
 
       <p>{{ proyecto.descripcion or '' }}</p>
 
       {% if proyecto.link %}
-        <p><a style="color: #003366" href="{{ proyecto.link }}">Leer Más</a></p>
+        <a href="{{ proyecto.link }}" class="btn btn-primary mt-2" target="_blank">
+          Leer más
+        </a>
+      {% else %}
+        <span class="btn btn-secondary disabled mt-2">
+          Sin enlace
+        </span>
       {% endif %}
+
     </div>
 
   </div>
 </div>
+{% if not loop.last %}
+<hr>
+{% endif %}
+
 {% endfor %}
 
 <hr>
@@ -112,7 +121,7 @@
 
     <div class="col-md-4 text-center imagenizq-texto">
       {% if trabajo.link %}
-        <a href="{{ trabajo.link }}">
+        <a href="{{ trabajo.link }}" target="_blank">
           <img src="{{ trabajo.imagen or '../imput/img/default.png' }}" style="width:300px">
         </a>
       {% else %}
@@ -121,25 +130,28 @@
     </div>
 
     <div class="col-md-8">
-      {% if trabajo.link %}
-        <p>
-          <a style="color:#003366; font-weight:700; text-decoration:none;" href="{{ trabajo.link }}">
-            <h4>{{ trabajo.titulo or '' }}</h4>
-          </a>
-        </p>
-      {% else %}
-        <h4>{{ trabajo.titulo or '' }}</h4>
-      {% endif %}
+
+      <h4>{{ trabajo.titulo or '' }}</h4>
 
       <p>{{ trabajo.descripcion or '' }}</p>
 
       {% if trabajo.link %}
-        <p><a style="color: #003366" href="{{ trabajo.link }}">Leer Más</a></p>
+        <a href="{{ trabajo.link }}" class="btn btn-primary mt-2" target="_blank">
+          Leer más
+        </a>
+      {% else %}
+        <span class="btn btn-secondary disabled mt-2">
+          Sin enlace
+        </span>
       {% endif %}
+
     </div>
 
   </div>
 </div>
+{% if not loop.last %}
+<hr>
+{% endif %}
 {% endfor %}
 
 {% endblock %}
