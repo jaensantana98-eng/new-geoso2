@@ -17,17 +17,19 @@ class EditorWindow(tk.Toplevel):
         self.state = {"publicaciones": {}}
         self.filepath = filepath
 
-        # Cargar JSON si estamos editando
+        # Cargar JSON desde web.json
         if mode == "edit" and filepath and os.path.exists(filepath):
             try:
                 with open(filepath, "r", encoding="utf-8") as f:
                     datos = json.load(f)
-                if isinstance(datos, dict) and "publicaciones" in datos:
-                    self.state["publicaciones"] = datos["publicaciones"]
+
+                # Cargar desde la ruta correcta
+                self.state["publicaciones"] = datos.get("web", {}).get("publicaciones", {})
+
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo cargar el JSON:\n{e}")
 
-        # Notebook dentro de un frame que NO se expande
+        # Notebook
         notebook_frame = ttk.Frame(self)
         notebook_frame.pack(fill="both", expand=True)
 
@@ -37,26 +39,31 @@ class EditorWindow(tk.Toplevel):
         self.tab_datos = DatosTab(self.notebook, self)
         self.notebook.add(self.tab_datos, text="Datos")
 
-        # Botón guardar cambios centrado
+        # Botón guardar
         save_frame = ttk.Frame(self)
         save_frame.pack(fill="x", pady=15)
-
         ttk.Button(save_frame, text="Guardar cambios", command=self.save_json).pack(anchor="center")
-
 
         # Inicializar datos
         self.tab_datos.set_data(self.state)
 
-    # Guardar JSON automáticamente
+    # Guardar JSON correctamente en web.json
     def save_json(self):
-        ruta = "geoso2-web-template/json/publicaciones.json"
-        os.makedirs(os.path.dirname(ruta), exist_ok=True)
+        ruta = "geoso2-web-template/json/web.json"
 
         try:
-            with open(ruta, "w", encoding="utf-8") as f:
-                json.dump({"publicaciones": self.state["publicaciones"]}, f, indent=4, ensure_ascii=False)
+            with open(ruta, "r", encoding="utf-8") as f:
+                datos_completos = json.load(f)
 
-            messagebox.showinfo("Guardado", f"Archivo guardado en:\n{ruta}")
+            if "web" not in datos_completos:
+                datos_completos["web"] = {}
+
+            datos_completos["web"]["publicaciones"] = self.state["publicaciones"]
+
+            with open(ruta, "w", encoding="utf-8") as f:
+                json.dump(datos_completos, f, indent=4, ensure_ascii=False)
+
+            messagebox.showinfo("Guardado", f"Archivo JSON actualizado:\n{ruta}")
 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo guardar el archivo:\n{e}")
