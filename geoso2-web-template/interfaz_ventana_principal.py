@@ -202,6 +202,30 @@ class MainApp(tk.Tk):
                     f.write(html_carrusel)
 
             # ============================================================
+            # NOTICIAS (PÁGINA PROPIA)
+            # ============================================================
+            if os.path.exists("geoso2-web-template/templates/noticias.html"):
+                template_noticias = env.get_template("noticias.html")
+                html_noticias = template_noticias.render(
+                    noticias = web["index_page"].get("noticias", [])
+                )
+                with open(os.path.join(output_dir, "noticias.html"), "w", encoding="utf-8") as f:
+                    f.write(html_noticias)
+
+
+            # ============================================================
+            # AGENDA (PÁGINA PROPIA)
+            # ============================================================
+            if os.path.exists("geoso2-web-template/templates/agenda.html"):
+                template_agenda = env.get_template("agenda.html")
+                html_agenda = template_agenda.render(
+                    agenda = web["index_page"].get("agenda", [])
+                )
+                with open(os.path.join(output_dir, "agenda.html"), "w", encoding="utf-8") as f:
+                    f.write(html_agenda)
+
+
+            # ============================================================
             # PROYECTOS
             # ============================================================
             if os.path.exists("geoso2-web-template/templates/proyectos.html"):
