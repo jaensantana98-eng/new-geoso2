@@ -25,19 +25,22 @@ class EditorProyectosWindow(tk.Toplevel):
             }
         }
 
+        # Cargar JSON si existe
         if filepath and os.path.exists(filepath):
             with open(filepath, "r", encoding="utf-8") as f:
                 datos = json.load(f)
 
-            # Cargar proyectos desde la ruta correcta
-            self.state["proyectos"] = datos.get("web", {}) \
-                                        .get("proyectos", {
-                                            "encurso": [],
-                                            "anteriores": [],
-                                            "trabajosacademicos": []
-                                        })
+            # Cargar desde la ruta correcta
+            self.state["proyectos"] = datos.get("web", {}).get(
+                "proyectos",
+                {
+                    "encurso": [],
+                    "anteriores": [],
+                    "trabajosacademicos": []
+                }
+            )
 
-
+        # Notebook
         self.notebook = ttk.Notebook(self)
         self.notebook.pack(fill="both", expand=True)
 
@@ -47,18 +50,18 @@ class EditorProyectosWindow(tk.Toplevel):
         self.notebook.add(self.tab_lista, text="Lista")
         self.notebook.add(self.tab_form, text="Formulario")
 
+        # Botón guardar
         save_frame = ttk.Frame(self)
         save_frame.pack(fill="x", pady=15)
         ttk.Button(save_frame, text="Guardar cambios", command=self.save_json).pack(anchor="center")
 
         self.tab_lista.refresh_table()
 
-    # Guardar JSON automáticamente
+    # Guardar JSON correctamente
     def save_json(self):
         ruta = "geoso2-web-template/json/web.json"
 
         try:
-            # Cargar JSON completo
             with open(ruta, "r", encoding="utf-8") as f:
                 datos_completos = json.load(f)
 
@@ -66,11 +69,8 @@ class EditorProyectosWindow(tk.Toplevel):
             if "web" not in datos_completos:
                 datos_completos["web"] = {}
 
-            if "index_page" not in datos_completos["web"]:
-                datos_completos["web"]["index_page"] = {}
-
-            # Guardar proyectos en la ruta correcta
-            datos_completos["web"]["index_page"]["proyectos"] = self.state["proyectos"]
+            # Guardar en la ruta correcta
+            datos_completos["web"]["proyectos"] = self.state["proyectos"]
 
             # Guardar JSON completo
             with open(ruta, "w", encoding="utf-8") as f:
@@ -82,7 +82,9 @@ class EditorProyectosWindow(tk.Toplevel):
             messagebox.showerror("Error", f"No se pudo guardar el archivo:\n{e}")
 
 
-
+# ============================================================
+# TABLA DE PROYECTOS
+# ============================================================
 class ListaTab(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
@@ -196,6 +198,9 @@ class ListaTab(tk.Frame):
         self.refresh_table()
 
 
+# ============================================================
+# FORMULARIO DE PROYECTOS
+# ============================================================
 class FormTab(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
