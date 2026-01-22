@@ -27,7 +27,7 @@ class InvestigadoresTab(tk.Frame):
         ttk.Label(form, text="Imagen (ruta):").grid(row=1, column=0, sticky="w", pady=4)
         self.entry_imagen = ttk.Entry(form)
         self.entry_imagen.grid(row=1, column=1, sticky="ew", pady=4)
-        ttk.Button(form, text="Seleccionar", command=self.select_image).grid(row=1, column=2, padx=5)
+        ttk.Button(form, text="Seleccionar", command=self.select_imagen).grid(row=1, column=2, padx=5)
 
         ttk.Label(form, text="Bio:").grid(row=2, column=0, sticky="nw", pady=4)
         self.text_bio = tk.Text(form, height=6, wrap="word")
@@ -41,7 +41,6 @@ class InvestigadoresTab(tk.Frame):
         ttk.Label(form, text="Texto del enlace:").grid(row=4, column=0, sticky="w", pady=4)
         self.entry_link_text = ttk.Entry(form)
         self.entry_link_text.grid(row=4, column=1, sticky="ew", pady=4)
-
 
         form.columnconfigure(1, weight=1)
 
@@ -72,50 +71,31 @@ class InvestigadoresTab(tk.Frame):
 
         self.refresh_table()
 
-    def select_file(self):
-        descargas = os.path.join(os.path.expanduser("~"), "Downloads")
-        if not os.path.isdir(descargas):
-            descargas = os.path.expanduser("~")
-
+    def select_imagen(self):
         ruta = filedialog.askopenfilename(
-            initialdir=descargas,
-            title="Seleccionar archivo",
-            filetypes=[
-                ("Documentos", "*.pdf;*.html;*.htm"),
-                ("PDF", "*.pdf"),
-                ("HTML", "*.html;*.htm"),
-                ("Todos los archivos", "*.*")
-            ]
+            filetypes=[("Imagen", "*.png;*.jpg;*.jpeg;*.gif")]
         )
-
         if not ruta:
             return
 
         try:
-            destino_dir = "geoso2-web-template/imput/docs/quienes-somos"
-            os.makedirs(destino_dir, exist_ok=True)
-
             nombre = os.path.basename(ruta)
-            destino = os.path.join(destino_dir, nombre)
 
-            with open(ruta, "rb") as f_src:
-                with open(destino, "wb") as f_dst:
-                    f_dst.write(f_src.read())
+            carpeta_destino = os.path.join(
+                "geoso2-web-template", "imput", "img", "quienes_somos"
+            )
+            os.makedirs(carpeta_destino, exist_ok=True)
 
-            ruta_relativa = f"../imput/docs/quienes-somos/{nombre}"
-            self.entry_link.delete(0, tk.END)
-            self.entry_link.insert(0, ruta_relativa)
+            destino = os.path.join(carpeta_destino, nombre)
+            shutil.copy(ruta, destino)
+
+            ruta_relativa = f"../imput/img/quienes_somos/{nombre}"
+
+            self.entry_imagen.delete(0, tk.END)
+            self.entry_imagen.insert(0, ruta_relativa)
 
         except Exception as e:
-            messagebox.showerror("Error", f"No se pudo copiar el archivo:\n{e}")
-
-    def select_image(self):
-        ruta = filedialog.askopenfilename(
-            filetypes=[("Imágenes", "*.png;*.jpg;*.jpeg;*.gif")]
-        )
-        if ruta:
-            self.entry_imagen.delete(0, tk.END)
-            self.entry_imagen.insert(0, ruta)
+            messagebox.showerror("Error", f"No se pudo procesar la imagen:\n{e}")
 
     def probar_enlace(self):
         url = self.entry_link.get().strip()
@@ -216,7 +196,6 @@ class InvestigadoresTab(tk.Frame):
         if index < len(lista) - 1:
             lista[index + 1], lista[index] = lista[index], lista[index + 1]
             self.refresh_table()
-            self.tree.selection_set(self.tree.get_children()[index + 1])
 
     def refresh_table(self):
         for item in self.tree.get_children():
@@ -256,7 +235,7 @@ class ColaboradoresTab(tk.Frame):
         ttk.Label(form, text="Imagen (ruta):").grid(row=1, column=0, sticky="w", pady=4)
         self.entry_imagen = ttk.Entry(form)
         self.entry_imagen.grid(row=1, column=1, sticky="ew", pady=4)
-        ttk.Button(form, text="Seleccionar", command=self.select_image).grid(row=1, column=2, padx=5)
+        ttk.Button(form, text="Seleccionar", command=self.select_imagen).grid(row=1, column=2, padx=5)
 
         ttk.Label(form, text="Bio:").grid(row=2, column=0, sticky="nw", pady=4)
         self.text_bio = tk.Text(form, height=6, wrap="word")
@@ -300,13 +279,31 @@ class ColaboradoresTab(tk.Frame):
 
         self.refresh_table()
 
-    def select_image(self):
+    def select_imagen(self):
         ruta = filedialog.askopenfilename(
-            filetypes=[("Imágenes", "*.png;*.jpg;*.jpeg;*.gif")]
+            filetypes=[("Imagen", "*.png;*.jpg;*.jpeg;*.gif")]
         )
-        if ruta:
+        if not ruta:
+            return
+
+        try:
+            nombre = os.path.basename(ruta)
+
+            carpeta_destino = os.path.join(
+                "geoso2-web-template", "imput", "img", "quienes_somos"
+            )
+            os.makedirs(carpeta_destino, exist_ok=True)
+
+            destino = os.path.join(carpeta_destino, nombre)
+            shutil.copy(ruta, destino)
+
+            ruta_relativa = f"../imput/img/quienes_somos/{nombre}"
+
             self.entry_imagen.delete(0, tk.END)
-            self.entry_imagen.insert(0, ruta)
+            self.entry_imagen.insert(0, ruta_relativa)
+
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo procesar la imagen:\n{e}")
 
     def probar_enlace(self):
         url = self.entry_link.get().strip()
@@ -407,7 +404,6 @@ class ColaboradoresTab(tk.Frame):
         if index < len(lista) - 1:
             lista[index + 1], lista[index] = lista[index], lista[index + 1]
             self.refresh_table()
-            self.tree.selection_set(self.tree.get_children()[index + 1])
 
     def refresh_table(self):
         for item in self.tree.get_children():
@@ -435,7 +431,6 @@ class EditorWindow(tk.Toplevel):
         self.title("Editor - Quiénes Somos")
         self.geometry("1100x700")
 
-        # Estado inicial
         self.state = {
             "quienes_somos": {
                 "secciones": [
@@ -457,7 +452,6 @@ class EditorWindow(tk.Toplevel):
             }
         }
 
-        # Cargar JSON si estamos en modo edición
         if mode == "edit" and filepath:
             try:
                 with open(filepath, "r", encoding="utf-8") as f:
@@ -471,21 +465,17 @@ class EditorWindow(tk.Toplevel):
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo cargar el JSON:\n{e}")
 
-        # Notebook
         self.notebook = ttk.Notebook(self)
         self.notebook.pack(fill="both", expand=True)
 
-        # Pestañas
         self.tab_investigadores = InvestigadoresTab(self.notebook, self)
         self.tab_colaboradores = ColaboradoresTab(self.notebook, self)
 
         self.notebook.add(self.tab_investigadores, text="Investigadores")
         self.notebook.add(self.tab_colaboradores, text="Colaboradores")
 
-        # Botón guardar cambios
         ttk.Button(self, text="Guardar cambios", command=self.save_json).pack(pady=10)
 
-        # Refrescar tablas si venimos de edición
         self.tab_investigadores.refresh_table()
         self.tab_colaboradores.refresh_table()
 
@@ -504,8 +494,7 @@ class EditorWindow(tk.Toplevel):
             with open(ruta, "w", encoding="utf-8") as f:
                 json.dump(datos_completos, f, indent=4, ensure_ascii=False)
 
-            messagebox.showinfo("Guardado", "Datos de 'Quiénes Somos' actualizados correctamente.")
+            messagebox.showinfo("Guardado", f"Archivo JSON actualizado:\n{ruta}")
 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo guardar el archivo:\n{e}")
-

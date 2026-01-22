@@ -154,30 +154,36 @@ class MainApp(tk.Tk):
     # -----------------------------
     def generar_sitio_web(self):
         try:
-            # Cargar JSON principal
+            # ============================
+            # CARGAR JSON PRINCIPAL
+            # ============================
             with open("geoso2-web-template/json/web.json", "r", encoding="utf-8") as f:
                 datos = json.load(f)
 
             web = datos["web"]
 
-            # Cargar entorno Jinja
+            # ============================
+            # ENTORNO JINJA
+            # ============================
             env = Environment(loader=FileSystemLoader("geoso2-web-template/templates"))
 
-            # Carpeta de salida
+            # ============================
+            # CARPETA DE SALIDA
+            # ============================
             output_dir = "geoso2-web-template/output"
             os.makedirs(output_dir, exist_ok=True)
 
             # ============================================================
-            # RENDERIZAR INDEX (PÁGINA PRINCIPAL)
+            # INDEX (PÁGINA PRINCIPAL)
             # ============================================================
             template_index = env.get_template("index_page.html")
 
             html_index = template_index.render(
-                index_page = {
+                index_page={
                     "carousel": web["index_page"].get("carrusel", []),
                     "noticias": web["index_page"].get("noticias", []),
                     "agenda": web["index_page"].get("agenda", []),
-                    "colaboradores": web.get("entidades_colaboradoras", [])
+                    "colaboradores": web["index_page"].get("entidades", [])
                 }
             )
 
@@ -185,29 +191,82 @@ class MainApp(tk.Tk):
                 f.write(html_index)
 
             # ============================================================
-            # RENDERIZAR PÁGINA DEL CARRUSEL (si existe)
+            # CARRUSEL
             # ============================================================
             if os.path.exists("geoso2-web-template/templates/carrusel.html"):
                 template_carrusel = env.get_template("carrusel.html")
-
                 html_carrusel = template_carrusel.render(
-                    carrusel = web["index_page"].get("carrusel", [])
+                    carrusel=web["index_page"].get("carrusel", [])
                 )
-
                 with open(os.path.join(output_dir, "carrusel.html"), "w", encoding="utf-8") as f:
                     f.write(html_carrusel)
+
+            # ============================================================
+            # PROYECTOS
+            # ============================================================
+            if os.path.exists("geoso2-web-template/templates/proyectos.html"):
+                template_proyectos = env.get_template("proyectos.html")
+                html_proyectos = template_proyectos.render(
+                    proyectos=web.get("proyectos", {})
+                )
+                with open(os.path.join(output_dir, "proyectos.html"), "w", encoding="utf-8") as f:
+                    f.write(html_proyectos)
+
+            # ============================================================
+            # PUBLICACIONES
+            # ============================================================
+            if os.path.exists("geoso2-web-template/templates/publicaciones.html"):
+                template_publicaciones = env.get_template("publicaciones.html")
+                html_publicaciones = template_publicaciones.render(
+                    publicaciones=web.get("publicaciones", {})
+                )
+                with open(os.path.join(output_dir, "publicaciones.html"), "w", encoding="utf-8") as f:
+                    f.write(html_publicaciones)
+
+            # ============================================================
+            # QUIÉNES SOMOS
+            # ============================================================
+            if os.path.exists("geoso2-web-template/templates/quienes_somos.html"):
+                template_qs = env.get_template("quienes_somos.html")
+                html_qs = template_qs.render(
+                    quienes_somos=web.get("quienes_somos", {})
+                )
+                with open(os.path.join(output_dir, "quienes_somos.html"), "w", encoding="utf-8") as f:
+                    f.write(html_qs)
+
+            # ============================================================
+            # RÁFAGAS
+            # ============================================================
+            if os.path.exists("geoso2-web-template/templates/rafagas.html"):
+                template_rafagas = env.get_template("rafagas.html")
+                html_rafagas = template_rafagas.render(
+                    rafagas=web.get("pagina1", {}).get("rafagas", [])
+                )
+                with open(os.path.join(output_dir, "rafagas.html"), "w", encoding="utf-8") as f:
+                    f.write(html_rafagas)
+
+            # ============================================================
+            # ENTIDADES COLABORADORAS (PÁGINA PROPIA)
+            # ============================================================
+            if os.path.exists("geoso2-web-template/templates/entidades.html"):
+                template_entidades = env.get_template("entidades.html")
+                html_entidades = template_entidades.render(
+                    entidades=web["index_page"].get("entidades", [])
+                )
+                with open(os.path.join(output_dir, "entidades.html"), "w", encoding="utf-8") as f:
+                    f.write(html_entidades)
 
             # ============================================================
             # FIN
             # ============================================================
             messagebox.showinfo("Éxito", "Sitio web generado correctamente.")
 
-            # Abrir index en el navegador
             index_path = os.path.abspath(os.path.join(output_dir, "index.html"))
             webbrowser.open(f"file:///{index_path}")
 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo generar el sitio web:\n{e}")
+
 
 
 

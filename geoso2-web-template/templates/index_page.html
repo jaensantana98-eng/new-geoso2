@@ -118,22 +118,23 @@
 <div class="row text-center">
 
   {% for col in index_page.colaboradores %}
-    <div class="col">
+  <div class="col">
 
-      {% if col.link %}
-        <a href="{{ col.link }}" target="_blank">
-          <img src="{{ col.imagen or '../imput/img/default.png' }}"
-               alt="{{ col.nombre or '' }}"
-               class="img-fluid">
-        </a>
-      {% else %}
+    {% if col.enlace %}
+      <a href="{{ col.enlace }}" target="_blank">
         <img src="{{ col.imagen or '../imput/img/default.png' }}"
              alt="{{ col.nombre or '' }}"
              class="img-fluid">
-      {% endif %}
+      </a>
+    {% else %}
+      <img src="{{ col.imagen or '../imput/img/default.png' }}"
+           alt="{{ col.nombre or '' }}"
+           class="img-fluid">
+    {% endif %}
 
-    </div>
-  {% endfor %}
+  </div>
+{% endfor %}
+
 
 </div>
 

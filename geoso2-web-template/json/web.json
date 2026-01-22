@@ -55,33 +55,6 @@
                     "texto_link": "Ver detalles"
                 }
             ],
-            "colaboradores": [
-                {
-                    "nombre": "Zerca y Lejos",
-                    "imagen": "../imput/img/colaboradores/Original.png",
-                    "link": "https://zercaylejos.org/"
-                },
-                {
-                    "nombre": "Nediage",
-                    "imagen": "../imput/img/colaboradores/nediage_logo_black.png",
-                    "link": "https://nediage.eu/"
-                },
-                {
-                    "nombre": "Left Cape",
-                    "imagen": "../imput/img/colaboradores/left_cape_logo_01.png",
-                    "link": "https://www.leftcape.com/"
-                },
-                {
-                    "nombre": "SRM Consulting",
-                    "imagen": "../imput/img/colaboradores/SRM_logo.png",
-                    "link": "https://srmconsulting.es/"
-                },
-                {
-                    "nombre": "Altitum",
-                    "imagen": "../imput/img/colaboradores/Altitum_horizontal.png",
-                    "link": "https://altitum.com/"
-                }
-            ],
             "footer": {
                 "logo_upm": "https://www.geoso2.es/logos/UPM/UPM-Escudo_con_leyenda.svg",
                 "texto": "Grupo de Investigación Geoespacial y Dinámicas Territoriales para la Sostenibilidad",
@@ -166,7 +139,29 @@
                         "descripcion": "Tesis Doctoral. La participación de los jóvenes en los procesos de planificación urbana en Lisboa, Madrid y Fortaleza ha sido tema central de la presente tesis, cuyos principales objetivos han sido: caracterizar y analizar críticamente las dimensiones más importantes de la participación de jóvenes universitarios en los procesos participativos; aportar características de interés juvenil para un “modelo” de planificación urbana; elaborar directrices para el diseño de actuaciones en un proceso urbano participativo desde la perspectiva de los jóvenes; establecer el alcance de un instrumento urbano participativo reglamentado por el gobierno local entre los jóvenes; determinar si la percepción de los jóvenes universitarios acerca de las acciones del gobierno local tiene influencia en los procesos participativos. Los resultados constatan que es muy baja la participación en los procesos institucionalizados por el gobierno local, en contrapartida es bastante alta en los procesos organizados por los ciudadanos."
                     }
                 ]
-            }
+            },
+            "entidades": [
+                {
+                    "imagen": "../imput/img/colaboradores/Original.png",
+                    "enlace": "https://zercaylejos.org/"
+                },
+                {
+                    "imagen": "../imput/img/colaboradores/nediage_logo_black.png",
+                    "enlace": "https://nediage.eu/"
+                },
+                {
+                    "imagen": "../imput/img/colaboradores/left_cape_logo_01.png",
+                    "enlace": "https://www.leftcape.com/"
+                },
+                {
+                    "imagen": "../imput/img/colaboradores/SRM_logo.png",
+                    "enlace": "https://srmconsulting.es/"
+                },
+                {
+                    "imagen": "../imput/img/colaboradores/Altitum_horizontal.png",
+                    "enlace": "https://altitum.com/"
+                }
+            ]
         },
         "Encabezado": {
             "carrusel": [
@@ -196,30 +191,6 @@
                 }
             ]
         },
-        "Entidades-colaboradoras": {
-            "entidades": [
-                {
-                    "imagen": "../imput/img/colaboradores/zercaylejos/Original.png",
-                    "enlace": "https://zercaylejos.org/"
-                },
-                {
-                    "imagen": "../imput/img/colaboradores/nediage/nediage_logo_black.png",
-                    "enlace": "https://nediage.eu/"
-                },
-                {
-                    "imagen": "../imput/img/colaboradores/left_cape/left_cape_logo_01.png",
-                    "enlace": "https://www.leftcape.com/"
-                },
-                {
-                    "imagen": "../imput/img/colaboradores/SRM/SRM_logo.png",
-                    "enlace": "https://srmconsulting.es/"
-                },
-                {
-                    "imagen": "../imput/img/colaboradores/ALTITUM/Altitum_horizontal.png",
-                    "enlace": "https://altitum.com/"
-                }
-            ]
-        },
         "pagina1": {
             "rafagas": [
                 {
@@ -233,12 +204,6 @@
                     "imagen": "../imput/img/rafagas/pagina2/rafagas2_01.jpg",
                     "titulo": "Ejemplo de visor de temperaturas en la España Peninsular (en pruebas)",
                     "descripcion": "Se trata de un ejemplo de visor para manejar datos ráster en grandes extensiones, en este caso temperaturas medias en la España Peninsular. Los datos que se muestran son ficticios y solo se utilizan para ilustrar la variación de una variable en el espacio."
-                },
-                {
-                    "imagen": "/Users/jesus/Desktop/misc/img1.png",
-                    "titulo": "prueba rafaga 1",
-                    "descripcion": "pruebasdfsdfdsgfdsgdsgdfgsdgdsgvdsfgdfnksdnjdsjdsjkdsjkdsjkdsjdssjdsdjsdjkdsjkdsjkdsjkdsjkdsjksdjksjksdjkdsdsjkdsdjskdjskdsjkdsjkdsjkdsjkdskjhjhjefahjfeshjf\nsdhfdshfhsdjfhidsfhisdfhdsifdfshisdfihfsdhijdfshijsdfhidfhsdjdf",
-                    "link": "google.es"
                 }
             ]
         },

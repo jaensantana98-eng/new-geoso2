@@ -208,7 +208,7 @@ class FormTab(tk.Frame):
         ttk.Label(frm, text="Imagen:").grid(row=0, column=0, sticky="w")
         self.entry_imagen = ttk.Entry(frm)
         self.entry_imagen.grid(row=0, column=1, sticky="ew")
-        ttk.Button(frm, text="Seleccionar", command=self.select_image).grid(row=0, column=2, padx=5)
+        ttk.Button(frm, text="Seleccionar", command=self.select_imagen).grid(row=0, column=2, padx=5)
 
         ttk.Label(frm, text="Título:").grid(row=1, column=0, sticky="nw")
         self.text_titulo = tk.Text(frm, height=3)

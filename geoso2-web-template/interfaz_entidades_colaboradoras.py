@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import json
 import os
+import shutil
 import webbrowser
 from PIL import Image
 
@@ -31,7 +32,7 @@ class EntidadesWindow(tk.Toplevel):
                     datos = json.load(f)
 
                 self.state["entidades"] = datos.get("web", {}) \
-                                               .get("Entidades-colaboradoras", {}) \
+                                               .get("index_page", {}) \
                                                .get("entidades", [])
 
             except Exception as e:
@@ -61,13 +62,21 @@ class EntidadesWindow(tk.Toplevel):
         ruta = "geoso2-web-template/json/web.json"
 
         try:
+            # Cargar JSON completo
             with open(ruta, "r", encoding="utf-8") as f:
                 datos_completos = json.load(f)
 
-            datos_completos.setdefault("web", {})
-            datos_completos["web"].setdefault("Entidades-colaboradoras", {})
-            datos_completos["web"]["Entidades-colaboradoras"]["entidades"] = self.state["entidades"]
+            # Asegurar estructura
+            if "web" not in datos_completos:
+                datos_completos["web"] = {}
 
+            if "index_page" not in datos_completos["web"]:
+                datos_completos["web"]["index_page"] = {}
+
+            # Guardar entidades en la ruta correcta
+            datos_completos["web"]["index_page"]["entidades"] = self.state["entidades"]
+
+            # Guardar JSON completo
             with open(ruta, "w", encoding="utf-8") as f:
                 json.dump(datos_completos, f, indent=4, ensure_ascii=False)
 
@@ -160,20 +169,31 @@ class DatosTab(ttk.Frame):
             messagebox.showerror("Error", f"No se pudo copiar el archivo:\n{e}")
 
     def select_imagen(self):
-        ruta = filedialog.askopenfilename(filetypes=[("Imagen", "*.png;*.jpg;*.jpeg;*.gif")])
+        ruta = filedialog.askopenfilename(
+            filetypes=[("Imagen", "*.png;*.jpg;*.jpeg;*.gif")]
+        )
         if not ruta:
             return
 
         try:
             nombre = os.path.basename(ruta)
-            destino = os.path.join("geoso2-web-template/imput/img/colaboradores", nombre)
 
-            with Image.open(ruta) as img:
-                img = img.convert("RGBA")
-                img.save(destino)
+            # Carpeta destino REAL dentro del proyecto
+            carpeta_destino = os.path.join(
+                "geoso2-web-template", "imput", "img", "colaboradores"
+            )
+            os.makedirs(carpeta_destino, exist_ok=True)
+
+            destino = os.path.join(carpeta_destino, nombre)
+
+            # Copiar la imagen (sin usar rutas absolutas)
+            shutil.copy(ruta, destino)
+
+            # Ruta relativa que irá al JSON
+            ruta_relativa = f"../imput/img/colaboradores/{nombre}"
 
             self.entry_imagen.delete(0, tk.END)
-            self.entry_imagen.insert(0, destino)
+            self.entry_imagen.insert(0, ruta_relativa)
 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo procesar la imagen:\n{e}")
