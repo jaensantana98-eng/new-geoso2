@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import json
 import os
+import shutil
 import datetime
 import webbrowser
 from PIL import Image
@@ -12,201 +13,294 @@ class paginaWindow(tk.Toplevel):
     def __init__(self, mode="create", filepath=None):
         super().__init__()
         self.title("Editor de Página Web")
-        self.geometry("1050x950")
+        self.geometry("1100x950")
 
-        # Aseguramos carpeta de imágenes
-        os.makedirs("data/img", exist_ok=True)
+        # Rutas base
+        self.ruta_web_json = "geoso2-web-template/json/web.json"
+        self.carpeta_imagenes = os.path.join("geoso2-web-template", "imput", "img", "paginas")
+        os.makedirs(os.path.dirname(self.ruta_web_json), exist_ok=True)
+        os.makedirs(self.carpeta_imagenes, exist_ok=True)
 
-        # Estado inicial
+        # Estado de la página actual
         self.state = {
+            "id": None,
             "portada": "",
             "titulo": "",
-            "cuerpo": [],   # lista de bloques texto+imagen+enlace
+            "cuerpo": [],
             "autor": "",
             "fecha": "",
         }
 
+        # Interfaz
+        self._build_ui()
+
+        # Si algún día usas mode="edit" con filepath específico, aquí podrías cargar
         if mode == "edit" and filepath:
-            try:
-                with open(filepath, "r", encoding="utf-8") as f:
-                    datos = json.load(f)
-                # Permitimos que venga tal cual o con alguna estructura similar
-                if isinstance(datos, dict):
-                    self.state.update(datos)
-            except Exception as e:
-                messagebox.showerror("Error", f"No se pudo cargar el JSON:\n{e}")
+            self.load_page_from_file(filepath)
 
-        # Notebook
-        self.notebook = ttk.Notebook(self)
-        self.notebook.pack(fill="both", expand=True)
+    # ============================================================
+    #   UI
+    # ============================================================
+    def _build_ui(self):
+        # DATOS
+        frm_datos = ttk.LabelFrame(self, text="Datos")
+        frm_datos.pack(fill="x", padx=12, pady=10)
 
-        # Pestañas
-        self.tab_datos = DatosTab(self.notebook, self)
-        self.tab_cuerpo = CuerpoTab(self.notebook, self)
-        self.tab_preview = PreviewTab(self.notebook, self)
-
-        self.notebook.add(self.tab_datos, text="Datos")
-        self.notebook.add(self.tab_cuerpo, text="Cuerpo")
-        self.notebook.add(self.tab_preview, text="Preview y Generar")
-
-        if mode == "edit":
-            self.tab_datos.refresh_fields()
-            self.tab_cuerpo.refresh_table()
-            self.tab_preview.update_preview()
-
-
-class DatosTab(ttk.Frame):
-    def __init__(self, parent, controller):
-        super().__init__(parent)
-        self.controller = controller
-
-        frm = ttk.Frame(self)
-        frm.pack(fill="both", expand=True, padx=10, pady=10)
-
-        ttk.Label(frm, text="Portada:").grid(row=0, column=0, sticky="w", pady=6)
-        self.entry_portada = ttk.Entry(frm)
+        ttk.Label(frm_datos, text="Portada:").grid(row=0, column=0, sticky="w", pady=6)
+        self.entry_portada = ttk.Entry(frm_datos)
         self.entry_portada.grid(row=0, column=1, sticky="ew", pady=6)
-        ttk.Button(frm, text="Buscar", command=self.select_portada).grid(row=0, column=2, padx=8)
+        ttk.Button(frm_datos, text="Buscar", command=self.select_portada).grid(row=0, column=2, padx=8)
 
-        ttk.Label(frm, text="Título:").grid(row=2, column=0, sticky="w", pady=6)
-        self.texto = tk.Text(frm, height=4, wrap="word")
-        self.texto.grid(row=2, column=1, sticky="ew", pady=6)
+        ttk.Label(frm_datos, text="Título:").grid(row=1, column=0, sticky="nw", pady=6)
+        self.texto_titulo = tk.Text(frm_datos, height=4, wrap="word")
+        self.texto_titulo.grid(row=1, column=1, sticky="ew", pady=6)
 
-        ttk.Label(frm, text="Autor:").grid(row=3, column=0, sticky="w", pady=6)
-        self.entry_autor = ttk.Entry(frm)
-        self.entry_autor.grid(row=3, column=1, sticky="ew", pady=6)
+        ttk.Label(frm_datos, text="Autor:").grid(row=2, column=0, sticky="w", pady=6)
+        self.entry_autor = ttk.Entry(frm_datos)
+        self.entry_autor.grid(row=2, column=1, sticky="ew", pady=6)
 
-        frm.columnconfigure(1, weight=1)
+        frm_datos.columnconfigure(1, weight=1)
 
-    def refresh_fields(self):
-        self.entry_portada.delete(0, tk.END)
-        self.entry_portada.insert(0, self.controller.state.get("portada", ""))
+        # CUERPO
+        frm_cuerpo = ttk.LabelFrame(self, text="Cuerpo de la página")
+        frm_cuerpo.pack(fill="both", expand=True, padx=12, pady=10)
 
-        self.texto.delete("1.0", tk.END)
-        self.texto.insert("1.0", self.controller.state.get("titulo", ""))
+        ttk.Label(frm_cuerpo, text="Párrafo:").grid(row=0, column=0, sticky="nw")
+        self.texto_parrafo = tk.Text(frm_cuerpo, height=6, wrap="word")
+        self.texto_parrafo.grid(row=0, column=1, sticky="ew", pady=6)
 
-        self.entry_autor.delete(0, tk.END)
-        self.entry_autor.insert(0, self.controller.state.get("autor", ""))
-
-    def select_portada(self):
-        ruta = filedialog.askopenfilename(
-            filetypes=[("Imagen", "*.png;*.jpg;*.jpeg;*.gif")]
-        )
-
-        if not ruta:
-            return
-
-        try:
-            nombre = os.path.basename(ruta)
-            destino = os.path.join("data/img", nombre)
-
-            with Image.open(ruta) as img:
-                img = img.convert("RGB")
-                img.thumbnail((300, 300), Image.LANCZOS)
-
-                canvas = Image.new("RGB", (300, 300), "white")
-                x = (300 - img.width) // 2
-                y = (300 - img.height) // 2
-                canvas.paste(img, (x, y))
-
-                canvas.save(destino, quality=90)
-
-            self.entry_portada.delete(0, tk.END)
-            self.entry_portada.insert(0, destino)
-            self.controller.state["portada"] = destino
-
-        except Exception as e:
-            messagebox.showerror(
-                "Error",
-                f"No se pudo procesar la imagen de portada:\n{e}"
-            )
-
-    def update_state(self):
-        self.controller.state["portada"] = self.entry_portada.get().strip()
-        self.controller.state["titulo"] = self.texto.get("1.0", tk.END).strip()
-        self.controller.state["autor"] = self.entry_autor.get().strip()
-
-
-class CuerpoTab(ttk.Frame):
-    def __init__(self, parent, controller):
-        super().__init__(parent)
-        self.controller = controller
-
-        frm = ttk.Frame(self)
-        frm.pack(fill="both", expand=True, padx=10, pady=10)
-
-        ttk.Label(frm, text="párrafo:").grid(row=0, column=0, sticky="w", pady=6)
-        self.texto = tk.Text(frm, height=10, wrap="word")
-        self.texto.grid(row=0, column=1, sticky="ew", pady=6)
-
-        ttk.Label(frm, text="Enlace:").grid(row=1, column=0, sticky="w", pady=6)
-        self.entry_enlace = ttk.Entry(frm)
+        ttk.Label(frm_cuerpo, text="Enlace:").grid(row=1, column=0, sticky="w")
+        self.entry_enlace = ttk.Entry(frm_cuerpo)
         self.entry_enlace.grid(row=1, column=1, sticky="ew", pady=6)
-        ttk.Button(frm, text="Probar enlace", command=self.probar_enlace).grid(row=1, column=2, padx=8)
+        ttk.Button(frm_cuerpo, text="Probar", command=self.probar_enlace).grid(row=1, column=2, padx=8)
 
-        ttk.Label(frm, text="Texto del enlace:").grid(row=2, column=0, sticky="w", pady=6)
-        self.entry_texto_del_enlace = ttk.Entry(frm)
-        self.entry_texto_del_enlace.grid(row=2, column=1, sticky="ew", pady=6)
+        ttk.Label(frm_cuerpo, text="Texto del enlace:").grid(row=2, column=0, sticky="w")
+        self.entry_texto_enlace = ttk.Entry(frm_cuerpo)
+        self.entry_texto_enlace.grid(row=2, column=1, sticky="ew", pady=6)
 
-        ttk.Label(frm, text="Imagen:").grid(row=3, column=0, sticky="w", pady=6)
-        self.entry_imagen = ttk.Entry(frm)
+        ttk.Label(frm_cuerpo, text="Imagen:").grid(row=3, column=0, sticky="w")
+        self.entry_imagen = ttk.Entry(frm_cuerpo)
         self.entry_imagen.grid(row=3, column=1, sticky="ew", pady=6)
-        ttk.Button(frm, text="Buscar", command=self.select_imagen).grid(row=3, column=2, padx=8)
+        ttk.Button(frm_cuerpo, text="Buscar", command=self.select_imagen).grid(row=3, column=2, padx=8)
 
-        ttk.Label(frm, text="Pie de imagen:").grid(row=4, column=0, sticky="w", pady=6)
-        self.texto_Pie_de_imagen = tk.Text(frm, height=4, wrap="word")
-        self.texto_Pie_de_imagen.grid(row=4, column=1, sticky="ew", pady=6)
+        ttk.Label(frm_cuerpo, text="Pie de imagen:").grid(row=4, column=0, sticky="nw")
+        self.texto_pie = tk.Text(frm_cuerpo, height=4, wrap="word")
+        self.texto_pie.grid(row=4, column=1, sticky="ew", pady=6)
 
-        btn_frame = ttk.Frame(frm)
-        btn_frame.grid(row=5, column=0, columnspan=3, pady=10)
-        ttk.Button(btn_frame, text="Añadir", command=self.add_block).pack(side="left", padx=5)
-        ttk.Button(btn_frame, text="Eliminar", command=self.delete_block).pack(side="left", padx=5)
-        ttk.Button(btn_frame, text="Editar", command=self.edit_block).pack(side="left", padx=5)
-        ttk.Button(btn_frame, text="Subir", command=self.move_up).pack(side="left", padx=5)
-        ttk.Button(btn_frame, text="Bajar", command=self.move_down).pack(side="left", padx=5)
+        btns = ttk.Frame(frm_cuerpo)
+        btns.grid(row=5, column=0, columnspan=3, pady=10)
+        ttk.Button(btns, text="Añadir", command=self.add_block).pack(side="left", padx=5)
+        ttk.Button(btns, text="Editar", command=self.edit_block).pack(side="left", padx=5)
+        ttk.Button(btns, text="Eliminar", command=self.delete_block).pack(side="left", padx=5)
+        ttk.Button(btns, text="Subir", command=self.move_up).pack(side="left", padx=5)
+        ttk.Button(btns, text="Bajar", command=self.move_down).pack(side="left", padx=5)
 
         self.tree = ttk.Treeview(
-            frm,
-            columns=("Párrafo", "Imagen", "Pie de imagen", "Enlace", "Texto del enlace"),
+            frm_cuerpo,
+            columns=("Párrafo", "Imagen", "Pie", "Enlace", "Texto enlace"),
             show="headings",
             height=8
         )
         self.tree.grid(row=6, column=0, columnspan=3, sticky="nsew")
         self.tree.heading("Párrafo", text="Párrafo")
         self.tree.heading("Imagen", text="Imagen")
-        self.tree.heading("Pie de imagen", text="Pie de Imagen")
+        self.tree.heading("Pie", text="Pie de imagen")
         self.tree.heading("Enlace", text="Enlace")
-        self.tree.heading("Texto del enlace", text="Texto del Enlace")
+        self.tree.heading("Texto enlace", text="Texto del enlace")
 
-        frm.columnconfigure(1, weight=1)
-        frm.rowconfigure(6, weight=1)
+        frm_cuerpo.columnconfigure(1, weight=1)
+        frm_cuerpo.rowconfigure(6, weight=1)
 
+        # OPCIONES
+        frm_opciones = ttk.LabelFrame(self, text="Opciones")
+        frm_opciones.pack(fill="x", padx=12, pady=10)
+
+        ttk.Button(frm_opciones, text="Guardar", command=self.save_json).pack(side="left", padx=5)
+        ttk.Button(frm_opciones, text="Instrucciones", command=self.show_instructions).pack(side="left", padx=5)
+        ttk.Button(frm_opciones, text="Ver páginas creadas", command=self.show_pages_window).pack(side="left", padx=5)
+        ttk.Button(frm_opciones, text="Previsualizar en HTML", command=self.preview_web).pack(side="right", padx=5)
+
+    # ============================================================
+    #   UTILIDADES JSON web.json
+    # ============================================================
+    def _load_web_data(self):
+        if not os.path.exists(self.ruta_web_json):
+            return {"web": {"paginas": []}}
+        try:
+            with open(self.ruta_web_json, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            if "web" not in data:
+                data["web"] = {}
+            if "paginas" not in data["web"]:
+                data["web"]["paginas"] = []
+            return data
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo leer web.json:\n{e}")
+            return {"web": {"paginas": []}}
+
+    def _save_web_data(self, data):
+        try:
+            with open(self.ruta_web_json, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=4, ensure_ascii=False)
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo guardar web.json:\n{e}")
+
+    def _generate_new_id(self, paginas):
+        max_num = 0
+        for p in paginas:
+            pid = p.get("id", "")
+            if pid.startswith("pagina_"):
+                try:
+                    num = int(pid.split("_")[1])
+                    if num > max_num:
+                        max_num = num
+                except Exception:
+                    continue
+        nuevo = max_num + 1
+        return f"pagina_{nuevo:03d}"
+
+    # ============================================================
+    #   CARGA DESDE ARCHIVO (si algún día lo usas)
+    # ============================================================
+    def load_page_from_file(self, filepath):
+        try:
+            with open(filepath, "r", encoding="utf-8") as f:
+                datos = json.load(f)
+            self.state.update(datos)
+            self.refresh_fields()
+            self.refresh_table()
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo cargar la página:\n{e}")
+
+    # ============================================================
+    #   REFRESCAR CAMPOS / ESTADO
+    # ============================================================
+    def refresh_fields(self):
+        self.entry_portada.delete(0, tk.END)
+        self.entry_portada.insert(0, self.state.get("portada", ""))
+
+        self.texto_titulo.delete("1.0", tk.END)
+        self.texto_titulo.insert("1.0", self.state.get("titulo", ""))
+
+        self.entry_autor.delete(0, tk.END)
+        self.entry_autor.insert(0, self.state.get("autor", ""))
+
+    def update_state(self):
+        self.state["portada"] = self.entry_portada.get().strip()
+        self.state["titulo"] = self.texto_titulo.get("1.0", tk.END).strip()
+        self.state["autor"] = self.entry_autor.get().strip()
+
+    # ============================================================
+    #   IMÁGENES
+    # ============================================================
+    def select_portada(self):
+        ruta = filedialog.askopenfilename(
+            filetypes=[("Imagen", "*.png;*.jpg;*.jpeg;*.gif")]
+        )
+        if not ruta:
+            return
+        try:
+            nombre = os.path.basename(ruta)
+            destino = os.path.join(self.carpeta_imagenes, nombre)
+
+            with Image.open(ruta) as img:
+                img = img.convert("RGB")
+                img.thumbnail((300, 300), Image.LANCZOS)
+                canvas = Image.new("RGB", (300, 300), "white")
+                x = (300 - img.width) // 2
+                y = (300 - img.height) // 2
+                canvas.paste(img, (x, y))
+                canvas.save(destino, quality=90)
+
+            ruta_rel = f"../imput/img/paginas/{nombre}"
+            self.entry_portada.delete(0, tk.END)
+            self.entry_portada.insert(0, ruta_rel)
+            self.state["portada"] = ruta_rel
+
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo procesar la imagen:\n{e}")
+
+    def select_imagen(self):
+        ruta = filedialog.askopenfilename(
+            filetypes=[("Imagen", "*.png;*.jpg;*.jpeg;*.gif")]
+        )
+        if not ruta:
+            return
+        try:
+            nombre = os.path.basename(ruta)
+            destino = os.path.join(self.carpeta_imagenes, nombre)
+
+            with Image.open(ruta) as img:
+                img = img.convert("RGB")
+                img.thumbnail((300, 300), Image.LANCZOS)
+                canvas = Image.new("RGB", (300, 300), "white")
+                x = (300 - img.width) // 2
+                y = (300 - img.height) // 2
+                canvas.paste(img, (x, y))
+                canvas.save(destino, quality=90)
+
+            ruta_rel = f"../imput/img/paginas/{nombre}"
+            self.entry_imagen.delete(0, tk.END)
+            self.entry_imagen.insert(0, ruta_rel)
+
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo procesar la imagen:\n{e}")
+
+    # ============================================================
+    #   CUERPO
+    # ============================================================
     def add_block(self):
         bloque = {
-            "texto": self.texto.get("1.0", tk.END).strip(),
+            "texto": self.texto_parrafo.get("1.0", tk.END).strip(),
             "imagen": self.entry_imagen.get().strip(),
-            "pie_imagen": self.texto_Pie_de_imagen.get("1.0", tk.END).strip(),
+            "pie_imagen": self.texto_pie.get("1.0", tk.END).strip(),
             "enlace": self.entry_enlace.get().strip(),
-            "texto_enlace": self.entry_texto_del_enlace.get().strip()
+            "texto_enlace": self.entry_texto_enlace.get().strip()
         }
         if not bloque["texto"] and not bloque["imagen"]:
             messagebox.showwarning("Aviso", "Debes añadir al menos texto o imagen.")
             return
-        self.controller.state["cuerpo"].append(bloque)
+
+        self.state["cuerpo"].append(bloque)
         self.refresh_table()
 
-        self.texto.delete("1.0", tk.END)
+        self.texto_parrafo.delete("1.0", tk.END)
         self.entry_imagen.delete(0, tk.END)
         self.entry_enlace.delete(0, tk.END)
-        self.entry_texto_del_enlace.delete(0, tk.END)
-        self.texto_Pie_de_imagen.delete("1.0", tk.END)
+        self.entry_texto_enlace.delete(0, tk.END)
+        self.texto_pie.delete("1.0", tk.END)
 
     def delete_block(self):
         selected = self.tree.selection()
         if not selected:
             return
         index = self.tree.index(selected[0])
-        del self.controller.state["cuerpo"][index]
+        del self.state["cuerpo"][index]
+        self.refresh_table()
+
+    def edit_block(self):
+        selected = self.tree.selection()
+        if not selected:
+            return
+        index = self.tree.index(selected[0])
+        bloque = self.state["cuerpo"][index]
+
+        self.texto_parrafo.delete("1.0", tk.END)
+        self.texto_parrafo.insert("1.0", bloque.get("texto", ""))
+
+        self.entry_imagen.delete(0, tk.END)
+        self.entry_imagen.insert(0, bloque.get("imagen", ""))
+
+        self.texto_pie.delete("1.0", tk.END)
+        self.texto_pie.insert("1.0", bloque.get("pie_imagen", ""))
+
+        self.entry_enlace.delete(0, tk.END)
+        self.entry_enlace.insert(0, bloque.get("enlace", ""))
+
+        self.entry_texto_enlace.delete(0, tk.END)
+        self.entry_texto_enlace.insert(0, bloque.get("texto_enlace", ""))
+
+        del self.state["cuerpo"][index]
         self.refresh_table()
 
     def move_up(self):
@@ -215,7 +309,7 @@ class CuerpoTab(ttk.Frame):
             return
         index = self.tree.index(selected[0])
         if index > 0:
-            arr = self.controller.state["cuerpo"]
+            arr = self.state["cuerpo"]
             arr[index - 1], arr[index] = arr[index], arr[index - 1]
             self.refresh_table()
             self.tree.selection_set(self.tree.get_children()[index - 1])
@@ -225,37 +319,16 @@ class CuerpoTab(ttk.Frame):
         if not selected:
             return
         index = self.tree.index(selected[0])
-        arr = self.controller.state["cuerpo"]
+        arr = self.state["cuerpo"]
         if index < len(arr) - 1:
             arr[index + 1], arr[index] = arr[index], arr[index + 1]
             self.refresh_table()
             self.tree.selection_set(self.tree.get_children()[index + 1])
 
-    def edit_block(self):
-        selected = self.tree.selection()
-        if not selected:
-            return
-        index = self.tree.index(selected[0])
-        bloque = self.controller.state["cuerpo"][index]
-
-        self.texto.delete("1.0", tk.END)
-        self.texto.insert("1.0", bloque.get("texto", ""))
-        self.entry_imagen.delete(0, tk.END)
-        self.entry_imagen.insert(0, bloque.get("imagen", ""))
-        self.texto_Pie_de_imagen.delete("1.0", tk.END)
-        self.texto_Pie_de_imagen.insert("1.0", bloque.get("pie_imagen", ""))
-        self.entry_enlace.delete(0, tk.END)
-        self.entry_enlace.insert(0, bloque.get("enlace", ""))
-        self.entry_texto_del_enlace.delete(0, tk.END)
-        self.entry_texto_del_enlace.insert(0, bloque.get("texto_enlace", ""))
-
-        del self.controller.state["cuerpo"][index]
-        self.refresh_table()
-
     def refresh_table(self):
         for item in self.tree.get_children():
             self.tree.delete(item)
-        for bloque in self.controller.state["cuerpo"]:
+        for bloque in self.state["cuerpo"]:
             self.tree.insert(
                 "",
                 tk.END,
@@ -268,45 +341,14 @@ class CuerpoTab(ttk.Frame):
                 )
             )
 
-    def select_imagen(self):
-        ruta = filedialog.askopenfilename(
-            filetypes=[("Imagen", "*.png;*.jpg;*.jpeg;*.gif")]
-        )
-
-        if not ruta:
-            return
-
-        try:
-            nombre = os.path.basename(ruta)
-            destino = os.path.join("data/img", nombre)
-
-            with Image.open(ruta) as img:
-                img = img.convert("RGB")
-                img.thumbnail((300, 300), Image.LANCZOS)
-
-                canvas = Image.new("RGB", (300, 300), "white")
-                x = (300 - img.width) // 2
-                y = (300 - img.height) // 2
-                canvas.paste(img, (x, y))
-
-                canvas.save(destino, quality=90)
-
-            self.entry_imagen.delete(0, tk.END)
-            self.entry_imagen.insert(0, destino)
-
-        except Exception as e:
-            messagebox.showerror(
-                "Error",
-                f"No se pudo procesar la imagen:\n{e}"
-            )
-
+    # ============================================================
+    #   ENLACES
+    # ============================================================
     def probar_enlace(self):
         url = self.entry_enlace.get().strip()
-
         if not url:
             messagebox.showwarning("Aviso", "No hay ninguna URL para probar.")
             return
-
         try:
             if url.endswith(".html"):
                 ruta_absoluta = os.path.abspath(url)
@@ -321,75 +363,70 @@ class CuerpoTab(ttk.Frame):
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo abrir el enlace:\n{e}")
 
-
-class PreviewTab(tk.Frame):
-    def __init__(self, parent, controller):
-        super().__init__(parent)
-        self.controller = controller
-
-        toolbar = ttk.Frame(self)
-        toolbar.pack(fill="x", padx=16, pady=10)
-
-        ttk.Button(toolbar, text="Actualizar preview", command=self.update_preview).pack(side="left")
-        ttk.Button(toolbar, text="Guardar JSON", command=self.save_json).pack(side="left", padx=8)
-        ttk.Button(toolbar, text="Previsualizar en web", command=self.preview_web).pack(side="left", padx=8)
-        ttk.Button(toolbar, text="Generar HTML", command=self.generate_html).pack(side="right", padx=8)
-        ttk.Button(toolbar, text="Abrir Geoso2.es", command=self.open_output_html).pack(side="right", padx=8)
-
-        self.text_area = tk.Text(self, wrap="word") 
-        self.text_area.pack(fill="both", expand=True, padx=16, pady=10)
-
-    def update_preview(self):
-        self.controller.tab_datos.update_state()
-        datos = self.controller.state.copy()
-        datos["fecha"] = datetime.datetime.now().strftime("%d-%m-%Y")
-        self.text_area.delete("1.0", tk.END)
-        self.text_area.insert(tk.END, json.dumps(datos, indent=4, ensure_ascii=False))
-
+    # ============================================================
+    #   GUARDAR EN web.json
+    # ============================================================
     def save_json(self):
-        self.controller.tab_datos.update_state()
-        datos = self.controller.state.copy()
+        self.update_state()
+        datos = self.state.copy()
         datos["fecha"] = datetime.datetime.now().strftime("%d-%m-%Y")
-        ruta = filedialog.asksaveasfilename(
-            defaultextension=".json",
-            filetypes=[("JSON", "*.json")],
-            initialdir="geoso2-web-template/json"
-        )
-        if ruta:
-            try:
-                with open(ruta, "w", encoding="utf-8") as f:
-                    json.dump(datos, f, indent=4, ensure_ascii=False)
-                messagebox.showinfo("Éxito", "El JSON se ha guardado correctamente.")
-            except Exception as e:
-                messagebox.showerror("Error", f"No se pudo guardar el JSON:\n{e}")
 
-    def _ajustar_ruta_imagen(self, ruta):
-        ruta = ruta.replace("\\", "/")
-        if "data/img" in ruta:
-            return "../" + ruta.split("data/")[1]
-        return ruta
+        if not datos["titulo"].strip():
+            messagebox.showerror("Error", "La página debe tener un título.")
+            return
+
+        data = self._load_web_data()
+        paginas = data["web"]["paginas"]
+
+        if datos.get("id"):
+            # Editando una página existente
+            encontrado = False
+            for i, p in enumerate(paginas):
+                if p.get("id") == datos["id"]:
+                    paginas[i] = datos
+                    encontrado = True
+                    break
+            if not encontrado:
+                paginas.append(datos)
+        else:
+            # Nueva página: generar ID
+            nuevo_id = self._generate_new_id(paginas)
+            datos["id"] = nuevo_id
+            self.state["id"] = nuevo_id
+            paginas.append(datos)
+
+        data["web"]["paginas"] = paginas
+        self._save_web_data(data)
+        messagebox.showinfo("Guardado", "Página guardada en web.json")
+
+    # ============================================================
+    #   PREVIEW HTML
+    # ============================================================
 
     def preview_web(self):
-        # Actualizamos estado
-        self.controller.tab_datos.update_state()
-        datos = self.controller.state.copy()
+        self.update_state()
+        datos = self.state.copy()
         datos["fecha"] = datetime.datetime.now().strftime("%d-%m-%Y")
 
-        # Ajustar rutas de portada y de imágenes del cuerpo
+        # Portada con ruta absoluta dentro del proyecto web
         portada = datos.get("portada", "")
-        datos["portada"] = self._ajustar_ruta_imagen(portada) if portada else ""
+        if portada:
+            datos["portada"] = portada.replace("\\", "/")
+        else:
+            datos["portada"] = ""
 
+        # Ajustar rutas de imágenes del cuerpo
         cuerpo_ajustado = []
         for bloque in datos.get("cuerpo", []):
             nuevo = bloque.copy()
             if nuevo.get("imagen"):
-                nuevo["imagen"] = self._ajustar_ruta_imagen(nuevo["imagen"])
+                nuevo["imagen"] = nuevo["imagen"].replace("\\", "/")
             cuerpo_ajustado.append(nuevo)
+
         datos["cuerpo"] = cuerpo_ajustado
 
         try:
             env = Environment(loader=FileSystemLoader("geoso2-web-template/templates"))
-            # Usa aquí el nombre real de tu plantilla, por ejemplo "pagina.html"
             template = env.get_template("pagina.html")
             html = template.render(pagina=datos)
 
@@ -404,42 +441,87 @@ class PreviewTab(tk.Frame):
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo generar el preview HTML:\n{e}")
 
-    def generate_html(self):
-        self.controller.tab_datos.update_state()
-        datos = self.controller.state.copy()
-        datos["fecha"] = datetime.datetime.now().strftime("%d-%m-%Y")
 
-        # No ajustamos rutas aquí: la plantilla final se sirve desde /output
-        try:
-            env = Environment(loader=FileSystemLoader("geoso2-web-template/templates"))
-            # Misma plantilla que en preview
-            template = env.get_template("pagina.html")
-            html_output = template.render(pagina=datos)
+    # ============================================================
+    #   VENTANA DE PÁGINAS
+    # ============================================================
+    def show_pages_window(self):
+        data = self._load_web_data()
+        paginas = data["web"]["paginas"]
 
-            output_dir = "geoso2-web-template/output"
-            os.makedirs(output_dir, exist_ok=True)
-            output_path = os.path.join(output_dir, "pagina.html")
+        win = tk.Toplevel(self)
+        win.title("Páginas creadas")
+        win.geometry("700x400")
 
-            with open(output_path, "w", encoding="utf-8") as f:
-                f.write(html_output)
+        tree = ttk.Treeview(
+            win,
+            columns=("ID", "Título", "Autor", "Fecha"),
+            show="headings",
+            height=12
+        )
+        tree.pack(fill="both", expand=True, padx=10, pady=10)
 
-            messagebox.showinfo("Éxito", f"Archivo HTML generado en:\n{output_path}")
-        except Exception as e:
-            messagebox.showerror("Error", f"No se pudo generar el archivo HTML de página:\n{e}")
+        tree.heading("ID", text="ID")
+        tree.heading("Título", text="Título")
+        tree.heading("Autor", text="Autor")
+        tree.heading("Fecha", text="Fecha")
 
-    def open_output_html(self):
-        output_path = "geoso2-web-template/output/index.html"
-        ruta_absoluta = os.path.abspath(output_path)
-
-        if not os.path.exists(ruta_absoluta):
-            messagebox.showerror(
-                "Error",
-                f"No se encontró el archivo HTML final:\n{ruta_absoluta}\n\nGenera el HTML primero."
+        for p in paginas:
+            tree.insert(
+                "",
+                tk.END,
+                values=(
+                    p.get("id", ""),
+                    p.get("titulo", ""),
+                    p.get("autor", ""),
+                    p.get("fecha", "")
+                )
             )
-            return
 
-        try:
-            webbrowser.open_new_tab(f"file:///{ruta_absoluta}")
-        except Exception as e:
-            messagebox.showerror("Error", f"No se pudo abrir el HTML:\n{e}")
+        btn_frame = ttk.Frame(win)
+        btn_frame.pack(fill="x", padx=10, pady=5)
 
+        def editar():
+            selected = tree.selection()
+            if not selected:
+                return
+            index = tree.index(selected[0])
+            pagina = paginas[index]
+            self.state = pagina.copy()
+            self.refresh_fields()
+            self.refresh_table()
+            win.destroy()
+
+        def borrar():
+            selected = tree.selection()
+            if not selected:
+                return
+            index = tree.index(selected[0])
+            pagina = paginas[index]
+            resp = messagebox.askyesno(
+                "Confirmar borrado",
+                f"¿Seguro que quieres borrar la página:\n{pagina.get('titulo', '')}?"
+            )
+            if not resp:
+                return
+            del paginas[index]
+            data["web"]["paginas"] = paginas
+            self._save_web_data(data)
+            tree.delete(selected[0])
+
+        ttk.Button(btn_frame, text="Editar", command=editar).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Borrar", command=borrar).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Cerrar", command=win.destroy).pack(side="right", padx=5)
+
+    # ============================================================
+    #   INSTRUCCIONES
+    # ============================================================
+    def show_instructions(self):
+        messagebox.showinfo(
+            "Instrucciones",
+            "1. Rellena los datos generales (portada, título, autor).\n"
+            "2. Añade bloques al cuerpo (texto, imagen, enlaces).\n"
+            "3. Pulsa 'Guardar' para añadir o actualizar la página en web.json.\n"
+            "4. Usa 'Ver páginas creadas' para editar o borrar páginas.\n"
+            "5. Usa 'Previsualizar en HTML' para ver el resultado en el navegador."
+        )

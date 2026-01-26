@@ -269,6 +269,24 @@ class MainApp(tk.Tk):
                     f.write(html_entidades)
 
             # ============================================================
+            # PÁGINAS WEB (cada página individual)
+            # ============================================================
+            if os.path.exists("geoso2-web-template/templates/pagina.html"):
+                template_pagina = env.get_template("pagina.html")
+
+                paginas = web.get("paginas", [])
+
+                for pagina in paginas:
+                    # Renderizar HTML de la página
+                    html_pagina = template_pagina.render(pagina=pagina)
+
+                    # Nombre del archivo basado en el ID
+                    nombre_archivo = f"{pagina['id']}.html"
+
+                    with open(os.path.join(output_dir, nombre_archivo), "w", encoding="utf-8") as f:
+                        f.write(html_pagina)
+
+            # ============================================================
             # FIN
             # ============================================================
             messagebox.showinfo("Éxito", "Sitio web generado correctamente.")
