@@ -205,10 +205,10 @@ class paginaWindow(tk.Toplevel):
 
             with Image.open(ruta) as img:
                 img = img.convert("RGB")
-                img.thumbnail((300, 300), Image.LANCZOS)
-                canvas = Image.new("RGB", (300, 300), "white")
-                x = (300 - img.width) // 2
-                y = (300 - img.height) // 2
+                img.thumbnail((615, 350), Image.LANCZOS)
+                canvas = Image.new("RGB", (615, 350), "white")
+                x = (615 - img.width) // 2
+                y = (350 - img.height) // 2
                 canvas.paste(img, (x, y))
                 canvas.save(destino, quality=90)
 
@@ -232,10 +232,10 @@ class paginaWindow(tk.Toplevel):
 
             with Image.open(ruta) as img:
                 img = img.convert("RGB")
-                img.thumbnail((300, 300), Image.LANCZOS)
-                canvas = Image.new("RGB", (300, 300), "white")
-                x = (300 - img.width) // 2
-                y = (300 - img.height) // 2
+                img.thumbnail((615, 350), Image.LANCZOS)
+                canvas = Image.new("RGB", (615, 350), "white")
+                x = (615 - img.width) // 2
+                y = (350 - img.height) // 2
                 canvas.paste(img, (x, y))
                 canvas.save(destino, quality=90)
 
