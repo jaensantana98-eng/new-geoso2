@@ -287,6 +287,16 @@ class MainApp(tk.Tk):
                         f.write(html_pagina)
 
             # ============================================================
+            # LIMPIAR PÁGINAS ANTIGUAS DEL OUTPUT
+            # ============================================================
+            paginas_json = {p["id"] + ".html" for p in web.get("paginas", [])}
+
+            for archivo in os.listdir(output_dir):
+                if archivo.startswith("pagina_") and archivo.endswith(".html"):
+                    if archivo not in paginas_json:
+                        os.remove(os.path.join(output_dir, archivo))
+
+            # ============================================================
             # FIN
             # ============================================================
             messagebox.showinfo("Éxito", "Sitio web generado correctamente.")
