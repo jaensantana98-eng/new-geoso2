@@ -104,20 +104,17 @@ class DatosTab(tk.Frame):
         self.entry_imagen.grid(row=0, column=1, sticky="ew", pady=4)
         ttk.Button(frm, text="Buscar", command=self.select_imagen).grid(row=0, column=2, padx=6)
 
-        ttk.Label(frm, text="Evento Nº:").grid(row=1, column=0, sticky="w", pady=4)
-        self.entry_alt = ttk.Entry(frm)
-        self.entry_alt.grid(row=1, column=1, sticky="ew", pady=4)
 
-        ttk.Label(frm, text="Título del evento:").grid(row=2, column=0, sticky="w", pady=4)
+        ttk.Label(frm, text="Título del evento:").grid(row=1, column=0, sticky="w", pady=4)
         self.text_titulo = tk.Text(frm, wrap="word", height=2)
-        self.text_titulo.grid(row=2, column=1, sticky="ew", pady=4)
+        self.text_titulo.grid(row=1, column=1, sticky="ew", pady=4)
 
         # -----------------------------
         # DESCRIPCIÓN
         # -----------------------------
-        ttk.Label(frm, text="Descripción:").grid(row=3, column=0, sticky="nw", pady=4)
+        ttk.Label(frm, text="Descripción:").grid(row=2, column=0, sticky="nw", pady=4)
         desc_frame = ttk.Frame(frm)
-        desc_frame.grid(row=3, column=1, sticky="ew", pady=4)
+        desc_frame.grid(row=2, column=1, sticky="ew", pady=4)
 
         self.text_descripcion = tk.Text(desc_frame, wrap="word", height=4)
         self.text_descripcion.pack(side="left", fill="both", expand=True)
@@ -129,30 +126,29 @@ class DatosTab(tk.Frame):
         # -----------------------------
         # CAMPOS INFERIORES
         # -----------------------------
-        ttk.Label(frm, text="Fecha:").grid(row=4, column=0, sticky="w", pady=4)
+        ttk.Label(frm, text="Fecha:").grid(row=3, column=0, sticky="w", pady=4)
         self.entry_fecha = ttk.Entry(frm)
-        self.entry_fecha.grid(row=4, column=1, sticky="ew", pady=4)
+        self.entry_fecha.grid(row=3, column=1, sticky="ew", pady=4)
 
-        ttk.Label(frm, text="Hora:").grid(row=5, column=0, sticky="w", pady=4)
+        ttk.Label(frm, text="Hora:").grid(row=4, column=0, sticky="w", pady=4)
         self.entry_hora = ttk.Entry(frm)
-        self.entry_hora.grid(row=5, column=1, sticky="ew", pady=4)
-
-        ttk.Label(frm, text="Lugar:").grid(row=6, column=0, sticky="w", pady=4)
+        self.entry_hora.grid(row=4, column=1, sticky="ew", pady=4)
+        ttk.Label(frm, text="Lugar:").grid(row=5, column=0, sticky="w", pady=4)
         self.entry_lugar = ttk.Entry(frm)
-        self.entry_lugar.grid(row=6, column=1, sticky="ew", pady=4)
+        self.entry_lugar.grid(row=5, column=1, sticky="ew", pady=4)
 
-        ttk.Label(frm, text="URL del enlace:").grid(row=7, column=0, sticky="w", pady=4)
+        ttk.Label(frm, text="URL del enlace:").grid(row=6, column=0, sticky="w", pady=4)
         self.entry_link = ttk.Entry(frm)
-        self.entry_link.grid(row=7, column=1, sticky="ew", pady=4)
+        self.entry_link.grid(row=6, column=1, sticky="ew", pady=4)
 
         link_btns = ttk.Frame(frm)
-        link_btns.grid(row=7, column=2, sticky="w")
+        link_btns.grid(row=6, column=2, sticky="w")
         ttk.Button(link_btns, text="Probar", command=self.probar_enlace).pack(side="left", padx=3)
         ttk.Button(link_btns, text="Buscar archivo", command=self.select_file).pack(side="left", padx=3)
 
-        ttk.Label(frm, text="Texto del enlace:").grid(row=8, column=0, sticky="w", pady=4)
+        ttk.Label(frm, text="Texto del enlace:").grid(row=7, column=0, sticky="w", pady=4)
         self.entry_texto_link = ttk.Entry(frm)
-        self.entry_texto_link.grid(row=8, column=1, sticky="ew", pady=4)
+        self.entry_texto_link.grid(row=7, column=1, sticky="ew", pady=4)
 
         frm.columnconfigure(1, weight=1)
 
@@ -160,7 +156,7 @@ class DatosTab(tk.Frame):
         # BOTONES CRUD
         # -----------------------------
         btn_frame = ttk.Frame(frm)
-        btn_frame.grid(row=9, column=0, columnspan=3, pady=10)
+        btn_frame.grid(row=8, column=0, columnspan=3, pady=10)
 
         ttk.Button(btn_frame, text="Añadir", command=self.add_item).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Editar", command=self.edit_item).pack(side="left", padx=5)
