@@ -20,6 +20,12 @@
         <a href="{{ noticia.link }}" target="_blank">
           <img src="{{ noticia.imagen }}" class="imagenizq img-marco">
         </a>
+
+      {% elif noticia.enlace and noticia.enlace.url %}
+        <a href="{{ noticia.enlace.url }}" target="_blank">
+          <img src="{{ noticia.imagen }}" class="imagenizq img-marco">
+        </a>
+
       {% else %}
         <img src="{{ noticia.imagen }}" class="imagenizq img-marco">
       {% endif %}
@@ -35,6 +41,12 @@
             <a href="{{ noticia.link }}" target="_blank" class="link-reset">
               {{ noticia.titulo }}
             </a>
+
+          {% elif noticia.enlace and noticia.enlace.url %}
+            <a href="{{ noticia.enlace.url }}" target="_blank" class="link-reset">
+              {{ noticia.titulo }}
+            </a>
+
           {% else %}
             {{ noticia.titulo }}
           {% endif %}
@@ -56,6 +68,12 @@
           <a href="{{ noticia.link }}" class="btn btn-primary mt-2" target="_blank">
             {{ noticia.link_text or "Leer más" }}
           </a>
+
+        {% elif noticia.enlace and noticia.enlace.url %}
+          <a href="{{ noticia.enlace.url }}" class="btn btn-primary mt-2" target="_blank">
+            {{ noticia.enlace.texto or "Leer más" }}
+          </a>
+
         {% else %}
           <span class="btn btn-secondary disabled mt-2">
             Sin enlace
