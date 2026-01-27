@@ -66,7 +66,7 @@ class paginaWindow(tk.Toplevel):
         frm_cuerpo.pack(fill="both", expand=True, padx=12, pady=10)
 
         ttk.Label(frm_cuerpo, text="Párrafo:").grid(row=0, column=0, sticky="nw")
-        self.texto_parrafo = tk.Text(frm_cuerpo, height=6, wrap="word")
+        self.texto_parrafo = tk.Text(frm_cuerpo, height=10, wrap="word")
         self.texto_parrafo.grid(row=0, column=1, sticky="ew", pady=6)
 
         ttk.Label(frm_cuerpo, text="Enlace:").grid(row=1, column=0, sticky="w")
