@@ -29,6 +29,15 @@
             ],
             "noticias": [
                 {
+                    "imagen": "../imput/img/noticias/img1.png",
+                    "titulo": "prueba para pagina web y para noticias",
+                    "descripcion": "Esta sección es de prueba para comprobar la funcionalidad y el resultado final de estas secciones",
+                    "enlace": {
+                        "texto": "saber más",
+                        "url": "pagina_001.html"
+                    }
+                },
+                {
                     "titulo": "Investigadores y alumnos de la UPM visitan la Universidad de Bertoua en su viaje de campo a poblaciones baka de Camerún.",
                     "imagen": "../imput/img/noticias/20240907/images/01.jpg",
                     "descripcion": "Se han reunido con investigadores del Institut superieur d’agriculture, du boit, de l’eau et de l’environnemet, poniendo en común diversas experiencias y actividades en temas como: detección remota aplicada a deforestación, inundaciones y cambios en el uso del suelo, transformación y comercialización de productos forestales no leñosos, etc.",
@@ -41,18 +50,19 @@
                     "descripcion": "El prototipo español del proyecto Sen4Stat integra datos EO y datos terrestres, y tiene como objetivo reducir los costos de estudio manteniendo la precisión y mejorando la puntualidad de las estimaciones de superficie de cultivo y producción.",
                     "link": "https://www.esa-sen4stat.org/user-stories/spain-cycle-1-demo/",
                     "link_text": "Leer más"
-                },
-                {
-                    "imagen": "../imput/img/noticias/img1.png",
-                    "titulo": "prueba para pagina web",
-                    "descripcion": "prueba para pagina web",
-                    "enlace": {
-                        "texto": "saber más",
-                        "url": "pagina_001.html"
-                    }
                 }
             ],
             "agenda": [
+                {
+                    "imagen": "../imput/img/agenda/img1.png",
+                    "titulo": "Prueba",
+                    "descripcion": "Esta sección es de prueba para comprobar la funcionalidad y el resultado final de esta sección",
+                    "fecha": "27/01/2026",
+                    "hora": "13:58",
+                    "lugar": "UPM",
+                    "link": "https://geoso2.es",
+                    "texto_link": "Saber más"
+                },
                 {
                     "titulo": "TALLER: Iniciación a AutoCAD 2D.",
                     "descripcion": "Con el objetivo de facilitar el acceso a una herramienta de diseño gráfico general y de amplio uso, se ha programado un taller de 6 horas de duración en el que se explicarán algunos conceptos básicos, se darán indicaciones de trabajo con CAD 2D y se aplicará todo lo aprendido. Gratuito para estudiantes E.T.S.I. Montes Forestal y del Medio Natural previa inscripción hasta completar aforo. Otros casos consultar.",
@@ -122,6 +132,12 @@
         "pagina1": {
             "rafagas": [
                 {
+                    "imagen": "../imput/img/rafagas/img1.png",
+                    "titulo": "Prueba",
+                    "descripcion": "Esta sección es de prueba para comprobar la funcionalidad y el resultado final de esta sección",
+                    "link": "https://geoso2.es"
+                },
+                {
                     "link": "rafagas01.html",
                     "imagen": "../imput/img/rafagas/pagina1/rafagas1_01.jpg",
                     "titulo": "Impacto positivo de la declaración de parque regional en evolución de la calidad de agua",
@@ -137,6 +153,12 @@
         },
         "proyectos": {
             "encurso": [
+                {
+                    "imagen": "../imput/img/proyectos/img1.png",
+                    "titulo": "Prueba",
+                    "link": "https://geoso2.es",
+                    "descripcion": "Esta sección es de prueba para comprobar la funcionalidad y el resultado final de esta sección"
+                },
                 {
                     "titulo": "Visualizador Geoespacial de Datos Medioambientales",
                     "imagen": "../imput/img/proyectos/images/VGDM/viewer.png",
@@ -627,6 +649,13 @@
                     "bio": "Ambientóloga por la Universidad Autónoma de Madrid, con formación de posgrado en Gestión de Desastres (UCM/UPM) y Riesgos Naturales (ULE), y conocimientos en programación adquiridos a través del ciclo superior en Desarrollo de Aplicaciones Multiplataforma. Con más de 5 años de experiencia profesional como técnico GIS en instituciones públicas y privadas, realizando tareas de tratamiento, análisis y visualización de datos geoespaciales, así como tareas de implementación de tecnologías geoespaciales. Especialidades: SIG, teledetección, análisis espacial, servicios IDE, Google Earth Engine, gestión de datos ambientales, tecnologías open-source.",
                     "link": "",
                     "link_text": ""
+                },
+                {
+                    "nombre": "Prueba",
+                    "imagen": "../imput/img/quienes_somos/img1.png",
+                    "bio": "Esta sección es de prueba para comprobar la funcionalidad y el resultado final de esta sección",
+                    "link": "https://geoso2.es",
+                    "link_text": "GEOSO2"
                 }
             ]
         },
@@ -1544,6 +1573,14 @@
                     "noticias": [],
                     "carousel": []
                 }
+            }
+        ],
+        "participa": [
+            {
+                "imagen": "../imput/img/participa/img1.png",
+                "titulo": "Prueba",
+                "descripcion": "Esta sección es de prueba para comprobar la funcionalidad y el resultado final de esta sección",
+                "link": "https://geoso2.es"
             }
         ]
     }

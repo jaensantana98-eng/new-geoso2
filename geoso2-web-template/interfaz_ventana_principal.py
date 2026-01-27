@@ -9,6 +9,7 @@ import interfaz_pagina_web
 import interfaz_publicaciones
 import interfaz_rafagas
 import interfaz_proyectos
+import interfaz_participa
 import os
 import json
 import webbrowser
@@ -41,7 +42,7 @@ class MainApp(tk.Tk):
     def open_section_menu(self, mode):
         win = tk.Toplevel(self)
         win.title("Selecciona la sección")
-        win.geometry("400x600")
+        win.geometry("400x650")
 
         ttk.Label(win,
                   text="Selecciona el JSON a editar:",
@@ -83,6 +84,9 @@ class MainApp(tk.Tk):
 
         ttk.Button(frm, text="Publicaciones", width=20,
                    command=lambda: self.abrir_publicaciones(mode, win)).pack(pady=4)
+
+        ttk.Button(frm, text="Participa", width=20,
+                   command=lambda: self.abrir_participa(mode, win)).pack(pady=4)
 
         ttk.Separator(frm).pack(fill="x", pady=8)
 
@@ -150,6 +154,10 @@ class MainApp(tk.Tk):
         if ruta:
             interfaz_pagina_web.paginaWindow(mode=mode, filepath=ruta)
 
+    def abrir_participa(self, mode, parent_win):
+        ruta = self.abrir_json_directo(mode, parent_win, "web")
+        if ruta:
+            interfaz_participa.EditorParticipaWindow(mode=mode, filepath=ruta)
     # Generar sitio web
     # -----------------------------
     def generar_sitio_web(self):
@@ -267,6 +275,16 @@ class MainApp(tk.Tk):
                 )
                 with open(os.path.join(output_dir, "entidades.html"), "w", encoding="utf-8") as f:
                     f.write(html_entidades)
+
+            # PARTICIPA
+            if os.path.exists("geoso2-web-template/templates/participa.html"):
+                template_participa = env.get_template("participa.html")
+                html_participa = template_participa.render(
+                    participa=web.get("participa", [])
+                )
+                with open(os.path.join(output_dir, "participa.html"), "w", encoding="utf-8") as f:
+                    f.write(html_participa)
+                    
 
             # ============================================================
             # PÁGINAS WEB (cada página individual)

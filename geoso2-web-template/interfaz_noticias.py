@@ -132,6 +132,8 @@ class DatosTab(ttk.Frame):
         ttk.Button(btn_frame, text="Añadir", command=self.add_item).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Editar", command=self.edit_item).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Eliminar", command=self.delete_item).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Subir", command=self.move_up).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Bajar", command=self.move_down).pack(side="left", padx=5)
 
         # -------------------------
         # TABLA
@@ -261,6 +263,28 @@ class DatosTab(ttk.Frame):
         index = self.tree.index(selected[0])
         del self.controller.state["noticias"][index]
         self.refresh_table()
+
+    def move_up(self):
+        selected = self.tree.selection()
+        if not selected:
+            return
+        index = self.tree.index(selected[0])
+        if index > 0:
+            arr = self.controller.state["noticias"]
+            arr[index - 1], arr[index] = arr[index], arr[index - 1]
+            self.refresh_table()
+            self.tree.selection_set(self.tree.get_children()[index - 1])
+
+    def move_down(self):
+        selected = self.tree.selection()
+        if not selected:
+            return
+        index = self.tree.index(selected[0])
+        arr = self.controller.state["noticias"]
+        if index < len(arr) - 1:
+            arr[index + 1], arr[index] = arr[index], arr[index + 1]
+            self.refresh_table()
+            self.tree.selection_set(self.tree.get_children()[index + 1])
 
     def refresh_table(self):
         for item in self.tree.get_children():

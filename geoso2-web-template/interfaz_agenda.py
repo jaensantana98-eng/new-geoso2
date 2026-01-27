@@ -261,7 +261,6 @@ class DatosTab(tk.Frame):
     def add_item(self):
         evento = {
             "imagen": self.entry_imagen.get().strip(),
-            "alt": self.entry_alt.get().strip(),
             "titulo": self.text_titulo.get("1.0", tk.END).strip(),
             "descripcion": self.text_descripcion.get("1.0", tk.END).strip(),
             "fecha": self.entry_fecha.get().strip(),
@@ -297,9 +296,6 @@ class DatosTab(tk.Frame):
 
         self.entry_imagen.delete(0, tk.END)
         self.entry_imagen.insert(0, item["imagen"])
-
-        self.entry_alt.delete(0, tk.END)
-        self.entry_alt.insert(0, item["alt"])
 
         self.text_titulo.delete("1.0", tk.END)
         self.text_titulo.insert("1.0", item["titulo"])
