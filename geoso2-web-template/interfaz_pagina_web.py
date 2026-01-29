@@ -37,6 +37,8 @@ class paginaWindow(tk.Toplevel):
         # Si algún día usas mode="edit" con filepath específico, aquí podrías cargar
         if mode == "edit" and filepath:
             self.load_page_from_file(filepath)
+        self.contenido_original = json.loads(json.dumps(self.state))
+
 
     # ============================================================
     #   UI
@@ -363,6 +365,21 @@ class paginaWindow(tk.Toplevel):
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo abrir el enlace:\n{e}")
 
+    def detectar_cambios(self, antes, despues):
+        cambios = []
+
+        # Campos simples
+        for campo in ["portada", "titulo", "autor"]:
+            if antes.get(campo) != despues.get(campo):
+                cambios.append(campo)
+
+        # Cuerpo (lista de bloques)
+        if antes.get("cuerpo") != despues.get("cuerpo"):
+            cambios.append("cuerpo")
+
+        return cambios
+
+
     # ============================================================
     #   GUARDAR EN web.json
     # ============================================================
@@ -375,9 +392,23 @@ class paginaWindow(tk.Toplevel):
             messagebox.showerror("Error", "La página debe tener un título.")
             return
 
+        # Cargar web.json
         data = self._load_web_data()
         paginas = data["web"]["paginas"]
 
+        # Detectar cambios
+        cambios = self.detectar_cambios(self.contenido_original, datos)
+
+        # Registrar historial
+        if cambios:
+            datos.setdefault("history", [])
+            datos["history"].append({
+                "timestamp": datetime.datetime.now().isoformat(timespec="seconds"),
+                "sections_changed": cambios,
+                "summary": "Actualización en página web"
+            })
+
+        # Guardar página (nueva o editada)
         if datos.get("id"):
             # Editando una página existente
             encontrado = False
@@ -389,15 +420,21 @@ class paginaWindow(tk.Toplevel):
             if not encontrado:
                 paginas.append(datos)
         else:
-            # Nueva página: generar ID
+            # Nueva página
             nuevo_id = self._generate_new_id(paginas)
             datos["id"] = nuevo_id
             self.state["id"] = nuevo_id
             paginas.append(datos)
 
+        # Guardar en web.json
         data["web"]["paginas"] = paginas
         self._save_web_data(data)
+
+        # Actualizar contenido original
+        self.contenido_original = json.loads(json.dumps(datos))
+
         messagebox.showinfo("Guardado", "Página guardada en web.json")
+
 
     # ============================================================
     #   PREVIEW HTML
@@ -488,9 +525,11 @@ class paginaWindow(tk.Toplevel):
             index = tree.index(selected[0])
             pagina = paginas[index]
             self.state = pagina.copy()
+            self.contenido_original = json.loads(json.dumps(self.state))
             self.refresh_fields()
             self.refresh_table()
             win.destroy()
+
 
         def borrar():
             selected = tree.selection()

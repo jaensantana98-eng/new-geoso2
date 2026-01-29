@@ -33,6 +33,8 @@ class CarruselWindow(tk.Toplevel):
                 self.state["carrusel"] = datos.get("web", {}) \
                                             .get("index_page", {}) \
                                             .get("carrusel", [])
+                self.contenido_original = json.loads(json.dumps(self.state["carrusel"]))
+
 
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo cargar el JSON:\n{e}")
@@ -57,7 +59,13 @@ class CarruselWindow(tk.Toplevel):
         if mode == "edit":
             self.tab_datos.refresh_table()
 
-    # Guardar JSON automáticamente
+    def detectar_cambios(self, antes, despues):
+        cambios = []
+        if antes != despues:
+            cambios.append("carrusel")
+        return cambios
+
+
     def save_json(self):
         ruta = "geoso2-web-template/json/web.json"
 
@@ -67,11 +75,20 @@ class CarruselWindow(tk.Toplevel):
                 datos_completos = json.load(f)
 
             # Asegurar estructura
-            if "web" not in datos_completos:
-                datos_completos["web"] = {}
+            datos_completos.setdefault("web", {})
+            datos_completos["web"].setdefault("index_page", {})
 
-            if "index_page" not in datos_completos["web"]:
-                datos_completos["web"]["index_page"] = {}
+            # Detectar cambios SIEMPRE
+            cambios = self.detectar_cambios(self.contenido_original, self.state["carrusel"])
+
+            # Registrar historial si hubo cambios
+            if cambios:
+                datos_completos["web"]["index_page"].setdefault("history", [])
+                datos_completos["web"]["index_page"]["history"].append({
+                    "timestamp": __import__("datetime").datetime.now().isoformat(timespec="seconds"),
+                    "sections_changed": cambios,
+                    "summary": "Actualización en carrusel"
+                })
 
             # Guardar carrusel en la ruta correcta
             datos_completos["web"]["index_page"]["carrusel"] = self.state["carrusel"]
@@ -82,8 +99,12 @@ class CarruselWindow(tk.Toplevel):
 
             messagebox.showinfo("Guardado", f"Archivo JSON actualizado:\n{ruta}")
 
+            # Actualizar contenido original
+            self.contenido_original = json.loads(json.dumps(self.state["carrusel"]))
+
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo guardar el archivo:\n{e}")
+
 
 
 

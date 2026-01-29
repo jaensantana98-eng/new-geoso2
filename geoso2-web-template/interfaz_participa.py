@@ -28,6 +28,7 @@ class EditorParticipaWindow(tk.Toplevel):
 
                 # Cargar participa desde la ruta correcta
                 self.state["participa"] = datos.get("web", {}).get("participa", [])
+                self.contenido_original = json.loads(json.dumps(self.state["participa"]))
 
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo cargar el JSON:\n{e}")
@@ -55,7 +56,13 @@ class EditorParticipaWindow(tk.Toplevel):
 
         self.tab_lista.refresh_table()
 
-    # Guardar JSON automáticamente
+    def detectar_cambios(self, antes, despues):
+        cambios = []
+        if antes != despues:
+            cambios.append("participa")
+        return cambios
+
+
     def save_json(self):
         ruta = "geoso2-web-template/json/web.json"
 
@@ -63,20 +70,32 @@ class EditorParticipaWindow(tk.Toplevel):
             with open(ruta, "r", encoding="utf-8") as f:
                 datos_completos = json.load(f)
 
-            # Asegurar estructura
-            if "web" not in datos_completos:
-                datos_completos["web"] = {}
-            if "participa" not in datos_completos["web"]:
-                datos_completos["web"]["participa"] = []
+            datos_completos.setdefault("web", {})
+            datos_completos["web"].setdefault("participa", [])
 
-            # Guardar participa en la ruta correcta
+            # Detectar cambios
+            cambios = self.detectar_cambios(self.contenido_original, self.state["participa"])
+
+            # Registrar historial
+            if cambios:
+                datos_completos["web"]["participa"].setdefault("history", [])
+                datos_completos["web"]["participa"]["history"].append({
+                    "timestamp": __import__("datetime").datetime.now().isoformat(timespec="seconds"),
+                    "sections_changed": cambios,
+                    "summary": "Actualización en participa"
+                })
+
+            # Guardar participa
             datos_completos["web"]["participa"] = self.state["participa"]
 
-            # Guardar JSON completo
+            # Guardar archivo
             with open(ruta, "w", encoding="utf-8") as f:
                 json.dump(datos_completos, f, indent=4, ensure_ascii=False)
 
             messagebox.showinfo("Guardado", "Participa actualizado correctamente.")
+
+            # Actualizar contenido original
+            self.contenido_original = json.loads(json.dumps(self.state["participa"]))
 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo guardar el archivo:\n{e}")

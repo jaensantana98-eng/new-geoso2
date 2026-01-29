@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import json
+import datetime
 import os
 import shutil
 import webbrowser
@@ -478,6 +479,7 @@ class EditorWindow(tk.Toplevel):
                     self.state["quienes_somos"]["secciones"] = qs.get("secciones", [])
                     self.state["quienes_somos"]["investigadores"] = qs.get("investigadores", [])
                     self.state["quienes_somos"]["colaboradores"] = qs.get("colaboradores", [])
+                    self.contenido_original = json.loads(json.dumps(self.state["quienes_somos"]))
 
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo cargar el JSON:\n{e}")
@@ -513,6 +515,20 @@ class EditorWindow(tk.Toplevel):
         self.tab_colaboradores.refresh_table()
 
 
+    def detectar_cambios(self, antes, despues):
+        cambios = []
+
+        if antes.get("secciones") != despues.get("secciones"):
+            cambios.append("secciones")
+
+        if antes.get("investigadores") != despues.get("investigadores"):
+            cambios.append("investigadores")
+
+        if antes.get("colaboradores") != despues.get("colaboradores"):
+            cambios.append("colaboradores")
+
+        return cambios
+
 
     def save_json(self):
         ruta = "geoso2-web-template/json/web.json"
@@ -521,15 +537,33 @@ class EditorWindow(tk.Toplevel):
             with open(ruta, "r", encoding="utf-8") as f:
                 datos_completos = json.load(f)
 
-            if "web" not in datos_completos:
-                datos_completos["web"] = {}
+            datos_completos.setdefault("web", {})
+            datos_completos["web"].setdefault("quienes_somos", {})
 
+            # Detectar cambios
+            cambios = self.detectar_cambios(self.contenido_original, self.state["quienes_somos"])
+
+            # Registrar historial
+            if cambios:
+                datos_completos["web"]["quienes_somos"].setdefault("history", [])
+                datos_completos["web"]["quienes_somos"]["history"].append({
+                    "timestamp": datetime.datetime.now().isoformat(timespec="seconds"),
+                    "sections_changed": cambios,
+                    "summary": "Actualización en Quiénes Somos"
+                })
+
+            # Guardar datos
             datos_completos["web"]["quienes_somos"] = self.state["quienes_somos"]
 
+            # Guardar archivo
             with open(ruta, "w", encoding="utf-8") as f:
                 json.dump(datos_completos, f, indent=4, ensure_ascii=False)
 
             messagebox.showinfo("Guardado", f"Archivo JSON actualizado:\n{ruta}")
 
+            # Actualizar contenido original
+            self.contenido_original = json.loads(json.dumps(self.state["quienes_somos"]))
+
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo guardar el archivo:\n{e}")
+

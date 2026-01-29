@@ -32,6 +32,8 @@ class EditorWindow(tk.Toplevel):
                 self.state["agenda"] = datos.get("web", {}) \
                                             .get("index_page", {}) \
                                             .get("agenda", [])
+                self.contenido_original = json.loads(json.dumps(self.state["agenda"]))
+
 
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo cargar el JSON:\n{e}")
@@ -63,6 +65,13 @@ class EditorWindow(tk.Toplevel):
         if mode == "edit":
             self.tab_datos.set_data(self.state)
 
+    def detectar_cambios(self, antes, despues):
+        cambios = []
+        if antes != despues:
+            cambios.append("agenda")
+        return cambios
+
+
     # Guardar JSON
     def save_json(self):
         ruta = "geoso2-web-template/json/web.json"
@@ -73,6 +82,19 @@ class EditorWindow(tk.Toplevel):
 
             datos_completos.setdefault("web", {})
             datos_completos["web"].setdefault("index_page", {})
+
+            # Detectar cambios
+            cambios = self.detectar_cambios(self.contenido_original, self.state["agenda"])
+
+            # Registrar historial si hubo cambios
+            if cambios:
+                datos_completos["web"]["index_page"].setdefault("history", [])
+                datos_completos["web"]["index_page"]["history"].append({
+                    "timestamp": __import__("datetime").datetime.now().isoformat(timespec="seconds"),
+                    "sections_changed": cambios,
+                    "summary": "Actualización en agenda"
+                })
+
 
             datos_completos["web"]["index_page"]["agenda"] = self.state["agenda"]
 

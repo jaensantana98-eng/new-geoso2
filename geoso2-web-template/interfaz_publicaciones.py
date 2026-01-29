@@ -25,6 +25,7 @@ class EditorWindow(tk.Toplevel):
 
                 # Cargar desde la ruta correcta
                 self.state["publicaciones"] = datos.get("web", {}).get("publicaciones", {})
+                self.contenido_original = json.loads(json.dumps(self.state["publicaciones"]))
 
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo cargar el JSON:\n{e}")
@@ -53,7 +54,23 @@ class EditorWindow(tk.Toplevel):
         # Inicializar datos
         self.tab_datos.set_data(self.state)
 
-    # Guardar JSON correctamente en web.json
+    def detectar_cambios(self, antes, despues):
+        cambios = []
+
+        # Años añadidos o eliminados
+        if set(antes.keys()) != set(despues.keys()):
+            cambios.append("años")
+
+        # Cambios dentro de cada año
+        for year in despues:
+            if year not in antes:
+                cambios.append(f"nuevo_{year}")
+            elif antes[year] != despues[year]:
+                cambios.append(year)
+
+        return cambios
+
+
     def save_json(self):
         ruta = "geoso2-web-template/json/web.json"
 
@@ -61,18 +78,36 @@ class EditorWindow(tk.Toplevel):
             with open(ruta, "r", encoding="utf-8") as f:
                 datos_completos = json.load(f)
 
-            if "web" not in datos_completos:
-                datos_completos["web"] = {}
+            datos_completos.setdefault("web", {})
+            datos_completos["web"].setdefault("publicaciones", {})
 
+            # Detectar cambios
+            cambios = self.detectar_cambios(self.contenido_original, self.state["publicaciones"])
+
+            # Registrar historial
+            if cambios:
+                datos_completos["web"]["publicaciones"].setdefault("history", [])
+                datos_completos["web"]["publicaciones"]["history"].append({
+                    "timestamp": __import__("datetime").datetime.now().isoformat(timespec="seconds"),
+                    "sections_changed": cambios,
+                    "summary": "Actualización en publicaciones"
+                })
+
+            # Guardar publicaciones
             datos_completos["web"]["publicaciones"] = self.state["publicaciones"]
 
+            # Guardar archivo
             with open(ruta, "w", encoding="utf-8") as f:
                 json.dump(datos_completos, f, indent=4, ensure_ascii=False)
 
             messagebox.showinfo("Guardado", f"Archivo JSON actualizado:\n{ruta}")
 
+            # Actualizar contenido original
+            self.contenido_original = json.loads(json.dumps(self.state["publicaciones"]))
+
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo guardar el archivo:\n{e}")
+
 
 
 # ============================================================
@@ -229,7 +264,10 @@ class DatosTab(tk.Frame):
         self.refresh_table()
 
     def refresh_years(self):
-        years = sorted(self.controller.state["publicaciones"].keys(), reverse=True)
+        years = sorted(
+            [y for y in self.controller.state["publicaciones"].keys() if y != "history"],
+            reverse=True
+        )
         self.combo_year["values"] = years
         if years:
             self.combo_year.set(years[0])

@@ -25,6 +25,10 @@
                 {
                     "imagen": "../imput/img/carrusel/foto6.jpg",
                     "enlace": "GEOSO2_FICHA_INCIO_CARRUSEL_DEFENSATESISCAROLINA_presentacion.pdf"
+                },
+                {
+                    "imagen": "../imput/img/carrusel/img1.png",
+                    "enlace": "g"
                 }
             ],
             "noticias": [
@@ -99,7 +103,8 @@
                     "imagen": "../imput/img/colaboradores/Altitum_horizontal.png",
                     "enlace": "https://altitum.com/"
                 }
-            ]
+            ],
+            "history": []
         },
         "Encabezado": {
             "carrusel": [
@@ -127,7 +132,8 @@
                     "imagen": "../imput/img/carrusel/foto6.jpg",
                     "enlace": "GEOSO2_FICHA_INCIO_CARRUSEL_DEFENSATESISCAROLINA_presentacion.pdf"
                 }
-            ]
+            ],
+            "history": []
         },
         "pagina1": {
             "rafagas": [
@@ -149,7 +155,8 @@
                     "titulo": "Ejemplo de visor de temperaturas en la España Peninsular (en pruebas)",
                     "descripcion": "Se trata de un ejemplo de visor para manejar datos ráster en grandes extensiones, en este caso temperaturas medias en la España Peninsular. Los datos que se muestran son ficticios y solo se utilizan para ilustrar la variación de una variable en el espacio."
                 }
-            ]
+            ],
+            "history": []
         },
         "proyectos": {
             "encurso": [
@@ -235,7 +242,8 @@
                     "link": "https://oa.upm.es/76664/",
                     "descripcion": "Tesis Doctoral. La participación de los jóvenes en los procesos de planificación urbana en Lisboa, Madrid y Fortaleza ha sido tema central de la presente tesis, cuyos principales objetivos han sido: caracterizar y analizar críticamente las dimensiones más importantes de la participación de jóvenes universitarios en los procesos participativos; aportar características de interés juvenil para un “modelo” de planificación urbana; elaborar directrices para el diseño de actuaciones en un proceso urbano participativo desde la perspectiva de los jóvenes; establecer el alcance de un instrumento urbano participativo reglamentado por el gobierno local entre los jóvenes; determinar si la percepción de los jóvenes universitarios acerca de las acciones del gobierno local tiene influencia en los procesos participativos. Los resultados constatan que es muy baja la participación en los procesos institucionalizados por el gobierno local, en contrapartida es bastante alta en los procesos organizados por los ciudadanos."
                 }
-            ]
+            ],
+            "history": []
         },
         "publicaciones": {
             "2024": [
@@ -510,7 +518,8 @@
                     "link": "https://doi.org/10.3390/s19143205",
                     "num": ""
                 }
-            ]
+            ],
+            "history": []
         },
         "quienes_somos": {
             "secciones": [
@@ -657,7 +666,8 @@
                     "link": "https://geoso2.es",
                     "link_text": "GEOSO2"
                 }
-            ]
+            ],
+            "history": []
         },
         "pagina2": {
             "noticias": [
@@ -675,7 +685,8 @@
                     "link": "https://www.esa-sen4stat.org/user-stories/spain-cycle-1-demo/",
                     "link_text": "Leer más"
                 }
-            ]
+            ],
+            "history": []
         },
         "busqueda": {
             "contacto": {
@@ -691,7 +702,8 @@
                     "width": "900",
                     "height": "550"
                 }
-            }
+            },
+            "history": []
         },
         "mas-proyectos": {
             "club": {
@@ -802,7 +814,8 @@
                     "link": "https://www.esa-sen4stat.org/user-stories/spain-cycle-1-demo/",
                     "texto_link": "Leer más"
                 }
-            ]
+            ],
+            "history": []
         },
         "static_files": [
             "styles.css",
@@ -916,7 +929,8 @@
                                 "imagen": "../imput/img/colaboradores/Altitum_horizontal.png",
                                 "enlace": "https://altitum.com/"
                             }
-                        ]
+                        ],
+                        "history": []
                     },
                     "Encabezado": {
                         "carrusel": [
@@ -944,7 +958,8 @@
                                 "imagen": "../imput/img/carrusel/foto6.jpg",
                                 "enlace": "GEOSO2_FICHA_INCIO_CARRUSEL_DEFENSATESISCAROLINA_presentacion.pdf"
                             }
-                        ]
+                        ],
+                        "history": []
                     },
                     "pagina1": {
                         "rafagas": [
@@ -960,7 +975,8 @@
                                 "titulo": "Ejemplo de visor de temperaturas en la España Peninsular (en pruebas)",
                                 "descripcion": "Se trata de un ejemplo de visor para manejar datos ráster en grandes extensiones, en este caso temperaturas medias en la España Peninsular. Los datos que se muestran son ficticios y solo se utilizan para ilustrar la variación de una variable en el espacio."
                             }
-                        ]
+                        ],
+                        "history": []
                     },
                     "proyectos": {
                         "encurso": [
@@ -1040,7 +1056,8 @@
                                 "link": "https://oa.upm.es/76664/",
                                 "descripcion": "Tesis Doctoral. La participación de los jóvenes en los procesos de planificación urbana en Lisboa, Madrid y Fortaleza ha sido tema central de la presente tesis, cuyos principales objetivos han sido: caracterizar y analizar críticamente las dimensiones más importantes de la participación de jóvenes universitarios en los procesos participativos; aportar características de interés juvenil para un “modelo” de planificación urbana; elaborar directrices para el diseño de actuaciones en un proceso urbano participativo desde la perspectiva de los jóvenes; establecer el alcance de un instrumento urbano participativo reglamentado por el gobierno local entre los jóvenes; determinar si la percepción de los jóvenes universitarios acerca de las acciones del gobierno local tiene influencia en los procesos participativos. Los resultados constatan que es muy baja la participación en los procesos institucionalizados por el gobierno local, en contrapartida es bastante alta en los procesos organizados por los ciudadanos."
                             }
-                        ]
+                        ],
+                        "history": []
                     },
                     "publicaciones": {
                         "2024": [
@@ -1315,7 +1332,8 @@
                                 "link": "https://doi.org/10.3390/s19143205",
                                 "num": ""
                             }
-                        ]
+                        ],
+                        "history": []
                     },
                     "quienes_somos": {
                         "secciones": [
@@ -1455,7 +1473,8 @@
                                 "link": "",
                                 "link_text": ""
                             }
-                        ]
+                        ],
+                        "history": []
                     },
                     "pagina2": {
                         "noticias": [
@@ -1473,7 +1492,8 @@
                                 "link": "https://www.esa-sen4stat.org/user-stories/spain-cycle-1-demo/",
                                 "link_text": "Leer más"
                             }
-                        ]
+                        ],
+                        "history": []
                     },
                     "busqueda": {
                         "contacto": {
@@ -1582,6 +1602,7 @@
                 "descripcion": "Esta sección es de prueba para comprobar la funcionalidad y el resultado final de esta sección",
                 "link": "https://geoso2.es"
             }
-        ]
+        ],
+        "history": []
     }
 }

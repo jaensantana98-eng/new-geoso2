@@ -16,11 +16,95 @@ import webbrowser
 from jinja2 import Environment, FileSystemLoader
 
 
+# ============================================================
+# VENTANA MODAL DEL HISTORIAL GLOBAL
+# ============================================================
+class VentanaHistorialGlobal(tk.Toplevel):
+    def __init__(self, historial):
+        super().__init__()
+        self.title("Historial de cambios (global)")
+        self.geometry("750x500")
+
+        ttk.Label(self, text="Historial global del sitio web",
+                  font=("Segoe UI", 14, "bold")).pack(pady=10)
+
+        frame = ttk.Frame(self)
+        frame.pack(fill="both", expand=True, padx=10, pady=10)
+
+        columnas = ("seccion", "timestamp", "cambios", "resumen")
+        self.tree = ttk.Treeview(frame, columns=columnas, show="headings", height=20)
+        self.tree.pack(side="left", fill="both", expand=True)
+
+        self.tree.heading("seccion", text="Sección")
+        self.tree.heading("timestamp", text="Fecha")
+        self.tree.heading("cambios", text="Cambios")
+        self.tree.heading("resumen", text="Resumen")
+
+        self.tree.column("seccion", width=150)
+        self.tree.column("timestamp", width=150)
+        self.tree.column("cambios", width=200)
+        self.tree.column("resumen", width=250)
+
+        scrollbar = ttk.Scrollbar(frame, orient="vertical", command=self.tree.yview)
+        scrollbar.pack(side="right", fill="y")
+        self.tree.configure(yscrollcommand=scrollbar.set)
+
+        # Insertar datos
+        for reg in historial:
+            self.tree.insert("", "end", values=(
+                reg["seccion"],
+                reg["timestamp"],
+                ", ".join(reg["sections_changed"]),
+                reg.get("summary", "")
+            ))
+
+            # Botón para limpiar historial
+            btn_frame = ttk.Frame(self)
+            btn_frame.pack(fill="x", pady=10)
+
+            ttk.Button(
+                btn_frame,
+                text="Limpiar historial",
+                command=self.limpiar_historial
+            ).pack(side="left", padx=10)
+
+            ttk.Button(
+                btn_frame,
+                text="Cerrar",
+                command=self.destroy
+            ).pack(side="right", padx=10)
+
+    def limpiar_historial(self):
+        if messagebox.askyesno("Confirmar", "¿Estás seguro de que deseas limpiar todo el historial global?"):
+            try:
+                with open("geoso2-web-template/json/web.json", "r", encoding="utf-8") as f:
+                    datos = json.load(f)
+
+                web = datos.get("web", {})
+
+                for seccion, contenido in web.items():
+                    if isinstance(contenido, dict) and "history" in contenido:
+                        contenido["history"] = []
+
+                with open("geoso2-web-template/json/web.json", "w", encoding="utf-8") as f:
+                    json.dump(datos, f, indent=4, ensure_ascii=False)
+
+                messagebox.showinfo("Éxito", "Historial global limpiado correctamente.")
+                self.destroy()
+
+            except Exception as e:
+                messagebox.showerror("Error", f"No se pudo limpiar el historial:\n{e}")
+
+
+
+# ============================================================
+# APLICACIÓN PRINCIPAL
+# ============================================================
 class MainApp(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Gestor de Geoso2")
-        self.geometry("500x250")
+        self.geometry("500x300")
 
         ttk.Label(self, text="Selecciona una opción:", font=("Segoe UI", 14, "bold")).pack(pady=20)
 
@@ -30,15 +114,46 @@ class MainApp(tk.Tk):
         ttk.Button(btns, text="Editar sitio web", width=18,
                    command=lambda: self.open_section_menu("edit")).grid(row=0, column=0, padx=10)
 
+        ttk.Button(btns, text="Historial de cambios", width=18,
+                   command=self.abrir_historial_global).grid(row=1, column=0, padx=10, pady=10)
+
         ttk.Button(btns, text="Generar sitio web", width=18,
                    command=self.generar_sitio_web).grid(row=2, column=0, padx=10, pady=20)
 
         ttk.Label(self, text="© Creado por Jesús Jaén Santana v.1.0/2025",
                   font=("Segoe UI", 10, "italic")).pack(side="bottom", pady=10)
 
-    # -----------------------------
-    # Ventana de selección
-    # -----------------------------
+    # ============================================================
+    # HISTORIAL GLOBAL
+    # ============================================================
+    def abrir_historial_global(self):
+        try:
+            with open("geoso2-web-template/json/web.json", "r", encoding="utf-8") as f:
+                datos = json.load(f)
+
+            web = datos["web"]
+            historial_global = []
+
+            for nombre_seccion, contenido in web.items():
+                if isinstance(contenido, dict) and "history" in contenido:
+                    for registro in contenido["history"]:
+                        historial_global.append({
+                            "seccion": nombre_seccion,
+                            **registro
+                        })
+
+            if not historial_global:
+                messagebox.showinfo("Historial vacío", "No hay cambios registrados todavía.")
+                return
+
+            VentanaHistorialGlobal(historial_global)
+
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo cargar el historial:\n{e}")
+
+    # ============================================================
+    # VENTANA DE SELECCIÓN
+    # ============================================================
     def open_section_menu(self, mode):
         win = tk.Toplevel(self)
         win.title("Selecciona la sección")
@@ -95,9 +210,9 @@ class MainApp(tk.Tk):
         ttk.Button(frm, text="Página Web", width=20,
                    command=lambda: self.abrir_pagina_web(mode, win)).pack(pady=4)
 
-    # -----------------------------
-    # Métodos abre-directo
-    # -----------------------------
+    # ============================================================
+    # MÉTODOS ABRE-DIRECTO
+    # ============================================================
     def abrir_json_directo(self, mode, parent_win, filename):
         parent_win.destroy()
 
@@ -158,34 +273,24 @@ class MainApp(tk.Tk):
         ruta = self.abrir_json_directo(mode, parent_win, "web")
         if ruta:
             interfaz_participa.EditorParticipaWindow(mode=mode, filepath=ruta)
-    # Generar sitio web
-    # -----------------------------
+
+    # ============================================================
+    # GENERAR SITIO WEB
+    # ============================================================
     def generar_sitio_web(self):
         try:
-            # ============================
-            # CARGAR JSON PRINCIPAL
-            # ============================
             with open("geoso2-web-template/json/web.json", "r", encoding="utf-8") as f:
                 datos = json.load(f)
 
             web = datos["web"]
 
-            # ============================
-            # ENTORNO JINJA
-            # ============================
             env = Environment(loader=FileSystemLoader("geoso2-web-template/templates"))
 
-            # ============================
-            # CARPETA DE SALIDA
-            # ============================
             output_dir = "geoso2-web-template/output"
             os.makedirs(output_dir, exist_ok=True)
 
-            # ============================================================
-            # INDEX (PÁGINA PRINCIPAL)
-            # ============================================================
+            # INDEX
             template_index = env.get_template("index_page.html")
-
             html_index = template_index.render(
                 index_page={
                     "carousel": web["index_page"].get("carrusel", []),
@@ -194,13 +299,10 @@ class MainApp(tk.Tk):
                     "colaboradores": web["index_page"].get("entidades", [])
                 }
             )
-
             with open(os.path.join(output_dir, "index.html"), "w", encoding="utf-8") as f:
                 f.write(html_index)
 
-            # ============================================================
             # CARRUSEL
-            # ============================================================
             if os.path.exists("geoso2-web-template/templates/carrusel.html"):
                 template_carrusel = env.get_template("carrusel.html")
                 html_carrusel = template_carrusel.render(
@@ -209,21 +311,16 @@ class MainApp(tk.Tk):
                 with open(os.path.join(output_dir, "carrusel.html"), "w", encoding="utf-8") as f:
                     f.write(html_carrusel)
 
-            # ============================================================
-            # NOTICIAS (PÁGINA PROPIA)
-            # ============================================================
+            # NOTICIAS
             if os.path.exists("geoso2-web-template/templates/noticias.html"):
                 template_noticias = env.get_template("noticias.html")
                 html_noticias = template_noticias.render(
-                    noticias = web["index_page"].get("noticias", [])
+                    noticias=web["index_page"].get("noticias", [])
                 )
                 with open(os.path.join(output_dir, "noticias.html"), "w", encoding="utf-8") as f:
                     f.write(html_noticias)
 
-
-            # ============================================================
             # PROYECTOS
-            # ============================================================
             if os.path.exists("geoso2-web-template/templates/proyectos.html"):
                 template_proyectos = env.get_template("proyectos.html")
                 html_proyectos = template_proyectos.render(
@@ -232,9 +329,7 @@ class MainApp(tk.Tk):
                 with open(os.path.join(output_dir, "proyectos.html"), "w", encoding="utf-8") as f:
                     f.write(html_proyectos)
 
-            # ============================================================
             # PUBLICACIONES
-            # ============================================================
             if os.path.exists("geoso2-web-template/templates/publicaciones.html"):
                 template_publicaciones = env.get_template("publicaciones.html")
                 html_publicaciones = template_publicaciones.render(
@@ -243,9 +338,7 @@ class MainApp(tk.Tk):
                 with open(os.path.join(output_dir, "publicaciones.html"), "w", encoding="utf-8") as f:
                     f.write(html_publicaciones)
 
-            # ============================================================
             # QUIÉNES SOMOS
-            # ============================================================
             if os.path.exists("geoso2-web-template/templates/quienes_somos.html"):
                 template_qs = env.get_template("quienes_somos.html")
                 html_qs = template_qs.render(
@@ -254,9 +347,7 @@ class MainApp(tk.Tk):
                 with open(os.path.join(output_dir, "quienes_somos.html"), "w", encoding="utf-8") as f:
                     f.write(html_qs)
 
-            # ============================================================
             # RÁFAGAS
-            # ============================================================
             if os.path.exists("geoso2-web-template/templates/rafagas.html"):
                 template_rafagas = env.get_template("rafagas.html")
                 html_rafagas = template_rafagas.render(
@@ -265,9 +356,7 @@ class MainApp(tk.Tk):
                 with open(os.path.join(output_dir, "rafagas.html"), "w", encoding="utf-8") as f:
                     f.write(html_rafagas)
 
-            # ============================================================
-            # ENTIDADES COLABORADORAS (PÁGINA PROPIA)
-            # ============================================================
+            # ENTIDADES
             if os.path.exists("geoso2-web-template/templates/entidades.html"):
                 template_entidades = env.get_template("entidades.html")
                 html_entidades = template_entidades.render(
@@ -284,29 +373,20 @@ class MainApp(tk.Tk):
                 )
                 with open(os.path.join(output_dir, "participa.html"), "w", encoding="utf-8") as f:
                     f.write(html_participa)
-                    
 
-            # ============================================================
-            # PÁGINAS WEB (cada página individual)
-            # ============================================================
+            # PÁGINAS INDIVIDUALES
             if os.path.exists("geoso2-web-template/templates/pagina.html"):
                 template_pagina = env.get_template("pagina.html")
-
                 paginas = web.get("paginas", [])
 
                 for pagina in paginas:
-                    # Renderizar HTML de la página
                     html_pagina = template_pagina.render(pagina=pagina)
-
-                    # Nombre del archivo basado en el ID
                     nombre_archivo = f"{pagina['id']}.html"
 
                     with open(os.path.join(output_dir, nombre_archivo), "w", encoding="utf-8") as f:
                         f.write(html_pagina)
 
-            # ============================================================
-            # LIMPIAR PÁGINAS ANTIGUAS DEL OUTPUT
-            # ============================================================
+            # LIMPIAR PÁGINAS ANTIGUAS
             paginas_json = {p["id"] + ".html" for p in web.get("paginas", [])}
 
             for archivo in os.listdir(output_dir):
@@ -314,9 +394,6 @@ class MainApp(tk.Tk):
                     if archivo not in paginas_json:
                         os.remove(os.path.join(output_dir, archivo))
 
-            # ============================================================
-            # FIN
-            # ============================================================
             messagebox.showinfo("Éxito", "Sitio web generado correctamente.")
 
             index_path = os.path.abspath(os.path.join(output_dir, "index.html"))
@@ -326,8 +403,6 @@ class MainApp(tk.Tk):
             messagebox.showerror("Error", f"No se pudo generar el sitio web:\n{e}")
 
 
-
-
 if __name__ == "__main__":
-        app = MainApp()
-        app.mainloop()
+    app = MainApp()
+    app.mainloop()

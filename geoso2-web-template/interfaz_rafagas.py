@@ -28,6 +28,8 @@ class EditorRafagasWindow(tk.Toplevel):
 
                 # Cargar ráfagas desde la ruta correcta
                 self.state["rafagas"] = datos.get("web", {}).get("pagina1", {}).get("rafagas", [])
+                self.contenido_original = json.loads(json.dumps(self.state["rafagas"]))
+
 
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo cargar el JSON:\n{e}")
@@ -55,6 +57,13 @@ class EditorRafagasWindow(tk.Toplevel):
 
         self.tab_lista.refresh_table()
 
+    def detectar_cambios(self, antes, despues):
+        cambios = []
+        if antes != despues:
+            cambios.append("rafagas")
+        return cambios
+
+
     # Guardar JSON automáticamente
     def save_json(self):
         ruta = "geoso2-web-template/json/web.json"
@@ -63,25 +72,35 @@ class EditorRafagasWindow(tk.Toplevel):
             with open(ruta, "r", encoding="utf-8") as f:
                 datos_completos = json.load(f)
 
-            # Asegurar estructura
-            if "web" not in datos_completos:
-                datos_completos["web"] = {}
+            datos_completos.setdefault("web", {})
+            datos_completos["web"].setdefault("pagina1", {})
 
-            if "pagina1" not in datos_completos["web"]:
-                datos_completos["web"]["pagina1"] = {}
+            # Detectar cambios
+            cambios = self.detectar_cambios(self.contenido_original, self.state["rafagas"])
 
-            # Guardar ráfagas en la ruta correcta
+            # Registrar historial
+            if cambios:
+                datos_completos["web"]["pagina1"].setdefault("history", [])
+                datos_completos["web"]["pagina1"]["history"].append({
+                    "timestamp": __import__("datetime").datetime.now().isoformat(timespec="seconds"),
+                    "sections_changed": cambios,
+                    "summary": "Actualización en ráfagas"
+                })
+
+            # Guardar ráfagas
             datos_completos["web"]["pagina1"]["rafagas"] = self.state["rafagas"]
 
-            # Guardar JSON completo
+            # Guardar archivo
             with open(ruta, "w", encoding="utf-8") as f:
                 json.dump(datos_completos, f, indent=4, ensure_ascii=False)
 
-            messagebox.showinfo("Guardado", "Ráfagas actualizadas correctamente.")
+            messagebox.showinfo("Guardado", f"Archivo JSON actualizado:\n{ruta}")
+
+            # Actualizar contenido original
+            self.contenido_original = json.loads(json.dumps(self.state["rafagas"]))
 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo guardar el archivo:\n{e}")
-
 
 
 

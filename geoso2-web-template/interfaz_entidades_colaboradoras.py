@@ -34,6 +34,9 @@ class EntidadesWindow(tk.Toplevel):
                 self.state["entidades"] = datos.get("web", {}) \
                                                .get("index_page", {}) \
                                                .get("entidades", [])
+                
+                self.contenido_original = json.loads(json.dumps(self.state["entidades"]))
+
 
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo cargar el JSON:\n{e}")
@@ -61,9 +64,12 @@ class EntidadesWindow(tk.Toplevel):
         # Cargar datos en la tabla
         self.tab_datos.refresh_table()
 
-    # -----------------------------
-    # GUARDAR JSON (estructura real)
-    # -----------------------------
+    def detectar_cambios(self, antes, despues):
+        cambios = []
+        if antes != despues:
+            cambios.append("entidades")
+        return cambios
+
     def save_json(self):
         ruta = "geoso2-web-template/json/web.json"
 
@@ -73,13 +79,22 @@ class EntidadesWindow(tk.Toplevel):
                 datos_completos = json.load(f)
 
             # Asegurar estructura
-            if "web" not in datos_completos:
-                datos_completos["web"] = {}
+            datos_completos.setdefault("web", {})
+            datos_completos["web"].setdefault("index_page", {})
 
-            if "index_page" not in datos_completos["web"]:
-                datos_completos["web"]["index_page"] = {}
+            # Detectar cambios SIEMPRE
+            cambios = self.detectar_cambios(self.contenido_original, self.state["entidades"])
 
-            # Guardar entidades en la ruta correcta
+            # Registrar historial si hubo cambios
+            if cambios:
+                datos_completos["web"]["index_page"].setdefault("history", [])
+                datos_completos["web"]["index_page"]["history"].append({
+                    "timestamp": __import__("datetime").datetime.now().isoformat(timespec="seconds"),
+                    "sections_changed": cambios,
+                    "summary": "Actualización en entidades colaboradoras"
+                })
+
+            # Guardar entidades
             datos_completos["web"]["index_page"]["entidades"] = self.state["entidades"]
 
             # Guardar JSON completo
@@ -88,8 +103,12 @@ class EntidadesWindow(tk.Toplevel):
 
             messagebox.showinfo("Guardado", f"Archivo JSON actualizado:\n{ruta}")
 
+            # Actualizar contenido original
+            self.contenido_original = json.loads(json.dumps(self.state["entidades"]))
+
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo guardar el archivo:\n{e}")
+
 
 
 # ============================================================

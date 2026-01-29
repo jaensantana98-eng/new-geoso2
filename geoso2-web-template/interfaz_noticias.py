@@ -31,6 +31,7 @@ class NoticiasWindow(tk.Toplevel):
                 self.state["noticias"] = datos.get("web", {}) \
                                               .get("index_page", {}) \
                                               .get("noticias", [])
+                self.contenido_original = json.loads(json.dumps(self.state["noticias"]))
 
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo cargar el JSON:\n{e}")
@@ -64,6 +65,15 @@ class NoticiasWindow(tk.Toplevel):
         if mode == "edit":
             self.tab_datos.refresh_table()
 
+    def detectar_cambios(self, antes, despues):
+        cambios = []
+
+        if antes != despues:
+            cambios.append("noticias")
+
+        return cambios
+
+
     def save_json(self):
         ruta = "geoso2-web-template/json/web.json"
 
@@ -74,6 +84,18 @@ class NoticiasWindow(tk.Toplevel):
             # Asegurar estructura
             datos_completos.setdefault("web", {})
             datos_completos["web"].setdefault("index_page", {})
+
+            # Detectar cambios
+            cambios = self.detectar_cambios(self.contenido_original, self.state["noticias"])
+
+            # Registrar historial si hubo cambios
+            if cambios:
+                datos_completos["web"]["index_page"].setdefault("history", [])
+                datos_completos["web"]["index_page"]["history"].append({
+                    "timestamp": __import__("datetime").datetime.now().isoformat(timespec="seconds"),
+                    "sections_changed": cambios,
+                    "summary": "Actualización en noticias"
+                })
 
             # Guardar noticias
             datos_completos["web"]["index_page"]["noticias"] = self.state["noticias"]

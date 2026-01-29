@@ -39,6 +39,8 @@ class EditorProyectosWindow(tk.Toplevel):
                     "trabajosacademicos": []
                 }
             )
+            self.contenido_original = json.loads(json.dumps(self.state["proyectos"]))
+
 
         # Notebook
         self.notebook = ttk.Notebook(self)
@@ -63,7 +65,21 @@ class EditorProyectosWindow(tk.Toplevel):
 
         self.tab_lista.refresh_table()
 
-    # Guardar JSON correctamente
+    def detectar_cambios(self, antes, despues):
+        cambios = []
+
+        if antes.get("encurso") != despues.get("encurso"):
+            cambios.append("encurso")
+
+        if antes.get("anteriores") != despues.get("anteriores"):
+            cambios.append("anteriores")
+
+        if antes.get("trabajosacademicos") != despues.get("trabajosacademicos"):
+            cambios.append("trabajosacademicos")
+
+        return cambios
+
+
     def save_json(self):
         ruta = "geoso2-web-template/json/web.json"
 
@@ -71,21 +87,36 @@ class EditorProyectosWindow(tk.Toplevel):
             with open(ruta, "r", encoding="utf-8") as f:
                 datos_completos = json.load(f)
 
-            # Asegurar estructura
-            if "web" not in datos_completos:
-                datos_completos["web"] = {}
+            datos_completos.setdefault("web", {})
+            datos_completos["web"].setdefault("proyectos", {})
 
-            # Guardar en la ruta correcta
+            # Detectar cambios
+            cambios = self.detectar_cambios(self.contenido_original, self.state["proyectos"])
+
+            # Registrar historial
+            if cambios:
+                datos_completos["web"]["proyectos"].setdefault("history", [])
+                datos_completos["web"]["proyectos"]["history"].append({
+                    "timestamp": __import__("datetime").datetime.now().isoformat(timespec="seconds"),
+                    "sections_changed": cambios,
+                    "summary": "Actualización en proyectos"
+                })
+
+            # Guardar proyectos
             datos_completos["web"]["proyectos"] = self.state["proyectos"]
 
-            # Guardar JSON completo
+            # Guardar archivo
             with open(ruta, "w", encoding="utf-8") as f:
                 json.dump(datos_completos, f, indent=4, ensure_ascii=False)
 
             messagebox.showinfo("Guardado", f"Archivo JSON actualizado:\n{ruta}")
 
+            # Actualizar contenido original
+            self.contenido_original = json.loads(json.dumps(self.state["proyectos"]))
+
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo guardar el archivo:\n{e}")
+
 
 
 # ============================================================
