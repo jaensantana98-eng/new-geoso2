@@ -86,7 +86,7 @@ class paginaWindow(tk.Toplevel):
         ttk.Button(frm_cuerpo, text="Buscar", command=self.select_imagen).grid(row=3, column=2, padx=8)
 
         ttk.Label(frm_cuerpo, text="Pie de imagen:").grid(row=4, column=0, sticky="nw")
-        self.texto_pie = tk.Text(frm_cuerpo, height=4, wrap="word")
+        self.texto_pie = tk.Text(frm_cuerpo, height=3, wrap="word")
         self.texto_pie.grid(row=4, column=1, sticky="ew", pady=6)
 
         btns = ttk.Frame(frm_cuerpo)
@@ -101,7 +101,7 @@ class paginaWindow(tk.Toplevel):
             frm_cuerpo,
             columns=("Párrafo", "Imagen", "Pie", "Enlace", "Texto enlace"),
             show="headings",
-            height=8
+            height=6
         )
         self.tree.grid(row=6, column=0, columnspan=3, sticky="nsew")
         self.tree.heading("Párrafo", text="Párrafo")

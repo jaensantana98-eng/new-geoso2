@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
+from tkinter import filedialog
 import interfaz_noticias
 import interfaz_agenda
 import interfaz_carrusel
@@ -14,7 +15,6 @@ import os
 import json
 import webbrowser
 from jinja2 import Environment, FileSystemLoader
-
 
 # ============================================================
 # VENTANA MODAL DEL HISTORIAL GLOBAL
@@ -103,8 +103,9 @@ class VentanaHistorialGlobal(tk.Toplevel):
 class MainApp(tk.Tk):
     def __init__(self):
         super().__init__()
+
         self.title("Gestor de Geoso2")
-        self.geometry("500x300")
+        self.geometry("500x400")
 
         ttk.Label(self, text="Selecciona una opción:", font=("Segoe UI", 14, "bold")).pack(pady=20)
 
@@ -119,6 +120,13 @@ class MainApp(tk.Tk):
 
         ttk.Button(btns, text="Generar sitio web", width=18,
                    command=self.generar_sitio_web).grid(row=2, column=0, padx=10, pady=20)
+        
+        ttk.Button(btns, text="Exportar copia de seguridad", width=20,
+           command=self.exportar_copia).grid(row=3, column=0, padx=10)
+
+        ttk.Button(btns, text="Importar copia de seguridad", width=20,
+                command=self.importar_copia).grid(row=4, column=0, padx=10, pady=10)
+
 
         ttk.Label(self, text="© Creado por Jesús Jaén Santana v.1.0/2025",
                   font=("Segoe UI", 10, "italic")).pack(side="bottom", pady=10)
@@ -401,6 +409,63 @@ class MainApp(tk.Tk):
 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo generar el sitio web:\n{e}")
+
+    def exportar_copia(self):
+        try:
+            ruta_origen = "geoso2-web-template/json/web.json"
+
+            if not os.path.exists(ruta_origen):
+                messagebox.showerror("Error", "No se encontró web.json.")
+                return
+
+            ruta_destino = filedialog.asksaveasfilename(
+                title="Exportar copia de seguridad",
+                defaultextension=".json",
+                filetypes=[("Archivo JSON", "*.json")]
+            )
+
+            if not ruta_destino:
+                return
+
+            with open(ruta_origen, "r", encoding="utf-8") as f_src, \
+                open(ruta_destino, "w", encoding="utf-8") as f_dst:
+                f_dst.write(f_src.read())
+
+            messagebox.showinfo("Exportado", "Copia exportada correctamente.")
+
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo exportar la copia:\n{e}")
+
+    def importar_copia(self):
+        try:
+            ruta_origen = filedialog.askopenfilename(
+                title="Seleccionar copia de seguridad",
+                filetypes=[("Archivo JSON", "*.json")]
+            )
+
+            if not ruta_origen:
+                return
+
+            # Validar estructura mínima
+            with open(ruta_origen, "r", encoding="utf-8") as f:
+                datos = json.load(f)
+
+            if "web" not in datos:
+                messagebox.showerror("Error", "El archivo seleccionado no es una copia válida.")
+                return
+
+            ruta_destino = "geoso2-web-template/json/web.json"
+
+            # Sobrescribir web.json
+            with open(ruta_destino, "w", encoding="utf-8") as f:
+                json.dump(datos, f, indent=4, ensure_ascii=False)
+
+            messagebox.showinfo("Importado", "Copia importada correctamente.")
+
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo importar la copia:\n{e}")
+
+
 
 
 if __name__ == "__main__":
