@@ -120,14 +120,14 @@ class MainApp(tk.Tk):
 
         ttk.Separator(btns).grid(row=2, column=0, pady=10, sticky="ew")
 
-        ttk.Button(btns, text="Generar sitio web", width=12,
+        ttk.Button(btns, text="Generar sitio web", width=15,
                    command=self.generar_sitio_web).grid(row=2, column=0, padx=10, pady=20)
         
         
-        ttk.Button(btns, text="Exportar copia de seguridad", width=20,
+        ttk.Button(btns, text="Exportar copia de seguridad", width=25,
            command=self.exportar_copia).grid(row=3, column=0, padx=10)
 
-        ttk.Button(btns, text="Importar copia de seguridad", width=20,
+        ttk.Button(btns, text="Importar copia de seguridad", width=25,
                 command=self.importar_copia).grid(row=4, column=0, padx=10, pady=10)
 
         ttk.Button(btns, text="Manual de ayuda Pdf", width=20,
@@ -136,7 +136,7 @@ class MainApp(tk.Tk):
         bottom_frame = ttk.Frame(btns)
         bottom_frame.grid(row=8, column=0, pady=(50, 0))
 
-        ttk.Button(bottom_frame, text="Instrucciones", width=10,
+        ttk.Button(bottom_frame, text="Instrucciones", width=12,
                 command=self.abrir_instrucciones).grid(row=0, column=0, padx=10)
 
         ttk.Button(bottom_frame, text="Salir", width=8,
