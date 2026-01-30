@@ -485,6 +485,7 @@ class MainApp(tk.Tk):
         if not os.path.exists(pdf_path): 
             print("No se encontró el archivo:", pdf_path) 
             return
+        navegador = webbrowser.get()
         webbrowser.open_new_tab(f"file:///{os.path.abspath(pdf_path)}")
 
     def abrir_instrucciones(self):
