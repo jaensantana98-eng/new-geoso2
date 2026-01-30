@@ -394,11 +394,14 @@ class DatosTab(tk.Frame):
     def instrucciones(self):
         instrucciones = (
             "Instrucciones para la Agenda:\n\n"
-            "1. Rellena los campos del formulario superior con los datos del evento.\n"
-            "2. Usa el botón 'Buscar' para seleccionar una imagen.\n"
-            "3. El título del evento es obligatorio.\n"
-            "4. Puedes añadir, editar o eliminar eventos.\n"
-            "5. Usa 'Subir' y 'Bajar' para reordenar.\n"
-            "6. Haz clic en 'Guardar cambios' para actualizar el JSON."
+            "1. Añadir eventos con imagen, título, descripción, fecha, hora, lugar y enlace.\n"
+            "\n"
+            "2. La imagen debe estar en formato PNG, JPG o GIF.\n"
+            "\n"
+            "3. El enlace puede ser un archivo PDF, HTML o una URL externa.\n"
+            "\n"
+            "4. Usa los botones para añadir, eliminar o mover eventos en la agenda.\n"
+            "\n"
+            "5. Pulsa en Guarda los cambios para guardar los cambios realizados."
         )
         messagebox.showinfo("Instrucciones", instrucciones)

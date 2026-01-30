@@ -105,21 +105,24 @@ class MainApp(tk.Tk):
         super().__init__()
 
         self.title("Gestor de Geoso2")
-        self.geometry("500x400")
+        self.geometry("400x500")
 
         ttk.Label(self, text="Selecciona una opción:", font=("Segoe UI", 14, "bold")).pack(pady=20)
 
         btns = ttk.Frame(self)
         btns.pack(pady=10)
 
-        ttk.Button(btns, text="Editar sitio web", width=18,
+        ttk.Button(btns, text="Editar sitio web", width=20,
                    command=lambda: self.open_section_menu("edit")).grid(row=0, column=0, padx=10)
 
-        ttk.Button(btns, text="Historial de cambios", width=18,
+        ttk.Button(btns, text="Historial de cambios", width=20,
                    command=self.abrir_historial_global).grid(row=1, column=0, padx=10, pady=10)
 
-        ttk.Button(btns, text="Generar sitio web", width=18,
+        ttk.Separator(btns).grid(row=2, column=0, pady=10, sticky="ew")
+
+        ttk.Button(btns, text="Generar sitio web", width=12,
                    command=self.generar_sitio_web).grid(row=2, column=0, padx=10, pady=20)
+        
         
         ttk.Button(btns, text="Exportar copia de seguridad", width=20,
            command=self.exportar_copia).grid(row=3, column=0, padx=10)
@@ -127,8 +130,20 @@ class MainApp(tk.Tk):
         ttk.Button(btns, text="Importar copia de seguridad", width=20,
                 command=self.importar_copia).grid(row=4, column=0, padx=10, pady=10)
 
+        ttk.Button(btns, text="Manual de ayuda Pdf", width=20,
+                   command=self.abrir_manual_ayuda).grid(row=5, column=0, padx=20, pady=20)
 
-        ttk.Label(self, text="© Creado por Jesús Jaén Santana v.1.0/2025",
+        bottom_frame = ttk.Frame(btns)
+        bottom_frame.grid(row=8, column=0, pady=(50, 0))
+
+        ttk.Button(bottom_frame, text="Instrucciones", width=10,
+                command=self.abrir_instrucciones).grid(row=0, column=0, padx=10)
+
+        ttk.Button(bottom_frame, text="Salir", width=8,
+                command=self.quit).grid(row=0, column=1, padx=10)
+
+
+        ttk.Label(self, text="© Creado por Jesús Jaén Santana v.2.0/2026",
                   font=("Segoe UI", 10, "italic")).pack(side="bottom", pady=10)
 
     # ============================================================
@@ -213,9 +228,9 @@ class MainApp(tk.Tk):
 
         ttk.Separator(frm).pack(fill="x", pady=8)
 
-        ttk.Label(frm, text="Gestión de Página Web:", font=("Segoe UI", 11)).pack(pady=8)
+        ttk.Label(frm, text="Gestión de otras Páginas:", font=("Segoe UI", 11)).pack(pady=8)
 
-        ttk.Button(frm, text="Página Web", width=20,
+        ttk.Button(frm, text="Páginas Web", width=20,
                    command=lambda: self.abrir_pagina_web(mode, win)).pack(pady=4)
 
     # ============================================================
@@ -465,7 +480,31 @@ class MainApp(tk.Tk):
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo importar la copia:\n{e}")
 
+    def abrir_manual_ayuda(self):
+        pdf_path = "geoso2-web-template/manual-de-ayuda/Manual-de-Ayuda.pdf"
+        if not os.path.exists(pdf_path): 
+            print("No se encontró el archivo:", pdf_path) 
+            return
+        webbrowser.open_new_tab(f"file:///{os.path.abspath(pdf_path)}")
 
+    def abrir_instrucciones(self):
+        instrucciones = (
+            "Instrucciones para usar el Gestor de Geoso2:\n\n"
+            "1. Usa 'Editar sitio web' para modificar las diferentes secciones del sitio.\n"
+            "(Cada sección tiene su propio editor con instrucciones específicas)\n"
+            "\n"
+            "2. Usa 'Historial de cambios' para ver y limpiar el historial global de modificaciones.\n"
+            "\n"
+            "3. Usa 'Generar sitio web' para crear los archivos HTML en la carpeta de salida.\n"
+            "\n"
+            "4. Puedes exportar e importar copias de seguridad del archivo web.json.\n"
+            "(Ten en cuenta que el nombre del archivo importado debe ser web.json para que funcione correctamente y que importar sobrescribirá el archivo actual)\n"
+            "\n"
+            "5. Consulta el 'Manual de ayuda Pdf' para más detalles sobre cada sección."
+        )
+        messagebox.showinfo("Instrucciones", instrucciones)
+
+    
 
 
 if __name__ == "__main__":

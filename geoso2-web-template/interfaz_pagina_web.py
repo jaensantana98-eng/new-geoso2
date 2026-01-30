@@ -559,8 +559,14 @@ class paginaWindow(tk.Toplevel):
         messagebox.showinfo(
             "Instrucciones",
             "1. Rellena los datos generales (portada, título, autor).\n"
+            "\n"
             "2. Añade bloques al cuerpo (texto, imagen, enlaces).\n"
+            "\n"
             "3. Pulsa 'Guardar' para añadir o actualizar la página en web.json.\n"
+            "\n"
             "4. Usa 'Ver páginas creadas' para editar o borrar páginas.\n"
-            "5. Usa 'Previsualizar en HTML' para ver el resultado en el navegador."
+            "\n"
+            "5. Usa 'Previsualizar en HTML' para ver el resultado en el navegador.\n\n"
+            "6. Si quieres usar una página ya creada como enlace en cualquier enlace de cualquier sección, usa el ID de la página creada seguido de .html en el campo enlace o link, ejemplo: \n Enlace: pagina_001.html"
+
         )

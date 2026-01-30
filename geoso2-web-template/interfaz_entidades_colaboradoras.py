@@ -302,9 +302,8 @@ class DatosTab(ttk.Frame):
         instrucciones = (
             "Instrucciones para editar Entidades Colaboradoras:\n\n"
             "1. Imagen: Selecciona una imagen representativa de la entidad. "
-            "La imagen se copiará automáticamente a la carpeta del proyecto.\n\n"
             "2. Enlace: Puedes proporcionar un enlace a un documento (PDF o HTML) "
-            "relacionado con la entidad. Puedes escribir una URL o seleccionar un archivo local.\n\n"
+            "relacionado con la entidad que al pulsar sobre la imagen te dirige hacia el enlace.\n\n"
             "3. Añadir: Después de completar los campos, haz clic en 'Añadir' para agregar la entidad a la lista.\n\n"
             "4. Eliminar: Selecciona una entidad en la tabla y haz clic en 'Eliminar' para borrarla.\n\n"
             "5. Subir/Bajar: Usa estos botones para cambiar el orden de las entidades en la lista.\n\n"

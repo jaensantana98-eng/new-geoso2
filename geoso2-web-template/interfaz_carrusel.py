@@ -288,9 +288,14 @@ class DatosTab(ttk.Frame):
         instrucciones = (
             "Instrucciones para el Carrusel:\n\n"
             "1. Añadir imágenes y enlaces para el carrusel de la página principal.\n"
+            "\n"
             "2. Las imágenes deben estar en formato PNG, JPG o GIF.\n"
+            "(Se recomienda una resolución de 2700x700 píxeles)\n"
+            "\n"
             "3. Los enlaces pueden ser archivos PDF o HTML.\n"
+            "\n"
             "4. Usa los botones para añadir, eliminar o mover elementos en el carrusel.\n"
-            "5. Guarda los cambios para actualizar el archivo JSON."
+            "\n"
+            "5. Pulsa en Guarda los cambios para guardar los cambios realizados."
         )
         messagebox.showinfo("Instrucciones", instrucciones)
