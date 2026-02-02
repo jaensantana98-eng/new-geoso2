@@ -271,8 +271,23 @@ class DatosTab(ttk.Frame):
             self.tree.selection_set(self.tree.get_children()[index + 1])
 
     def edit_item(self):
-        pass  # No se implementa edición en este caso
+        selected = self.tree.selection()
+        if not selected:
+            return
 
+        index = self.tree.index(selected[0])
+        item = self.controller.state["carrusel"][index]
+        self.editing_index = index
+
+        self.entry_imagen.delete(0, tk.END)
+        self.entry_imagen.insert(0, item["imagen"])
+
+        self.entry_enlace.delete(0, tk.END)
+        self.entry_enlace.insert(0, item["enlace"])
+
+        del self.controller.state["carrusel"][index]
+        self.refresh_table()
+        
     def refresh_table(self):
         for item in self.tree.get_children():
             self.tree.delete(item)

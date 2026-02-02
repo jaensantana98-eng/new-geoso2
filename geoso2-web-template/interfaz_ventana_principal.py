@@ -120,7 +120,7 @@ class MainApp(tk.Tk):
 
         ttk.Separator(btns).grid(row=2, column=0, pady=10, sticky="ew")
 
-        ttk.Button(btns, text="Generar sitio web", width=15,
+        ttk.Button(btns, text="Generar sitio web", width=16,
                    command=self.generar_sitio_web).grid(row=2, column=0, padx=10, pady=20)
         
         
