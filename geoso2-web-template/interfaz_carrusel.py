@@ -306,8 +306,9 @@ class DatosTab(ttk.Frame):
 
     def crear_plantilla(self):
         try:
-            carpeta_destino = "geoso2-web-template/imput/img/carrusel"
-            os.makedirs(carpeta_destino, exist_ok=True)
+            carpeta_destino = filedialog.askdirectory(
+                title="Selecciona donde guardar la plantilla"
+            )
 
             ruta = os.path.join(carpeta_destino, "plantilla_carrusel.png")
 
@@ -318,28 +319,10 @@ class DatosTab(ttk.Frame):
 
             img.save(ruta)
 
-            # Insertar ruta relativa en el campo
-            self.entry_imagen.delete(0, tk.END)
-            self.entry_imagen.insert(0, "../imput/img/carrusel/plantilla_carrusel.png")
-
-            # Abrir con el editor de imágenes del sistema
-            self.abrir_con_editor(ruta)
-
             messagebox.showinfo("Plantilla creada", "Se ha generado una plantilla 2700x700.")
 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo crear la plantilla:\n{e}")
-
-
-    def abrir_con_editor(self, ruta):  
-        sistema = platform.system()
-
-        if sistema == "Windows":
-            os.startfile(ruta)
-        elif sistema == "Darwin":  # macOS
-            subprocess.call(["open", ruta])
-        else:  # Linux
-            subprocess.call(["xdg-open", ruta])
 
 
     def instrucciones(self):
