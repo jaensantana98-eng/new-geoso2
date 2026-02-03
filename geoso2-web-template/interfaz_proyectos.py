@@ -7,6 +7,9 @@ import webbrowser
 from PIL import Image
 
 
+# ============================================================
+# VENTANA PRINCIPAL DEL EDITOR DE PROYECTOS
+# ============================================================
 class EditorProyectosWindow(tk.Toplevel):
     def __init__(self, filepath=None):
         super().__init__()
@@ -14,7 +17,6 @@ class EditorProyectosWindow(tk.Toplevel):
         self.geometry("1100x700")
 
         self.filepath = filepath
-        self.editing_index = None
 
         # Estado inicial
         self.state = {
@@ -30,7 +32,6 @@ class EditorProyectosWindow(tk.Toplevel):
             with open(filepath, "r", encoding="utf-8") as f:
                 datos = json.load(f)
 
-            # Cargar desde la ruta correcta
             self.state["proyectos"] = datos.get("web", {}).get(
                 "proyectos",
                 {
@@ -39,47 +40,74 @@ class EditorProyectosWindow(tk.Toplevel):
                     "trabajosacademicos": []
                 }
             )
+
             self.contenido_original = json.loads(json.dumps(self.state["proyectos"]))
 
-
-        # Notebook
+        # Notebook con 3 pestañas
         self.notebook = ttk.Notebook(self)
         self.notebook.pack(fill="both", expand=True)
 
-        self.tab_lista = ListaTab(self.notebook, self)
-        self.tab_form = FormTab(self.notebook, self)
+        self.tabs = {}
 
-        self.notebook.add(self.tab_lista, text="Lista")
-        self.notebook.add(self.tab_form, text="Formulario")
+        for categoria, nombre in [
+            ("encurso", "En curso"),
+            ("anteriores", "Anteriores"),
+            ("trabajosacademicos", "Trabajos académicos")
+        ]:
+            tab = DatosTab(self.notebook, self, categoria)
+            self.notebook.add(tab, text=nombre)
+            self.tabs[categoria] = tab
 
-        # Marco inferior para botones
-        bottom_frame = ttk.Frame(self)
-        bottom_frame.pack(fill="x", pady=10)
+        # Footer
+        footer = ttk.Frame(self)
+        footer.pack(fill="x", pady=10)
 
-        # Botón de instrucciones (abajo a la izquierda)
-        ttk.Button(bottom_frame, text="Instrucciones", command=self.tab_lista.instrucciones).pack(side="left", padx=10)
+        ttk.Button(
+            footer,
+            text="Instrucciones",
+            command=self.mostrar_instrucciones
+        ).pack(side="left", padx=10)
 
-        # Botón guardar cambios (centrado)
-        ttk.Button(bottom_frame, text="Guardar cambios", command=self.save_json).pack(side="top", pady=5)
+        ttk.Button(
+            footer,
+            text="Guardar cambios",
+            command=self.save_json
+        ).pack(side="top", pady=5)
 
+        # Refrescar todas las tablas
+        for tab in self.tabs.values():
+            tab.refresh_table()
 
-        self.tab_lista.refresh_table()
+    # ------------------------------------------------------------
+    # INSTRUCCIONES
+    # ------------------------------------------------------------
+    def mostrar_instrucciones(self):
+        instrucciones = (
+            "Editor de Proyectos:\n\n"
+            "• Cada pestaña representa una categoría: En curso, Anteriores y Trabajos académicos.\n"
+            "• Puedes añadir, editar, eliminar, mover y reordenar proyectos.\n"
+            "• El botón 'Mover a…' permite enviar un proyecto a otra categoría.\n"
+            "• Las imágenes se redimensionan automáticamente a 300×300.\n"
+            "• Los documentos se copian a la carpeta correspondiente.\n"
+            "• Usa 'Guardar cambios' para actualizar el archivo JSON."
+        )
+        messagebox.showinfo("Instrucciones", instrucciones)
 
+    # ------------------------------------------------------------
+    # DETECTAR CAMBIOS
+    # ------------------------------------------------------------
     def detectar_cambios(self, antes, despues):
         cambios = []
 
-        if antes.get("encurso") != despues.get("encurso"):
-            cambios.append("encurso")
-
-        if antes.get("anteriores") != despues.get("anteriores"):
-            cambios.append("anteriores")
-
-        if antes.get("trabajosacademicos") != despues.get("trabajosacademicos"):
-            cambios.append("trabajosacademicos")
+        for key in ["encurso", "anteriores", "trabajosacademicos"]:
+            if antes.get(key) != despues.get(key):
+                cambios.append(key)
 
         return cambios
 
-
+    # ------------------------------------------------------------
+    # GUARDAR JSON
+    # ------------------------------------------------------------
     def save_json(self):
         ruta = "geoso2-web-template/json/web.json"
 
@@ -90,10 +118,8 @@ class EditorProyectosWindow(tk.Toplevel):
             datos_completos.setdefault("web", {})
             datos_completos["web"].setdefault("proyectos", {})
 
-            # Detectar cambios
             cambios = self.detectar_cambios(self.contenido_original, self.state["proyectos"])
 
-            # Registrar historial
             if cambios:
                 datos_completos["web"]["proyectos"].setdefault("history", [])
                 datos_completos["web"]["proyectos"]["history"].append({
@@ -102,206 +128,89 @@ class EditorProyectosWindow(tk.Toplevel):
                     "summary": "Actualización en proyectos"
                 })
 
-            # Guardar proyectos
             datos_completos["web"]["proyectos"] = self.state["proyectos"]
 
-            # Guardar archivo
             with open(ruta, "w", encoding="utf-8") as f:
                 json.dump(datos_completos, f, indent=4, ensure_ascii=False)
 
-            messagebox.showinfo("Guardado", f"Archivo JSON actualizado:\n{ruta}")
+            messagebox.showinfo("Guardado", "Proyectos actualizados correctamente.")
 
-            # Actualizar contenido original
             self.contenido_original = json.loads(json.dumps(self.state["proyectos"]))
 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo guardar el archivo:\n{e}")
 
 
-
 # ============================================================
-# TABLA DE PROYECTOS
+# PESTAÑA UNIFICADA POR CATEGORÍA
 # ============================================================
-class ListaTab(tk.Frame):
-    def __init__(self, parent, controller):
+class DatosTab(ttk.Frame):
+    def __init__(self, parent, controller, categoria):
         super().__init__(parent)
         self.controller = controller
-
-        ttk.Label(self, text="Categoría:").pack(anchor="w", padx=10, pady=5)
-
-        self.categoria_var = tk.StringVar(value="encurso")
-        self.combo = ttk.Combobox(
-            self,
-            textvariable=self.categoria_var,
-            values=["encurso", "anteriores", "trabajosacademicos"],
-            state="readonly"
-        )
-        self.combo.pack(anchor="w", padx=10)
-        self.combo.bind("<<ComboboxSelected>>", lambda e: self.refresh_table())
-
-        toolbar = ttk.Frame(self)
-        toolbar.pack(fill="x", pady=10)
-
-        ttk.Button(toolbar, text="Añadir", command=self.add).pack(side="left", padx=5)
-        ttk.Button(toolbar, text="Editar", command=self.edit).pack(side="left", padx=5)
-        ttk.Button(toolbar, text="Eliminar", command=self.delete).pack(side="left", padx=5)
-        ttk.Button(toolbar, text="Subir", command=self.up).pack(side="left", padx=5)
-        ttk.Button(toolbar, text="Bajar", command=self.down).pack(side="left", padx=5)
-
-        self.tree = ttk.Treeview(
-            self,
-            columns=("Imagen", "Título", "Link"),
-            show="headings",
-            height=20
-        )
-        self.tree.pack(fill="both", expand=True)
-
-        self.tree.heading("Imagen", text="Imagen")
-        self.tree.heading("Título", text="Título")
-        self.tree.heading("Link", text="Link")
-
-    def refresh_table(self):
-        categoria = self.categoria_var.get()
-        proyectos = self.controller.state["proyectos"][categoria]
-
-        for item in self.tree.get_children():
-            self.tree.delete(item)
-
-        for p in proyectos:
-            self.tree.insert(
-                "",
-                tk.END,
-                values=(p.get("imagen", ""), p.get("titulo", ""), p.get("link", ""))
-            )
-
-    def add(self):
-        self.controller.editing_index = None
-        categoria = self.categoria_var.get()
-        self.controller.tab_form.load_data({}, categoria)
-        self.controller.notebook.select(self.controller.tab_form)
-
-    def edit(self):
-        selected = self.tree.selection()
-        if not selected:
-            return
-
-        index = self.tree.index(selected[0])
-        categoria = self.categoria_var.get()
-        self.controller.editing_index = index
-
-        data = self.controller.state["proyectos"][categoria][index]
-        self.controller.tab_form.load_data(data, categoria)
-        self.controller.notebook.select(self.controller.tab_form)
-
-    def delete(self):
-        selected = self.tree.selection()
-        if not selected:
-            return
-
-        index = self.tree.index(selected[0])
-        categoria = self.categoria_var.get()
-
-        del self.controller.state["proyectos"][categoria][index]
-        self.refresh_table()
-
-    def up(self):
-        selected = self.tree.selection()
-        if not selected:
-            return
-
-        index = self.tree.index(selected[0])
-        categoria = self.categoria_var.get()
-        arr = self.controller.state["proyectos"][categoria]
-
-        if index == 0:
-            return
-
-        arr[index - 1], arr[index] = arr[index], arr[index - 1]
-        self.refresh_table()
-
-    def down(self):
-        selected = self.tree.selection()
-        if not selected:
-            return
-
-        index = self.tree.index(selected[0])
-        categoria = self.categoria_var.get()
-        arr = self.controller.state["proyectos"][categoria]
-
-        if index == len(arr) - 1:
-            return
-
-        arr[index + 1], arr[index] = arr[index], arr[index + 1]
-        self.refresh_table()
-
-    def instrucciones(self):
-        instrucciones = (
-            "Instrucciones para editar proyectos:\n\n"
-            "1. Imagen: Selecciona una imagen representativa del proyecto. "
-            "Se redimensionará automáticamente a 300x300 píxeles.\n\n"
-            "2. Título: Escribe el título del proyecto.\n\n"
-            "3. Link: Proporciona un enlace al documento del proyecto (PDF, HTML, etc.) "
-            "o una URL externa. Puedes probar el enlace con el botón 'Probar'.\n\n"
-            "4. Descripción: Añade una breve descripción del proyecto.\n\n"
-            "5. Guarda los cambios con el botón 'Guardar'."
-        )
-        messagebox.showinfo("Instrucciones", instrucciones)
-
-# ============================================================
-# FORMULARIO DE PROYECTOS
-# ============================================================
-class FormTab(tk.Frame):
-    def __init__(self, parent, controller):
-        super().__init__(parent)
-        self.controller = controller
-        self.categoria_actual = None
+        self.categoria = categoria
+        self.editing_index = None
 
         frm = ttk.Frame(self)
-        frm.pack(fill="both", expand=True, padx=20, pady=20)
+        frm.pack(fill="both", expand=True, padx=10, pady=10)
 
+        # -------------------------
+        # CAMPOS
+        # -------------------------
         ttk.Label(frm, text="Imagen:").grid(row=0, column=0, sticky="w")
         self.entry_imagen = ttk.Entry(frm)
         self.entry_imagen.grid(row=0, column=1, sticky="ew")
-        ttk.Button(frm, text="Seleccionar", command=self.select_imagen).grid(row=0, column=2, padx=5)
+        ttk.Button(frm, text="Buscar", command=self.select_imagen).grid(row=0, column=2, padx=6)
 
         ttk.Label(frm, text="Título:").grid(row=1, column=0, sticky="nw")
         self.text_titulo = tk.Text(frm, height=3)
         self.text_titulo.grid(row=1, column=1, sticky="ew")
 
-        ttk.Label(frm, text="Link:").grid(row=2, column=0, sticky="w")
+        ttk.Label(frm, text="Descripción:").grid(row=2, column=0, sticky="nw")
+        self.text_descripcion = tk.Text(frm, height=6)
+        self.text_descripcion.grid(row=2, column=1, sticky="ew")
 
-        link_frame = ttk.Frame(frm)
-        link_frame.grid(row=2, column=1, sticky="ew")
+        ttk.Label(frm, text="Link:").grid(row=3, column=0, sticky="w")
+        self.entry_link = ttk.Entry(frm)
+        self.entry_link.grid(row=3, column=1, sticky="ew")
 
-        self.entry_link = ttk.Entry(link_frame)
-        self.entry_link.pack(side="left", fill="x", expand=True)
+        ttk.Button(frm, text="Probar", command=self.probar_link).grid(row=3, column=2, padx=6)
+        ttk.Button(frm, text="Buscar archivo", command=self.select_file).grid(row=3, column=3, padx=6)
 
-        ttk.Button(link_frame, text="Probar", command=self.probar_link).pack(side="left", padx=5)
-        ttk.Button(frm, text="Buscar archivo", command=self.select_file).grid(row=2, column=2, padx=8)
+        # -------------------------
+        # BOTONES CRUD
+        # -------------------------
+        btn_frame = ttk.Frame(frm)
+        btn_frame.grid(row=4, column=0, columnspan=4, pady=10)
 
-        ttk.Label(frm, text="Descripción:").grid(row=3, column=0, sticky="nw")
-        self.text_desc = tk.Text(frm, height=8)
-        self.text_desc.grid(row=3, column=1, sticky="ew")
+        ttk.Button(btn_frame, text="Añadir", command=self.add_item).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Editar", command=self.edit_item).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Eliminar", command=self.delete_item).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Subir", command=self.move_up).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Bajar", command=self.move_down).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Mover a…", command=self.mover_a).pack(side="left", padx=5)
 
-        btns = ttk.Frame(frm)
-        btns.grid(row=4, column=0, columnspan=3, pady=20)
+        # -------------------------
+        # TABLA
+        # -------------------------
+        self.tree = ttk.Treeview(frm, columns=("Imagen", "Título", "Link"), show="headings", height=12)
+        self.tree.grid(row=5, column=0, columnspan=4, sticky="nsew")
 
-        ttk.Button(btns, text="Guardar", command=self.save).pack(side="left", padx=10)
-        ttk.Button(btns, text="Cancelar", command=self.cancel).pack(side="left", padx=10)
+        self.tree.heading("Imagen", text="Imagen")
+        self.tree.heading("Título", text="Título")
+        self.tree.heading("Link", text="Link")
 
         frm.columnconfigure(1, weight=1)
+        frm.rowconfigure(5, weight=1)
 
+    # ============================================================
+    # ARCHIVOS
+    # ============================================================
     def select_file(self):
         ruta = filedialog.askopenfilename(
             title="Seleccionar archivo",
-            filetypes=[
-                ("Documentos", "*.pdf;*.html;*.htm"),
-                ("PDF", "*.pdf"),
-                ("HTML", "*.html;*.htm"),
-                ("Todos los archivos", "*.*")
-            ]
+            filetypes=[("Documentos", "*.pdf *.html *.htm"), ("Todos", "*.*")]
         )
-
         if not ruta:
             return
 
@@ -312,27 +221,13 @@ class FormTab(tk.Frame):
             nombre = os.path.basename(ruta)
             destino = os.path.join(destino_dir, nombre)
 
-            with open(ruta, "rb") as f_src, open(destino, "wb") as f_dst:
-                f_dst.write(f_src.read())
+            shutil.copy(ruta, destino)
 
             self.entry_link.delete(0, tk.END)
             self.entry_link.insert(0, f"../imput/docs/proyectos/{nombre}")
 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo copiar el archivo:\n{e}")
-
-    def load_data(self, data, categoria):
-        self.categoria_actual = categoria
-
-        self.entry_imagen.delete(0, tk.END)
-        self.text_titulo.delete("1.0", tk.END)
-        self.entry_link.delete(0, tk.END)
-        self.text_desc.delete("1.0", tk.END)
-
-        self.entry_imagen.insert(0, data.get("imagen", ""))
-        self.text_titulo.insert("1.0", data.get("titulo", ""))
-        self.entry_link.insert(0, data.get("link", ""))
-        self.text_desc.insert("1.0", data.get("descripcion", ""))
 
     def select_imagen(self):
         ruta = filedialog.askopenfilename(
@@ -365,6 +260,151 @@ class FormTab(tk.Frame):
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo procesar la imagen:\n{e}")
 
+    # ============================================================
+    # CRUD
+    # ============================================================
+    def add_item(self):
+        data = {
+            "imagen": self.entry_imagen.get().strip(),
+            "titulo": self.text_titulo.get("1.0", tk.END).strip(),
+            "descripcion": self.text_descripcion.get("1.0", tk.END).strip(),
+            "link": self.entry_link.get().strip()
+        }
+
+        if not data["imagen"] or not data["titulo"] or not data["descripcion"]:
+            messagebox.showwarning("Aviso", "Imagen, título y descripción son obligatorios.")
+            return
+
+        self.controller.state["proyectos"][self.categoria].append(data)
+
+        self.refresh_table()
+        self.clear_fields()
+
+    def edit_item(self):
+        selected = self.tree.selection()
+        if not selected:
+            return
+
+        index = self.tree.index(selected[0])
+        self.editing_index = index
+
+        data = self.controller.state["proyectos"][self.categoria][index]
+
+        self.entry_imagen.delete(0, tk.END)
+        self.entry_imagen.insert(0, data["imagen"])
+
+        self.text_titulo.delete("1.0", tk.END)
+        self.text_titulo.insert("1.0", data["titulo"])
+
+        self.text_descripcion.delete("1.0", tk.END)
+        self.text_descripcion.insert("1.0", data["descripcion"])
+
+        self.entry_link.delete(0, tk.END)
+        self.entry_link.insert(0, data["link"])
+
+    def delete_item(self):
+        selected = self.tree.selection()
+        if not selected:
+            return
+
+        index = self.tree.index(selected[0])
+        del self.controller.state["proyectos"][self.categoria][index]
+        self.refresh_table()
+
+    def move_up(self):
+        selected = self.tree.selection()
+        if not selected:
+            return
+
+        index = self.tree.index(selected[0])
+        arr = self.controller.state["proyectos"][self.categoria]
+
+        if index == 0:
+            return
+
+        arr[index - 1], arr[index] = arr[index], arr[index - 1]
+        self.refresh_table()
+
+    def move_down(self):
+        selected = self.tree.selection()
+        if not selected:
+            return
+
+        index = self.tree.index(selected[0])
+        arr = self.controller.state["proyectos"][self.categoria]
+
+        if index == len(arr) - 1:
+            return
+
+        arr[index + 1], arr[index] = arr[index], arr[index + 1]
+        self.refresh_table()
+
+    # ============================================================
+    # MOVER A OTRA CATEGORÍA
+    # ============================================================
+    def mover_a(self):
+        selected = self.tree.selection()
+        if not selected:
+            return
+
+        index = self.tree.index(selected[0])
+        proyecto = self.controller.state["proyectos"][self.categoria][index]
+
+        popup = tk.Toplevel(self)
+        popup.title("Mover a…")
+        popup.geometry("300x150")
+
+        ttk.Label(popup, text="Selecciona categoría destino:").pack(pady=10)
+
+        destino_var = tk.StringVar()
+        combo = ttk.Combobox(
+            popup,
+            textvariable=destino_var,
+            values=["encurso", "anteriores", "trabajosacademicos"],
+            state="readonly"
+        )
+        combo.pack(pady=5)
+
+        def confirmar():
+            destino = destino_var.get()
+            if not destino:
+                return
+
+            # Eliminar de origen
+            del self.controller.state["proyectos"][self.categoria][index]
+
+            # Insertar al principio del destino
+            self.controller.state["proyectos"][destino].insert(0, proyecto)
+
+            # Registrar historial
+            self.controller.contenido_original.setdefault("history", [])
+            # (El historial real se registra al guardar)
+
+            # Refrescar todas las pestañas
+            for tab in self.controller.tabs.values():
+                tab.refresh_table()
+
+            popup.destroy()
+
+        ttk.Button(popup, text="Mover", command=confirmar).pack(pady=10)
+
+    # ============================================================
+    # UTILIDADES
+    # ============================================================
+    def refresh_table(self):
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+
+        for elem in self.controller.state["proyectos"][self.categoria]:
+            self.tree.insert("", tk.END, values=(elem["imagen"], elem["titulo"], elem["link"]))
+
+    def clear_fields(self):
+        self.entry_imagen.delete(0, tk.END)
+        self.text_titulo.delete("1.0", tk.END)
+        self.text_descripcion.delete("1.0", tk.END)
+        self.entry_link.delete(0, tk.END)
+        self.editing_index = None
+
     def probar_link(self):
         url = self.entry_link.get().strip()
 
@@ -383,25 +423,3 @@ class FormTab(tk.Frame):
                     messagebox.showerror("Error", f"No se encontró el archivo:\n{ruta}")
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo abrir el enlace:\n{e}")
-
-    def save(self):
-        data = {
-            "imagen": self.entry_imagen.get().strip(),
-            "titulo": self.text_titulo.get("1.0", tk.END).strip(),
-            "link": self.entry_link.get().strip(),
-            "descripcion": self.text_desc.get("1.0", tk.END).strip()
-        }
-
-        categoria = self.categoria_actual or self.controller.tab_lista.categoria_var.get()
-
-        if self.controller.editing_index is None:
-            self.controller.state["proyectos"][categoria].append(data)
-        else:
-            self.controller.state["proyectos"][categoria][self.controller.editing_index] = data
-            self.controller.editing_index = None
-
-        self.controller.tab_lista.refresh_table()
-        self.controller.notebook.select(self.controller.tab_lista)
-
-    def cancel(self):
-        self.controller.notebook.select(self.controller.tab_lista)

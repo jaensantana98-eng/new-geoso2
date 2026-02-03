@@ -8,60 +8,62 @@ from PIL import Image
 
 
 # ============================================================
-# VENTANA PRINCIPAL DEL EDITOR DE PARTICIPA
+# VENTANA PRINCIPAL DEL EDITOR DE PARTICIPA (UNIFICADO)
 # ============================================================
 class EditorParticipaWindow(tk.Toplevel):
-    def __init__(self, mode=None, filepath=None):
+    def __init__(self, mode="edit", filepath=None):
         super().__init__()
         self.title("Editor de Participa")
-        self.geometry("1100x700")
+        self.geometry("980x640")
 
+        # Estado unificado
         self.state = {"participa": []}
-        self.filepath = filepath
-        self.editing_index = None
 
-        # Cargar JSON si existe
-        if filepath and os.path.exists(filepath):
+        # Crear carpetas destino
+        os.makedirs("geoso2-web-template/imput/img/participa", exist_ok=True)
+        os.makedirs("geoso2-web-template/imput/docs/participa", exist_ok=True)
+
+        # Cargar JSON si estamos editando
+        if mode == "edit" and filepath:
             try:
                 with open(filepath, "r", encoding="utf-8") as f:
                     datos = json.load(f)
 
-                # Cargar participa desde la ruta correcta
                 self.state["participa"] = datos.get("web", {}).get("participa", [])
                 self.contenido_original = json.loads(json.dumps(self.state["participa"]))
 
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo cargar el JSON:\n{e}")
 
-        # Notebook sin preview
-        self.notebook = ttk.Notebook(self)
-        self.notebook.pack(fill="both", expand=True)
+        # Crear pestaña unificada
+        self.tab_datos = DatosTab(self, self)
+        self.tab_datos.pack(fill="both", expand=True)
 
-        self.tab_lista = ListaTab(self.notebook, self)
-        self.tab_form = FormTab(self.notebook, self)
+        # Footer
+        footer = ttk.Frame(self)
+        footer.pack(fill="x", pady=10)
 
-        self.notebook.add(self.tab_lista, text="Lista")
-        self.notebook.add(self.tab_form, text="Formulario")
+        ttk.Button(
+            footer,
+            text="Instrucciones",
+            command=self.tab_datos.instrucciones
+        ).pack(side="left", padx=10)
 
-        # Marco inferior para botones
-        bottom_frame = ttk.Frame(self)
-        bottom_frame.pack(fill="x", pady=10)
+        ttk.Button(
+            footer,
+            text="Guardar cambios",
+            command=self.save_json
+        ).pack(side="top", pady=5)
 
-        # Botón de instrucciones (abajo a la izquierda)
-        ttk.Button(bottom_frame, text="Instrucciones", command=self.tab_lista.instrucciones).pack(side="left", padx=10)
-
-        # Botón guardar cambios (centrado)
-        ttk.Button(bottom_frame, text="Guardar cambios", command=self.save_json).pack(side="top", pady=5)
-
-
-        self.tab_lista.refresh_table()
+        # Cargar tabla si estamos editando
+        if mode == "edit":
+            self.tab_datos.refresh_table()
 
     def detectar_cambios(self, antes, despues):
         cambios = []
         if antes != despues:
             cambios.append("participa")
         return cambios
-
 
     def save_json(self):
         ruta = "geoso2-web-template/json/web.json"
@@ -71,15 +73,13 @@ class EditorParticipaWindow(tk.Toplevel):
                 datos_completos = json.load(f)
 
             datos_completos.setdefault("web", {})
-            datos_completos["web"].setdefault("participa", [])
 
             # Detectar cambios
             cambios = self.detectar_cambios(self.contenido_original, self.state["participa"])
 
-            # Registrar historial
             if cambios:
-                datos_completos["web"]["participa"].setdefault("history", [])
-                datos_completos["web"]["participa"]["history"].append({
+                datos_completos["web"].setdefault("history", [])
+                datos_completos["web"]["history"].append({
                     "timestamp": __import__("datetime").datetime.now().isoformat(timespec="seconds"),
                     "sections_changed": cambios,
                     "summary": "Actualización en participa"
@@ -88,183 +88,83 @@ class EditorParticipaWindow(tk.Toplevel):
             # Guardar participa
             datos_completos["web"]["participa"] = self.state["participa"]
 
-            # Guardar archivo
             with open(ruta, "w", encoding="utf-8") as f:
                 json.dump(datos_completos, f, indent=4, ensure_ascii=False)
 
             messagebox.showinfo("Guardado", "Participa actualizado correctamente.")
 
-            # Actualizar contenido original
-            self.contenido_original = json.loads(json.dumps(self.state["participa"]))
-
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo guardar el archivo:\n{e}")
 
 
-
-
 # ============================================================
-# TABLA
+# PESTAÑA UNIFICADA (CAMPOS + TABLA)
 # ============================================================
-class ListaTab(tk.Frame):
+class DatosTab(ttk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
         self.controller = controller
+        self.editing_index = None
 
-        toolbar = ttk.Frame(self)
-        toolbar.pack(fill="x", pady=10)
+        frm = ttk.Frame(self)
+        frm.pack(fill="both", expand=True, padx=10, pady=10)
 
-        ttk.Button(toolbar, text="Añadir", command=self.add).pack(side="left", padx=5)
-        ttk.Button(toolbar, text="Editar", command=self.edit).pack(side="left", padx=5)
-        ttk.Button(toolbar, text="Eliminar", command=self.delete).pack(side="left", padx=5)
-        ttk.Button(toolbar, text="Subir", command=self.up).pack(side="left", padx=5)
-        ttk.Button(toolbar, text="Bajar", command=self.down).pack(side="left", padx=5)
+        # -------------------------
+        # CAMPOS
+        # -------------------------
+        ttk.Label(frm, text="Imagen:").grid(row=0, column=0, sticky="w")
+        self.entry_imagen = ttk.Entry(frm)
+        self.entry_imagen.grid(row=0, column=1, sticky="ew")
+        ttk.Button(frm, text="Buscar", command=self.select_imagen).grid(row=0, column=2, padx=6)
 
-        self.tree = ttk.Treeview(
-            self,
-            columns=("Imagen", "Título", "Link"),
-            show="headings",
-            height=20
-        )
-        self.tree.pack(fill="both", expand=True)
+        ttk.Label(frm, text="Título:").grid(row=1, column=0, sticky="nw")
+        self.text_titulo = tk.Text(frm, height=3)
+        self.text_titulo.grid(row=1, column=1, sticky="ew")
+
+        ttk.Label(frm, text="Descripción:").grid(row=2, column=0, sticky="nw")
+        self.text_descripcion = tk.Text(frm, height=6)
+        self.text_descripcion.grid(row=2, column=1, sticky="ew")
+
+        ttk.Label(frm, text="Link:").grid(row=3, column=0, sticky="w")
+        self.entry_link = ttk.Entry(frm)
+        self.entry_link.grid(row=3, column=1, sticky="ew")
+
+        ttk.Button(frm, text="Probar", command=self.probar_link).grid(row=3, column=2, padx=6)
+        ttk.Button(frm, text="Buscar archivo", command=self.select_file).grid(row=3, column=3, padx=6)
+
+        # -------------------------
+        # BOTONES CRUD
+        # -------------------------
+        btn_frame = ttk.Frame(frm)
+        btn_frame.grid(row=4, column=0, columnspan=4, pady=10)
+
+        ttk.Button(btn_frame, text="Añadir", command=self.add_item).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Editar", command=self.edit_item).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Eliminar", command=self.delete_item).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Subir", command=self.move_up).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Bajar", command=self.move_down).pack(side="left", padx=5)
+
+        # -------------------------
+        # TABLA
+        # -------------------------
+        self.tree = ttk.Treeview(frm, columns=("Imagen", "Título", "Link"), show="headings", height=12)
+        self.tree.grid(row=5, column=0, columnspan=4, sticky="nsew")
 
         self.tree.heading("Imagen", text="Imagen")
         self.tree.heading("Título", text="Título")
         self.tree.heading("Link", text="Link")
 
-    def refresh_table(self):
-        for item in self.tree.get_children():
-            self.tree.delete(item)
-
-        for r in self.controller.state["participa"]:
-            self.tree.insert(
-                "",
-                tk.END,
-                values=(r.get("imagen", ""), r.get("titulo", ""), r.get("link", ""))
-            )
-
-    def add(self):
-        self.controller.editing_index = None
-        self.controller.tab_form.load_data({})
-        self.controller.notebook.select(self.controller.tab_form)
-
-    def edit(self):
-        selected = self.tree.selection()
-        if not selected:
-            return
-
-        index = self.tree.index(selected[0])
-        self.controller.editing_index = index
-        data = self.controller.state["participa"][index]
-
-        self.controller.tab_form.load_data(data)
-        self.controller.notebook.select(self.controller.tab_form)
-
-    def delete(self):
-        selected = self.tree.selection()
-        if not selected:
-            return
-        index = self.tree.index(selected[0])
-        del self.controller.state["participa"][index]
-        self.refresh_table()
-
-    def up(self):
-        selected = self.tree.selection()
-        if not selected:
-            return
-        index = self.tree.index(selected[0])
-        if index == 0:
-            return
-        arr = self.controller.state["participa"]
-        arr[index - 1], arr[index] = arr[index], arr[index - 1]
-        self.refresh_table()
-
-    def down(self):
-        selected = self.tree.selection()
-        if not selected:
-            return
-        index = self.tree.index(selected[0])
-        arr = self.controller.state["participa"]
-        if index == len(arr) - 1:
-            return
-        arr[index + 1], arr[index] = arr[index], arr[index + 1]
-        self.refresh_table()
-
-    def instrucciones(self):
-        instrucciones = (
-            "Instrucciones para editar la sección Participa:\n\n"
-            "1. Imagen: Selecciona una imagen representativa para la sección Participa. "
-            "La imagen se redimensionará automáticamente a 300x300 píxeles.\n\n"
-            "2. Título: Escribe un título breve y descriptivo para la sección Participa.\n\n"
-            "3. Descripción: Proporciona una descripción detallada de la sección Participa. "
-            "Puedes incluir información relevante que quieras destacar.\n\n"
-            "4. Link: Introduce un enlace relacionado con la sección Participa. "
-            "Puedes seleccionar un archivo local o introducir una URL externa.\n\n"
-            "5. Guardar: Una vez completados los campos, haz clic en 'Guardar' "
-            "para añadir o actualizar la sección Participa en la lista.\n\n"
-            "6. Cancelar: Si deseas descartar los cambios, haz clic en 'Cancelar'."
-        )
-        messagebox.showinfo("Instrucciones", instrucciones)
-
-# ============================================================
-# FORMULARIO DE EDICIÓN
-# ============================================================
-class FormTab(tk.Frame):
-    def __init__(self, parent, controller):
-        super().__init__(parent)
-        self.controller = controller
-
-        frm = ttk.Frame(self)
-        frm.pack(fill="both", expand=True, padx=20, pady=20)
-
-        # Imagen
-        ttk.Label(frm, text="Imagen:").grid(row=0, column=0, sticky="w")
-        self.entry_imagen = ttk.Entry(frm)
-        self.entry_imagen.grid(row=0, column=1, sticky="ew")
-        ttk.Button(frm, text="Seleccionar", command=self.select_imagen).grid(row=0, column=2, padx=5)
-
-        # Título
-        ttk.Label(frm, text="Título:").grid(row=1, column=0, sticky="nw")
-        self.text_titulo = tk.Text(frm, height=3)
-        self.text_titulo.grid(row=1, column=1, sticky="ew")
-
-        # Descripción
-        ttk.Label(frm, text="Descripción:").grid(row=2, column=0, sticky="nw")
-        self.text_desc = tk.Text(frm, height=8)
-        self.text_desc.grid(row=2, column=1, sticky="ew")
-
-        # Link
-        ttk.Label(frm, text="Link:").grid(row=3, column=0, sticky="w")
-
-        link_frame = ttk.Frame(frm)
-        link_frame.grid(row=3, column=1, sticky="ew")
-
-        self.entry_link = ttk.Entry(link_frame)
-        self.entry_link.pack(side="left", fill="x", expand=True)
-
-        ttk.Button(link_frame, text="Probar", command=self.probar_link).pack(side="left", padx=5)
-        ttk.Button(frm, text="Buscar archivo", command=self.select_file).grid(row=3, column=2, padx=8)
-
-        # Botones
-        btns = ttk.Frame(frm)
-        btns.grid(row=4, column=0, columnspan=3, pady=20)
-
-        ttk.Button(btns, text="Guardar", command=self.save).pack(side="left", padx=10)
-        ttk.Button(btns, text="Cancelar", command=self.cancel).pack(side="left", padx=10)
-
         frm.columnconfigure(1, weight=1)
+        frm.rowconfigure(5, weight=1)
 
+    # -------------------------
+    # ARCHIVOS
+    # -------------------------
     def select_file(self):
         ruta = filedialog.askopenfilename(
             title="Seleccionar archivo",
-            filetypes=[
-                ("Documentos", "*.pdf;*.html;*.htm"),
-                ("PDF", "*.pdf"),
-                ("HTML", "*.html;*.htm"),
-                ("Todos los archivos", "*.*")
-            ]
+            filetypes=[("Documentos", "*.pdf *.html *.htm"), ("Todos", "*.*")]
         )
-
         if not ruta:
             return
 
@@ -275,44 +175,13 @@ class FormTab(tk.Frame):
             nombre = os.path.basename(ruta)
             destino = os.path.join(destino_dir, nombre)
 
-            with open(ruta, "rb") as f_src, open(destino, "wb") as f_dst:
-                f_dst.write(f_src.read())
+            shutil.copy(ruta, destino)
 
             self.entry_link.delete(0, tk.END)
             self.entry_link.insert(0, f"../imput/docs/participa/{nombre}")
 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo copiar el archivo:\n{e}")
-
-    def probar_link(self):
-        url = self.entry_link.get().strip()
-
-        if not url:
-            messagebox.showwarning("Aviso", "No hay ningún enlace para probar.")
-            return
-
-        try:
-            if url.startswith(("http://", "https://")):
-                webbrowser.open_new_tab(url)
-            else:
-                ruta = os.path.abspath(url)
-                if os.path.exists(ruta):
-                    webbrowser.open_new_tab(f"file:///{ruta}")
-                else:
-                    messagebox.showerror("Error", f"No se encontró el archivo:\n{ruta}")
-        except Exception as e:
-            messagebox.showerror("Error", f"No se pudo abrir el enlace:\n{e}")
-
-    def load_data(self, data):
-        self.entry_imagen.delete(0, tk.END)
-        self.text_titulo.delete("1.0", tk.END)
-        self.text_desc.delete("1.0", tk.END)
-        self.entry_link.delete(0, tk.END)
-
-        self.entry_imagen.insert(0, data.get("imagen", ""))
-        self.text_titulo.insert("1.0", data.get("titulo", ""))
-        self.text_desc.insert("1.0", data.get("descripcion", ""))
-        self.entry_link.insert(0, data.get("link", ""))
 
     def select_imagen(self):
         ruta = filedialog.askopenfilename(
@@ -345,23 +214,126 @@ class FormTab(tk.Frame):
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo procesar la imagen:\n{e}")
 
-    def save(self):
+    # -------------------------
+    # CRUD
+    # -------------------------
+    def add_item(self):
         data = {
             "imagen": self.entry_imagen.get().strip(),
             "titulo": self.text_titulo.get("1.0", tk.END).strip(),
-            "descripcion": self.text_desc.get("1.0", tk.END).strip(),
+            "descripcion": self.text_descripcion.get("1.0", tk.END).strip(),
             "link": self.entry_link.get().strip()
         }
 
-        if self.controller.editing_index is None:
-            self.controller.state["participa"].append(data)
+        if not data["imagen"] or not data["titulo"] or not data["descripcion"]:
+            messagebox.showwarning("Aviso", "Imagen, título y descripción son obligatorios.")
+            return
+
+        if self.editing_index is not None:
+            self.controller.state["participa"][self.editing_index] = data
+            self.editing_index = None
         else:
-            self.controller.state["participa"][self.controller.editing_index] = data
-            self.controller.editing_index = None
+            self.controller.state["participa"].append(data)
 
-        self.controller.tab_lista.refresh_table()
-        self.controller.notebook.select(self.controller.tab_lista)
+        self.refresh_table()
+        self.clear_fields()
 
-    def cancel(self):
-        self.controller.notebook.select(self.controller.tab_lista)
+    def edit_item(self):
+        selected = self.tree.selection()
+        if not selected:
+            return
 
+        index = self.tree.index(selected[0])
+        data = self.controller.state["participa"][index]
+        self.editing_index = index
+
+        self.entry_imagen.delete(0, tk.END)
+        self.entry_imagen.insert(0, data["imagen"])
+
+        self.text_titulo.delete("1.0", tk.END)
+        self.text_titulo.insert("1.0", data["titulo"])
+
+        self.text_descripcion.delete("1.0", tk.END)
+        self.text_descripcion.insert("1.0", data["descripcion"])
+
+        self.entry_link.delete(0, tk.END)
+        self.entry_link.insert(0, data["link"])
+
+    def delete_item(self):
+        selected = self.tree.selection()
+        if not selected:
+            return
+
+        index = self.tree.index(selected[0])
+        del self.controller.state["participa"][index]
+        self.refresh_table()
+
+    def move_up(self):
+        selected = self.tree.selection()
+        if not selected:
+            return
+        index = self.tree.index(selected[0])
+        if index > 0:
+            arr = self.controller.state["participa"]
+            arr[index - 1], arr[index] = arr[index], arr[index - 1]
+            self.refresh_table()
+            self.tree.selection_set(self.tree.get_children()[index - 1])
+
+    def move_down(self):
+        selected = self.tree.selection()
+        if not selected:
+            return
+        index = self.tree.index(selected[0])
+        arr = self.controller.state["participa"]
+        if index < len(arr) - 1:
+            arr[index + 1], arr[index] = arr[index], arr[index + 1]
+            self.refresh_table()
+            self.tree.selection_set(self.tree.get_children()[index + 1])
+
+    def refresh_table(self):
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+
+        for elem in self.controller.state["participa"]:
+            self.tree.insert("", tk.END, values=(elem["imagen"], elem["titulo"], elem["link"]))
+
+    def clear_fields(self):
+        self.entry_imagen.delete(0, tk.END)
+        self.text_titulo.delete("1.0", tk.END)
+        self.text_descripcion.delete("1.0", tk.END)
+        self.entry_link.delete(0, tk.END)
+        self.editing_index = None
+
+    def probar_link(self):
+        url = self.entry_link.get().strip()
+
+        if not url:
+            messagebox.showwarning("Aviso", "No hay ningún enlace para probar.")
+            return
+
+        try:
+            if url.startswith(("http://", "https://")):
+                webbrowser.open_new_tab(url)
+            else:
+                ruta = os.path.abspath(url)
+                if os.path.exists(ruta):
+                    webbrowser.open_new_tab(f"file:///{ruta}")
+                else:
+                    messagebox.showerror("Error", f"No se encontró el archivo:\n{ruta}")
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo abrir el enlace:\n{e}")
+
+    def instrucciones(self):
+        instrucciones = (
+            "Instrucciones para la sección Participa:\n\n"
+            "1. Añadir elemento:\n"
+            "   - Rellena Imagen, Título, Descripción y Link.\n"
+            "   - Haz clic en 'Añadir'.\n\n"
+            "2. Editar elemento:\n"
+            "   - Selecciona un elemento y pulsa 'Editar'.\n\n"
+            "3. Eliminar elemento:\n"
+            "   - Selecciona un elemento y pulsa 'Eliminar'.\n\n"
+            "4. Guardar cambios:\n"
+            "   - Pulsa 'Guardar cambios' para actualizar el JSON."
+        )
+        messagebox.showinfo("Instrucciones", instrucciones)
