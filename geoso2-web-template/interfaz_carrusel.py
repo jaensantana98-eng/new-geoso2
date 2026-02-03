@@ -2,9 +2,12 @@ import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 import json
 import os
+import platform
+import subprocess
 import webbrowser
 import shutil
-from PIL import Image
+from PIL import Image, ImageDraw
+
 
 
 class CarruselWindow(tk.Toplevel):
@@ -145,6 +148,8 @@ class DatosTab(ttk.Frame):
         ttk.Button(btn_frame, text="Editar", command=self.edit_item).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Subir", command=self.move_up).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Bajar", command=self.move_down).pack(side="left", padx=5)
+        ttk.Button(btn_frame, text="Crear plantilla 2700x700", command=self.crear_plantilla).pack(side="right", padx=5)
+
 
         # -----------------------------
         # TABLA
@@ -298,6 +303,44 @@ class DatosTab(ttk.Frame):
     def set_data(self, datos):
         self.controller.state["carrusel"] = datos.get("carrusel", [])
         self.refresh_table()
+
+    def crear_plantilla(self):
+        try:
+            carpeta_destino = "geoso2-web-template/imput/img/carrusel"
+            os.makedirs(carpeta_destino, exist_ok=True)
+
+            ruta = os.path.join(carpeta_destino, "plantilla_carrusel.png")
+
+            # Crear imagen base
+            img = Image.new("RGB", (2700, 700), color=(240, 240, 240))
+            draw = ImageDraw.Draw(img)
+            draw.text((50, 50), "Plantilla 2700x700", fill=(80, 80, 80))
+
+            img.save(ruta)
+
+            # Insertar ruta relativa en el campo
+            self.entry_imagen.delete(0, tk.END)
+            self.entry_imagen.insert(0, "../imput/img/carrusel/plantilla_carrusel.png")
+
+            # Abrir con el editor de imágenes del sistema
+            self.abrir_con_editor(ruta)
+
+            messagebox.showinfo("Plantilla creada", "Se ha generado una plantilla 2700x700.")
+
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo crear la plantilla:\n{e}")
+
+
+    def abrir_con_editor(self, ruta):  
+        sistema = platform.system()
+
+        if sistema == "Windows":
+            os.startfile(ruta)
+        elif sistema == "Darwin":  # macOS
+            subprocess.call(["open", ruta])
+        else:  # Linux
+            subprocess.call(["xdg-open", ruta])
+
 
     def instrucciones(self):
         instrucciones = (
