@@ -5,7 +5,13 @@ import os
 import shutil
 import webbrowser
 from PIL import Image
+import sys
 
+def resource_path(relative_path):
+    """Devuelve la ruta absoluta tanto en script como en ejecutable .exe"""
+    if hasattr(sys, "_MEIPASS"):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
 
 class EditorRafagasWindow(tk.Toplevel):
     def __init__(self, mode="edit", filepath=None):
@@ -13,16 +19,11 @@ class EditorRafagasWindow(tk.Toplevel):
         self.title("Editor de Ráfagas")
         self.geometry("980x640")
 
-        # Estado unificado
-        self.state = {
-            "rafagas": []
-        }
+        self.state = {"rafagas": []}
 
-        # Crear carpetas destino
-        os.makedirs("geoso2-web-template/imput/img/rafagas", exist_ok=True)
-        os.makedirs("geoso2-web-template/imput/docs/rafagas", exist_ok=True)
+        os.makedirs(resource_path("geoso2-web-template/imput/img/rafagas"), exist_ok=True)
+        os.makedirs(resource_path("geoso2-web-template/imput/docs/rafagas"), exist_ok=True)
 
-        # Cargar JSON si estamos editando
         if mode == "edit" and filepath:
             try:
                 with open(filepath, "r", encoding="utf-8") as f:
@@ -37,29 +38,21 @@ class EditorRafagasWindow(tk.Toplevel):
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo cargar el JSON:\n{e}")
 
-        # Crear pestaña unificada
         self.tab_datos = DatosTab(self, self)
         self.tab_datos.pack(fill="both", expand=True)
 
-        # Footer
         footer = ttk.Frame(self)
         footer.pack(fill="x", pady=10)
 
-        ttk.Button(
-            footer,
-            text="Instrucciones",
-            command=self.tab_datos.instrucciones
-        ).pack(side="left", padx=10)
+        ttk.Button(footer, text="Instrucciones",
+                   command=self.tab_datos.instrucciones).pack(side="left", padx=10)
 
-        ttk.Button(
-            footer,
-            text="Guardar cambios",
-            command=self.save_json
-        ).pack(side="top", pady=5)
+        ttk.Button(footer, text="Guardar cambios",
+                   command=self.save_json).pack(side="top", pady=5)
 
-        # Cargar tabla si estamos editando
         if mode == "edit":
             self.tab_datos.refresh_table()
+
 
     def detectar_cambios(self, antes, despues):
         cambios = []
@@ -67,8 +60,9 @@ class EditorRafagasWindow(tk.Toplevel):
             cambios.append("rafagas")
         return cambios
 
+
     def save_json(self):
-        ruta = "geoso2-web-template/json/web.json"
+        ruta = resource_path("geoso2-web-template/json/web.json")
 
         try:
             with open(ruta, "r", encoding="utf-8") as f:
@@ -77,7 +71,6 @@ class EditorRafagasWindow(tk.Toplevel):
             datos_completos.setdefault("web", {})
             datos_completos["web"].setdefault("pagina1", {})
 
-            # Detectar cambios
             cambios = self.detectar_cambios(self.contenido_original, self.state["rafagas"])
 
             if cambios:
@@ -88,13 +81,14 @@ class EditorRafagasWindow(tk.Toplevel):
                     "summary": "Actualización en ráfagas"
                 })
 
-            # Guardar ráfagas
             datos_completos["web"]["pagina1"]["rafagas"] = self.state["rafagas"]
 
             with open(ruta, "w", encoding="utf-8") as f:
                 json.dump(datos_completos, f, indent=4, ensure_ascii=False)
 
-            messagebox.showinfo("Guardado", f"Archivo JSON actualizado:\n{ruta}")
+            messagebox.showinfo("Guardado", "Ráfagas actualizadas correctamente.")
+
+            self.contenido_original = json.loads(json.dumps(self.state["rafagas"]))
 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo guardar el archivo:\n{e}")
@@ -109,9 +103,6 @@ class DatosTab(ttk.Frame):
         frm = ttk.Frame(self)
         frm.pack(fill="both", expand=True, padx=10, pady=10)
 
-        # -------------------------
-        # CAMPOS
-        # -------------------------
         ttk.Label(frm, text="Imagen:").grid(row=0, column=0, sticky="w")
         self.entry_imagen = ttk.Entry(frm)
         self.entry_imagen.grid(row=0, column=1, sticky="ew")
@@ -132,9 +123,6 @@ class DatosTab(ttk.Frame):
         ttk.Button(frm, text="Probar", command=self.probar_link).grid(row=3, column=2, padx=6)
         ttk.Button(frm, text="Buscar archivo", command=self.select_file).grid(row=3, column=3, padx=6)
 
-        # -------------------------
-        # BOTONES CRUD
-        # -------------------------
         btn_frame = ttk.Frame(frm)
         btn_frame.grid(row=4, column=0, columnspan=4, pady=10)
 
@@ -144,9 +132,6 @@ class DatosTab(ttk.Frame):
         ttk.Button(btn_frame, text="Subir", command=self.move_up).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Bajar", command=self.move_down).pack(side="left", padx=5)
 
-        # -------------------------
-        # TABLA
-        # -------------------------
         self.tree = ttk.Treeview(frm, columns=("Imagen", "Título", "Link"), show="headings", height=12)
         self.tree.grid(row=5, column=0, columnspan=4, sticky="nsew")
 
@@ -157,9 +142,6 @@ class DatosTab(ttk.Frame):
         frm.columnconfigure(1, weight=1)
         frm.rowconfigure(5, weight=1)
 
-    # -------------------------
-    # ARCHIVOS
-    # -------------------------
     def select_file(self):
         ruta = filedialog.askopenfilename(
             title="Seleccionar archivo",
@@ -169,7 +151,7 @@ class DatosTab(ttk.Frame):
             return
 
         try:
-            destino_dir = "geoso2-web-template/imput/docs/rafagas"
+            destino_dir = resource_path("geoso2-web-template/imput/docs/rafagas")
             os.makedirs(destino_dir, exist_ok=True)
 
             nombre = os.path.basename(ruta)
@@ -183,6 +165,7 @@ class DatosTab(ttk.Frame):
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo copiar el archivo:\n{e}")
 
+
     def select_imagen(self):
         ruta = filedialog.askopenfilename(
             filetypes=[("Imagen", "*.png;*.jpg;*.jpeg;*.gif")]
@@ -192,12 +175,11 @@ class DatosTab(ttk.Frame):
 
         try:
             nombre = os.path.basename(ruta)
-            destino_dir = "geoso2-web-template/imput/img/rafagas"
+            destino_dir = resource_path("geoso2-web-template/imput/img/rafagas")
             os.makedirs(destino_dir, exist_ok=True)
 
             destino = os.path.join(destino_dir, nombre)
 
-            # Miniatura 300x300
             with Image.open(ruta) as img:
                 img = img.convert("RGB")
                 img.thumbnail((300, 300), Image.LANCZOS)
@@ -214,9 +196,6 @@ class DatosTab(ttk.Frame):
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo procesar la imagen:\n{e}")
 
-    # -------------------------
-    # CRUD
-    # -------------------------
     def add_item(self):
         data = {
             "imagen": self.entry_imagen.get().strip(),
@@ -237,6 +216,7 @@ class DatosTab(ttk.Frame):
 
         self.refresh_table()
         self.clear_fields()
+
 
     def edit_item(self):
         selected = self.tree.selection()
@@ -259,6 +239,7 @@ class DatosTab(ttk.Frame):
         self.entry_link.delete(0, tk.END)
         self.entry_link.insert(0, data["link"])
 
+
     def delete_item(self):
         selected = self.tree.selection()
         if not selected:
@@ -267,6 +248,7 @@ class DatosTab(ttk.Frame):
         index = self.tree.index(selected[0])
         del self.controller.state["rafagas"][index]
         self.refresh_table()
+
 
     def move_up(self):
         selected = self.tree.selection()
@@ -279,6 +261,7 @@ class DatosTab(ttk.Frame):
             self.refresh_table()
             self.tree.selection_set(self.tree.get_children()[index - 1])
 
+
     def move_down(self):
         selected = self.tree.selection()
         if not selected:
@@ -290,6 +273,7 @@ class DatosTab(ttk.Frame):
             self.refresh_table()
             self.tree.selection_set(self.tree.get_children()[index + 1])
 
+
     def refresh_table(self):
         for item in self.tree.get_children():
             self.tree.delete(item)
@@ -297,12 +281,14 @@ class DatosTab(ttk.Frame):
         for elem in self.controller.state["rafagas"]:
             self.tree.insert("", tk.END, values=(elem["imagen"], elem["titulo"], elem["link"]))
 
+
     def clear_fields(self):
         self.entry_imagen.delete(0, tk.END)
         self.text_titulo.delete("1.0", tk.END)
         self.text_descripcion.delete("1.0", tk.END)
         self.entry_link.delete(0, tk.END)
         self.editing_index = None
+
 
     def probar_link(self):
         url = self.entry_link.get().strip()
@@ -315,7 +301,7 @@ class DatosTab(ttk.Frame):
             if url.startswith(("http://", "https://")):
                 webbrowser.open_new_tab(url)
             else:
-                ruta = os.path.abspath(url)
+                ruta = os.path.abspath(resource_path(url))
                 if os.path.exists(ruta):
                     webbrowser.open_new_tab(f"file:///{ruta}")
                 else:
@@ -323,19 +309,20 @@ class DatosTab(ttk.Frame):
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo abrir el enlace:\n{e}")
 
+
     def instrucciones(self):
         instrucciones = (
             "Instrucciones para la sección de Ráfagas:\n\n"
             "1. Añadir Ráfaga:\n"
-            "   - Rellena los campos de Imagen, Título, Descripción y Link.\n"
-            "   - Haz clic en 'Añadir' para agregar la ráfaga a la lista.\n\n"
+            "   - Rellena Imagen, Título, Descripción y Link.\n"
+            "   - Pulsa 'Añadir'.\n\n"
             "2. Editar Ráfaga:\n"
-            "   - Selecciona una ráfaga de la tabla.\n"
-            "   - Haz clic en 'Editar' para cargar sus datos.\n"
-            "   - Modifica lo necesario y pulsa 'Añadir' para guardar.\n\n"
+            "   - Selecciona una ráfaga y pulsa 'Editar'.\n\n"
             "3. Eliminar Ráfaga:\n"
             "   - Selecciona una ráfaga y pulsa 'Eliminar'.\n\n"
-            "4. Guardar Cambios:\n"
-            "   - Pulsa 'Guardar cambios' para actualizar el archivo JSON."
+            "4. Reordenar:\n"
+            "   - Usa 'Subir' y 'Bajar'.\n\n"
+            "5. Guardar Cambios:\n"
+            "   - Pulsa 'Guardar cambios' para actualizar web.json."
         )
         messagebox.showinfo("Instrucciones", instrucciones)

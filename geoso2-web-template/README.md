@@ -174,9 +174,24 @@ Puedes modificarlas libremente para cambiar el diseño del sitio web.
 
 Todas las secciones existentes pueden usarse como ejemplo.
 
+## Cómo crear el ejecutable
+
+1. Antes de nada, para que funcione correctamente hay que crear una función "def resource_path(relative_path)" en cada interfaz para que detecte si estás en modo “normal” o en modo “ejecutable”.
+
+2. También debemos cambiar las rutas para funcionen correctamente. 
+por ejemplo antes : open("data/config.json")
+y ahora : open(resource_path("data/config.json"))
+
+3. una vez modificado eso nos diriguimos a "terminal" en nuestro dispositivo
+
+4. Debemos diriguirnos a la carpeta de nuestro proyecto: "cd geoso2-web-template"
+
+5. Escribimos lo siguiente:
+
 
 ## Autor
 
 Jesús Jaén Santana  
 Versión del editor: 2.0 / 2026
+Aaron amElsa Caleche
 

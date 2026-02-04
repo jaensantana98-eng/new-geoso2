@@ -7,6 +7,14 @@ import datetime
 import webbrowser
 from PIL import Image
 from jinja2 import Environment, FileSystemLoader
+import sys
+
+
+def resource_path(relative_path):
+    """Devuelve la ruta absoluta tanto en script como en ejecutable .exe"""
+    if hasattr(sys, "_MEIPASS"):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
 
 
 class paginaWindow(tk.Toplevel):
@@ -15,13 +23,11 @@ class paginaWindow(tk.Toplevel):
         self.title("Editor de Página Web")
         self.geometry("1100x950")
 
-        # Rutas base
-        self.ruta_web_json = "geoso2-web-template/json/web.json"
-        self.carpeta_imagenes = os.path.join("geoso2-web-template", "imput", "img", "paginas")
+        self.ruta_web_json = resource_path("geoso2-web-template/json/web.json")
+        self.carpeta_imagenes = resource_path(os.path.join("geoso2-web-template", "imput", "img", "paginas"))
         os.makedirs(os.path.dirname(self.ruta_web_json), exist_ok=True)
         os.makedirs(self.carpeta_imagenes, exist_ok=True)
 
-        # Estado de la página actual
         self.state = {
             "id": None,
             "portada": "",
@@ -31,20 +37,14 @@ class paginaWindow(tk.Toplevel):
             "fecha": "",
         }
 
-        # Interfaz
         self._build_ui()
 
-        # Si algún día usas mode="edit" con filepath específico, aquí podrías cargar
         if mode == "edit" and filepath:
             self.load_page_from_file(filepath)
         self.contenido_original = json.loads(json.dumps(self.state))
 
 
-    # ============================================================
-    #   UI
-    # ============================================================
     def _build_ui(self):
-        # DATOS
         frm_datos = ttk.LabelFrame(self, text="Datos")
         frm_datos.pack(fill="x", padx=12, pady=10)
 
@@ -63,7 +63,6 @@ class paginaWindow(tk.Toplevel):
 
         frm_datos.columnconfigure(1, weight=1)
 
-        # CUERPO
         frm_cuerpo = ttk.LabelFrame(self, text="Cuerpo de la página")
         frm_cuerpo.pack(fill="both", expand=True, padx=12, pady=10)
 
@@ -113,7 +112,6 @@ class paginaWindow(tk.Toplevel):
         frm_cuerpo.columnconfigure(1, weight=1)
         frm_cuerpo.rowconfigure(6, weight=1)
 
-        # OPCIONES
         frm_opciones = ttk.LabelFrame(self, text="Opciones")
         frm_opciones.pack(fill="x", padx=12, pady=10)
 
@@ -122,9 +120,6 @@ class paginaWindow(tk.Toplevel):
         ttk.Button(frm_opciones, text="Ver páginas creadas", command=self.show_pages_window).pack(side="left", padx=5)
         ttk.Button(frm_opciones, text="Previsualizar en HTML", command=self.preview_web).pack(side="right", padx=5)
 
-    # ============================================================
-    #   UTILIDADES JSON web.json
-    # ============================================================
     def _load_web_data(self):
         if not os.path.exists(self.ruta_web_json):
             return {"web": {"paginas": []}}
@@ -161,9 +156,7 @@ class paginaWindow(tk.Toplevel):
         nuevo = max_num + 1
         return f"pagina_{nuevo:03d}"
 
-    # ============================================================
-    #   CARGA DESDE ARCHIVO (si algún día lo usas)
-    # ============================================================
+
     def load_page_from_file(self, filepath):
         try:
             with open(filepath, "r", encoding="utf-8") as f:
@@ -174,9 +167,6 @@ class paginaWindow(tk.Toplevel):
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo cargar la página:\n{e}")
 
-    # ============================================================
-    #   REFRESCAR CAMPOS / ESTADO
-    # ============================================================
     def refresh_fields(self):
         self.entry_portada.delete(0, tk.END)
         self.entry_portada.insert(0, self.state.get("portada", ""))
@@ -192,9 +182,6 @@ class paginaWindow(tk.Toplevel):
         self.state["titulo"] = self.texto_titulo.get("1.0", tk.END).strip()
         self.state["autor"] = self.entry_autor.get().strip()
 
-    # ============================================================
-    #   IMÁGENES
-    # ============================================================
     def select_portada(self):
         ruta = filedialog.askopenfilename(
             filetypes=[("Imagen", "*.png;*.jpg;*.jpeg;*.gif")]
@@ -248,9 +235,6 @@ class paginaWindow(tk.Toplevel):
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo procesar la imagen:\n{e}")
 
-    # ============================================================
-    #   CUERPO
-    # ============================================================
     def add_block(self):
         bloque = {
             "texto": self.texto_parrafo.get("1.0", tk.END).strip(),
@@ -343,9 +327,6 @@ class paginaWindow(tk.Toplevel):
                 )
             )
 
-    # ============================================================
-    #   ENLACES
-    # ============================================================
     def probar_enlace(self):
         url = self.entry_enlace.get().strip()
         if not url:
@@ -368,21 +349,15 @@ class paginaWindow(tk.Toplevel):
     def detectar_cambios(self, antes, despues):
         cambios = []
 
-        # Campos simples
         for campo in ["portada", "titulo", "autor"]:
             if antes.get(campo) != despues.get(campo):
                 cambios.append(campo)
 
-        # Cuerpo (lista de bloques)
         if antes.get("cuerpo") != despues.get("cuerpo"):
             cambios.append("cuerpo")
 
         return cambios
 
-
-    # ============================================================
-    #   GUARDAR EN web.json
-    # ============================================================
     def save_json(self):
         self.update_state()
         datos = self.state.copy()
@@ -392,14 +367,11 @@ class paginaWindow(tk.Toplevel):
             messagebox.showerror("Error", "La página debe tener un título.")
             return
 
-        # Cargar web.json
         data = self._load_web_data()
         paginas = data["web"]["paginas"]
 
-        # Detectar cambios
         cambios = self.detectar_cambios(self.contenido_original, datos)
 
-        # Registrar historial
         if cambios:
             datos.setdefault("history", [])
             datos["history"].append({
@@ -408,9 +380,7 @@ class paginaWindow(tk.Toplevel):
                 "summary": "Actualización en página web"
             })
 
-        # Guardar página (nueva o editada)
         if datos.get("id"):
-            # Editando una página existente
             encontrado = False
             for i, p in enumerate(paginas):
                 if p.get("id") == datos["id"]:
@@ -420,39 +390,30 @@ class paginaWindow(tk.Toplevel):
             if not encontrado:
                 paginas.append(datos)
         else:
-            # Nueva página
             nuevo_id = self._generate_new_id(paginas)
             datos["id"] = nuevo_id
             self.state["id"] = nuevo_id
             paginas.append(datos)
 
-        # Guardar en web.json
         data["web"]["paginas"] = paginas
         self._save_web_data(data)
 
-        # Actualizar contenido original
         self.contenido_original = json.loads(json.dumps(datos))
 
         messagebox.showinfo("Guardado", "Página guardada en web.json")
 
-
-    # ============================================================
-    #   PREVIEW HTML
-    # ============================================================
 
     def preview_web(self):
         self.update_state()
         datos = self.state.copy()
         datos["fecha"] = datetime.datetime.now().strftime("%d-%m-%Y")
 
-        # Portada con ruta absoluta dentro del proyecto web
         portada = datos.get("portada", "")
         if portada:
             datos["portada"] = portada.replace("\\", "/")
         else:
             datos["portada"] = ""
 
-        # Ajustar rutas de imágenes del cuerpo
         cuerpo_ajustado = []
         for bloque in datos.get("cuerpo", []):
             nuevo = bloque.copy()
@@ -467,8 +428,8 @@ class paginaWindow(tk.Toplevel):
             template = env.get_template("pagina.html")
             html = template.render(pagina=datos)
 
-            ruta = "geoso2-web-template/data/preview_pagina.html"
-            os.makedirs("geoso2-web-template/data", exist_ok=True)
+            ruta = resource_path("geoso2-web-template/data/preview_pagina.html")
+            os.makedirs(resource_path("geoso2-web-template/data"), exist_ok=True)
 
             with open(ruta, "w", encoding="utf-8") as f:
                 f.write(html)
@@ -478,10 +439,6 @@ class paginaWindow(tk.Toplevel):
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo generar el preview HTML:\n{e}")
 
-
-    # ============================================================
-    #   VENTANA DE PÁGINAS
-    # ============================================================
     def show_pages_window(self):
         data = self._load_web_data()
         paginas = data["web"]["paginas"]
@@ -552,9 +509,6 @@ class paginaWindow(tk.Toplevel):
         ttk.Button(btn_frame, text="Borrar", command=borrar).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Cerrar", command=win.destroy).pack(side="right", padx=5)
 
-    # ============================================================
-    #   INSTRUCCIONES
-    # ============================================================
     def show_instructions(self):
         messagebox.showinfo(
             "Instrucciones",

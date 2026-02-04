@@ -3,11 +3,15 @@ from tkinter import ttk, filedialog, messagebox
 import json
 import os
 import webbrowser
+import shutil
+import sys
 
+def resource_path(relative_path):
+    """Devuelve la ruta absoluta tanto en script como en ejecutable .exe"""
+    if hasattr(sys, "_MEIPASS"):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
 
-# ============================================================
-# VENTANA PRINCIPAL DEL EDITOR DE PUBLICACIONES
-# ============================================================
 class EditorWindow(tk.Toplevel):
     def __init__(self, mode="create", filepath=None):
         super().__init__()
@@ -17,20 +21,17 @@ class EditorWindow(tk.Toplevel):
         self.state = {"publicaciones": {}}
         self.filepath = filepath
 
-        # Cargar JSON desde web.json
         if mode == "edit" and filepath and os.path.exists(filepath):
             try:
                 with open(filepath, "r", encoding="utf-8") as f:
                     datos = json.load(f)
 
-                # Cargar desde la ruta correcta
                 self.state["publicaciones"] = datos.get("web", {}).get("publicaciones", {})
                 self.contenido_original = json.loads(json.dumps(self.state["publicaciones"]))
 
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo cargar el JSON:\n{e}")
 
-        # Notebook
         notebook_frame = ttk.Frame(self)
         notebook_frame.pack(fill="both", expand=True)
 
@@ -40,28 +41,24 @@ class EditorWindow(tk.Toplevel):
         self.tab_datos = DatosTab(self.notebook, self)
         self.notebook.add(self.tab_datos, text="Datos")
 
-        # Marco inferior para botones
         bottom_frame = ttk.Frame(self)
         bottom_frame.pack(fill="x", pady=10)
 
-        # Botón de instrucciones (abajo a la izquierda)
-        ttk.Button(bottom_frame, text="Instrucciones", command=self.tab_datos.instrucciones).pack(side="left", padx=10)
+        ttk.Button(bottom_frame, text="Instrucciones",
+                   command=self.tab_datos.instrucciones).pack(side="left", padx=10)
 
-        # Botón guardar cambios (centrado)
-        ttk.Button(bottom_frame, text="Guardar cambios", command=self.save_json).pack(side="top", pady=5)
+        ttk.Button(bottom_frame, text="Guardar cambios",
+                   command=self.save_json).pack(side="top", pady=5)
 
-
-        # Inicializar datos
         self.tab_datos.set_data(self.state)
+
 
     def detectar_cambios(self, antes, despues):
         cambios = []
 
-        # Años añadidos o eliminados
         if set(antes.keys()) != set(despues.keys()):
             cambios.append("años")
 
-        # Cambios dentro de cada año
         for year in despues:
             if year not in antes:
                 cambios.append(f"nuevo_{year}")
@@ -72,7 +69,7 @@ class EditorWindow(tk.Toplevel):
 
 
     def save_json(self):
-        ruta = "geoso2-web-template/json/web.json"
+        ruta = resource_path("geoso2-web-template/json/web.json")
 
         try:
             with open(ruta, "r", encoding="utf-8") as f:
@@ -81,10 +78,8 @@ class EditorWindow(tk.Toplevel):
             datos_completos.setdefault("web", {})
             datos_completos["web"].setdefault("publicaciones", {})
 
-            # Detectar cambios
             cambios = self.detectar_cambios(self.contenido_original, self.state["publicaciones"])
 
-            # Registrar historial
             if cambios:
                 datos_completos["web"]["publicaciones"].setdefault("history", [])
                 datos_completos["web"]["publicaciones"]["history"].append({
@@ -93,26 +88,19 @@ class EditorWindow(tk.Toplevel):
                     "summary": "Actualización en publicaciones"
                 })
 
-            # Guardar publicaciones
             datos_completos["web"]["publicaciones"] = self.state["publicaciones"]
 
-            # Guardar archivo
             with open(ruta, "w", encoding="utf-8") as f:
                 json.dump(datos_completos, f, indent=4, ensure_ascii=False)
 
             messagebox.showinfo("Guardado", f"Archivo JSON actualizado:\n{ruta}")
 
-            # Actualizar contenido original
             self.contenido_original = json.loads(json.dumps(self.state["publicaciones"]))
 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo guardar el archivo:\n{e}")
 
 
-
-# ============================================================
-# PESTAÑA DATOS
-# ============================================================
 class DatosTab(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
@@ -121,9 +109,6 @@ class DatosTab(tk.Frame):
         frm = ttk.Frame(self)
         frm.pack(fill="both", expand=True, padx=20, pady=20)
 
-        # -------------------------
-        # Selector de año
-        # -------------------------
         ttk.Label(frm, text="Año:").grid(row=0, column=0, sticky="w", pady=6)
 
         self.combo_year = ttk.Combobox(frm, state="readonly")
@@ -135,9 +120,6 @@ class DatosTab(tk.Frame):
 
         frm.columnconfigure(1, weight=1)
 
-        # -------------------------
-        # Campos de publicación
-        # -------------------------
         labels = [
             ("Autores:", 1),
             ("Título:", 2),
@@ -185,9 +167,6 @@ class DatosTab(tk.Frame):
         ttk.Button(btn_frame, text="Subir", command=self.move_up).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Bajar", command=self.move_down).pack(side="left", padx=5)
 
-        # -------------------------
-        # Tabla
-        # -------------------------
         self.tree = ttk.Treeview(
             frm,
             columns=("Autores", "Título", "Tipo", "Revista", "Volumen", "Num", "Link"),
@@ -201,9 +180,6 @@ class DatosTab(tk.Frame):
 
         frm.rowconfigure(9, weight=1)
 
-    # -------------------------
-    # Gestión de archivos
-    # -------------------------
     def select_file(self):
         ruta = filedialog.askopenfilename(
             title="Seleccionar archivo",
@@ -211,7 +187,7 @@ class DatosTab(tk.Frame):
                 ("Documentos", "*.pdf;*.html;*.htm"),
                 ("PDF", "*.pdf"),
                 ("HTML", "*.html;*.htm"),
-                ("Todos los archivos", "*.*")
+                ("Todos", "*.*")
             ]
         )
 
@@ -219,7 +195,7 @@ class DatosTab(tk.Frame):
             return
 
         try:
-            destino_dir = "geoso2-web-template/imput/docs/publicaciones"
+            destino_dir = resource_path("geoso2-web-template/imput/docs/publicaciones")
             os.makedirs(destino_dir, exist_ok=True)
 
             nombre = os.path.basename(ruta)
@@ -234,9 +210,6 @@ class DatosTab(tk.Frame):
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo copiar el archivo:\n{e}")
 
-    # -------------------------
-    # Gestión de años
-    # -------------------------
     def add_year(self):
         year = tk.simpledialog.askstring("Nuevo año", "Introduce el año (ej: 2025):")
         if not year:
@@ -272,9 +245,7 @@ class DatosTab(tk.Frame):
         if years:
             self.combo_year.set(years[0])
 
-    # -------------------------
-    # CRUD
-    # -------------------------
+
     def add_item(self):
         year = self.combo_year.get()
         if not year:
@@ -299,6 +270,7 @@ class DatosTab(tk.Frame):
         self.refresh_table()
         self.clear_fields()
 
+
     def delete_item(self):
         year = self.combo_year.get()
         if not year:
@@ -311,6 +283,7 @@ class DatosTab(tk.Frame):
         index = self.tree.index(selected[0])
         del self.controller.state["publicaciones"][year][index]
         self.refresh_table()
+
 
     def edit_item(self):
         year = self.combo_year.get()
@@ -348,6 +321,7 @@ class DatosTab(tk.Frame):
         del self.controller.state["publicaciones"][year][index]
         self.refresh_table()
 
+
     def move_up(self):
         year = self.combo_year.get()
         if not year:
@@ -364,6 +338,7 @@ class DatosTab(tk.Frame):
             arr[index - 1], arr[index] = arr[index], arr[index - 1]
             self.refresh_table()
             self.tree.selection_set(self.tree.get_children()[index - 1])
+
 
     def move_down(self):
         year = self.combo_year.get()
@@ -382,9 +357,6 @@ class DatosTab(tk.Frame):
             self.refresh_table()
             self.tree.selection_set(self.tree.get_children()[index + 1])
 
-    # -------------------------
-    # Utilidades
-    # -------------------------
     def probar_enlace(self):
         url = self.entry_link.get().strip()
         if not url:
@@ -398,6 +370,7 @@ class DatosTab(tk.Frame):
                 messagebox.showerror("Error", "El enlace debe ser una URL válida.")
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo abrir el enlace:\n{e}")
+
 
     def refresh_table(self):
         for item in self.tree.get_children():
@@ -422,6 +395,7 @@ class DatosTab(tk.Frame):
                 )
             )
 
+
     def clear_fields(self):
         self.entry_autores.delete(0, tk.END)
         self.entry_titulo.delete(0, tk.END)
@@ -430,6 +404,7 @@ class DatosTab(tk.Frame):
         self.entry_volumen.delete(0, tk.END)
         self.entry_num.delete(0, tk.END)
         self.entry_link.delete(0, tk.END)
+
 
     def set_data(self, datos):
         self.controller.state["publicaciones"] = datos.get("publicaciones", {})

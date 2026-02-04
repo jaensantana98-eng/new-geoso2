@@ -1,5 +1,7 @@
 
 .navbar {
+  padding-left: 0;
+  padding-right: 0;
   padding-top: 0.3rem;
   padding-bottom: 0.3rem;
   min-height: 50px;
@@ -25,13 +27,14 @@
 }
 
 .navbar-wrapper {
+  padding-left: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 15px;
-  box-sizing: border-box
+  max-width: none;
+  margin: 0;
+  padding: 15px;
+  box-sizing: border-box;
 }
 
 .page-wrapper {
@@ -81,9 +84,14 @@ html, body {
 .navbar-logo {
   height: 24px;
 }
+.navbar-brand {
+  margin-left: 0;
+  padding-left: 0;  
+}
 .navbar-brand-logo {
   display: flex;
   align-items: center;
+  margin-right: 10px;
 }
 .navbar-logo:hover {
   transform: scale(1.05);

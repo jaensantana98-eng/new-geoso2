@@ -5,11 +5,15 @@ import os
 import shutil
 import webbrowser
 from PIL import Image
+import sys
+
+def resource_path(relative_path):
+    """Devuelve la ruta absoluta tanto en script como en ejecutable .exe"""
+    if hasattr(sys, "_MEIPASS"):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
 
 
-# ============================================================
-# VENTANA PRINCIPAL DEL EDITOR DE PROYECTOS
-# ============================================================
 class EditorProyectosWindow(tk.Toplevel):
     def __init__(self, filepath=None):
         super().__init__()
@@ -18,7 +22,6 @@ class EditorProyectosWindow(tk.Toplevel):
 
         self.filepath = filepath
 
-        # Estado inicial
         self.state = {
             "proyectos": {
                 "encurso": [],
@@ -27,7 +30,6 @@ class EditorProyectosWindow(tk.Toplevel):
             }
         }
 
-        # Cargar JSON si existe
         if filepath and os.path.exists(filepath):
             with open(filepath, "r", encoding="utf-8") as f:
                 datos = json.load(f)
@@ -43,7 +45,6 @@ class EditorProyectosWindow(tk.Toplevel):
 
             self.contenido_original = json.loads(json.dumps(self.state["proyectos"]))
 
-        # Notebook con 3 pestañas
         self.notebook = ttk.Notebook(self)
         self.notebook.pack(fill="both", expand=True)
 
@@ -58,7 +59,6 @@ class EditorProyectosWindow(tk.Toplevel):
             self.notebook.add(tab, text=nombre)
             self.tabs[categoria] = tab
 
-        # Footer
         footer = ttk.Frame(self)
         footer.pack(fill="x", pady=10)
 
@@ -74,13 +74,10 @@ class EditorProyectosWindow(tk.Toplevel):
             command=self.save_json
         ).pack(side="top", pady=5)
 
-        # Refrescar todas las tablas
         for tab in self.tabs.values():
             tab.refresh_table()
 
-    # ------------------------------------------------------------
-    # INSTRUCCIONES
-    # ------------------------------------------------------------
+
     def mostrar_instrucciones(self):
         instrucciones = (
             "Editor de Proyectos:\n\n"
@@ -93,9 +90,7 @@ class EditorProyectosWindow(tk.Toplevel):
         )
         messagebox.showinfo("Instrucciones", instrucciones)
 
-    # ------------------------------------------------------------
-    # DETECTAR CAMBIOS
-    # ------------------------------------------------------------
+
     def detectar_cambios(self, antes, despues):
         cambios = []
 
@@ -105,11 +100,8 @@ class EditorProyectosWindow(tk.Toplevel):
 
         return cambios
 
-    # ------------------------------------------------------------
-    # GUARDAR JSON
-    # ------------------------------------------------------------
     def save_json(self):
-        ruta = "geoso2-web-template/json/web.json"
+        ruta = resource_path("geoso2-web-template/json/web.json")
 
         try:
             with open(ruta, "r", encoding="utf-8") as f:
@@ -141,9 +133,6 @@ class EditorProyectosWindow(tk.Toplevel):
             messagebox.showerror("Error", f"No se pudo guardar el archivo:\n{e}")
 
 
-# ============================================================
-# PESTAÑA UNIFICADA POR CATEGORÍA
-# ============================================================
 class DatosTab(ttk.Frame):
     def __init__(self, parent, controller, categoria):
         super().__init__(parent)
@@ -154,9 +143,6 @@ class DatosTab(ttk.Frame):
         frm = ttk.Frame(self)
         frm.pack(fill="both", expand=True, padx=10, pady=10)
 
-        # -------------------------
-        # CAMPOS
-        # -------------------------
         ttk.Label(frm, text="Imagen:").grid(row=0, column=0, sticky="w")
         self.entry_imagen = ttk.Entry(frm)
         self.entry_imagen.grid(row=0, column=1, sticky="ew")
@@ -177,9 +163,6 @@ class DatosTab(ttk.Frame):
         ttk.Button(frm, text="Probar", command=self.probar_link).grid(row=3, column=2, padx=6)
         ttk.Button(frm, text="Buscar archivo", command=self.select_file).grid(row=3, column=3, padx=6)
 
-        # -------------------------
-        # BOTONES CRUD
-        # -------------------------
         btn_frame = ttk.Frame(frm)
         btn_frame.grid(row=4, column=0, columnspan=4, pady=10)
 
@@ -190,9 +173,6 @@ class DatosTab(ttk.Frame):
         ttk.Button(btn_frame, text="Bajar", command=self.move_down).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Mover a…", command=self.mover_a).pack(side="left", padx=5)
 
-        # -------------------------
-        # TABLA
-        # -------------------------
         self.tree = ttk.Treeview(frm, columns=("Imagen", "Título", "Link"), show="headings", height=12)
         self.tree.grid(row=5, column=0, columnspan=4, sticky="nsew")
 
@@ -203,9 +183,6 @@ class DatosTab(ttk.Frame):
         frm.columnconfigure(1, weight=1)
         frm.rowconfigure(5, weight=1)
 
-    # ============================================================
-    # ARCHIVOS
-    # ============================================================
     def select_file(self):
         ruta = filedialog.askopenfilename(
             title="Seleccionar archivo",
@@ -215,7 +192,7 @@ class DatosTab(ttk.Frame):
             return
 
         try:
-            destino_dir = "geoso2-web-template/imput/docs/proyectos"
+            destino_dir = resource_path("geoso2-web-template/imput/docs/proyectos")
             os.makedirs(destino_dir, exist_ok=True)
 
             nombre = os.path.basename(ruta)
@@ -238,12 +215,11 @@ class DatosTab(ttk.Frame):
 
         try:
             nombre = os.path.basename(ruta)
-            destino_dir = "geoso2-web-template/imput/img/proyectos"
+            destino_dir = resource_path("geoso2-web-template/imput/img/proyectos")
             os.makedirs(destino_dir, exist_ok=True)
 
             destino = os.path.join(destino_dir, nombre)
 
-            # Miniatura 300x300
             with Image.open(ruta) as img:
                 img = img.convert("RGB")
                 img.thumbnail((300, 300), Image.LANCZOS)
@@ -260,9 +236,6 @@ class DatosTab(ttk.Frame):
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo procesar la imagen:\n{e}")
 
-    # ============================================================
-    # CRUD
-    # ============================================================
     def add_item(self):
         data = {
             "imagen": self.entry_imagen.get().strip(),
@@ -339,9 +312,6 @@ class DatosTab(ttk.Frame):
         arr[index + 1], arr[index] = arr[index], arr[index + 1]
         self.refresh_table()
 
-    # ============================================================
-    # MOVER A OTRA CATEGORÍA
-    # ============================================================
     def mover_a(self):
         selected = self.tree.selection()
         if not selected:
@@ -370,17 +340,10 @@ class DatosTab(ttk.Frame):
             if not destino:
                 return
 
-            # Eliminar de origen
             del self.controller.state["proyectos"][self.categoria][index]
 
-            # Insertar al principio del destino
             self.controller.state["proyectos"][destino].insert(0, proyecto)
 
-            # Registrar historial
-            self.controller.contenido_original.setdefault("history", [])
-            # (El historial real se registra al guardar)
-
-            # Refrescar todas las pestañas
             for tab in self.controller.tabs.values():
                 tab.refresh_table()
 
@@ -388,9 +351,6 @@ class DatosTab(ttk.Frame):
 
         ttk.Button(popup, text="Mover", command=confirmar).pack(pady=10)
 
-    # ============================================================
-    # UTILIDADES
-    # ============================================================
     def refresh_table(self):
         for item in self.tree.get_children():
             self.tree.delete(item)
@@ -416,7 +376,7 @@ class DatosTab(ttk.Frame):
             if url.startswith(("http://", "https://")):
                 webbrowser.open_new_tab(url)
             else:
-                ruta = os.path.abspath(url)
+                ruta = os.path.abspath(resource_path(url))
                 if os.path.exists(ruta):
                     webbrowser.open_new_tab(f"file:///{ruta}")
                 else:

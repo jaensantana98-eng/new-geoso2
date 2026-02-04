@@ -7,7 +7,14 @@ import subprocess
 import webbrowser
 import shutil
 from PIL import Image, ImageDraw
+import sys
 
+
+def resource_path(relative_path):
+    """Devuelve la ruta absoluta tanto en script como en ejecutable .exe"""
+    if hasattr(sys, "_MEIPASS"):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
 
 
 class CarruselWindow(tk.Toplevel):
@@ -21,43 +28,36 @@ class CarruselWindow(tk.Toplevel):
             "carrusel": []
         }
 
-        os.makedirs("geoso2-web-template/imput/img/carrusel", exist_ok=True)
+        os.makedirs(resource_path("geoso2-web-template/imput/img/carrusel"), exist_ok=True)
 
-        # Cargar JSON si estamos editando
-        # -----------------------------
-# CARGAR JSON CORRECTAMENTE
-# -----------------------------
         if mode == "edit" and filepath:
             try:
                 with open(filepath, "r", encoding="utf-8") as f:
                     datos = json.load(f)
 
-                # Cargar carrusel desde la ruta correcta
                 self.state["carrusel"] = datos.get("web", {}) \
-                                            .get("index_page", {}) \
-                                            .get("carrusel", [])
-                self.contenido_original = json.loads(json.dumps(self.state["carrusel"]))
+                                              .get("index_page", {}) \
+                                              .get("carrusel", [])
 
+                self.contenido_original = json.loads(json.dumps(self.state["carrusel"]))
 
             except Exception as e:
                 messagebox.showerror("Error", f"No se pudo cargar el JSON:\n{e}")
 
-
-        # Notebook con solo una pestaña
         self.notebook = ttk.Notebook(self)
         self.notebook.pack(fill="both", expand=True)
 
         self.tab_datos = DatosTab(self.notebook, self)
         self.notebook.add(self.tab_datos, text="Datos")
 
-        
         bottom_frame = ttk.Frame(self)
         bottom_frame.pack(fill="x", pady=10)
 
-        ttk.Button(bottom_frame, text="Instrucciones", command=self.tab_datos.instrucciones).pack(side="left", padx=10)
+        ttk.Button(bottom_frame, text="Instrucciones",
+                   command=self.tab_datos.instrucciones).pack(side="left", padx=10)
 
-        ttk.Button(bottom_frame, text="Guardar cambios", command=self.save_json).pack(side="top", pady=5)
-
+        ttk.Button(bottom_frame, text="Guardar cambios",
+                   command=self.save_json).pack(side="top", pady=5)
 
         if mode == "edit":
             self.tab_datos.refresh_table()
@@ -68,23 +68,18 @@ class CarruselWindow(tk.Toplevel):
             cambios.append("carrusel")
         return cambios
 
-
     def save_json(self):
-        ruta = "geoso2-web-template/json/web.json"
+        ruta = resource_path("geoso2-web-template/json/web.json")
 
         try:
-            # Cargar JSON completo
             with open(ruta, "r", encoding="utf-8") as f:
                 datos_completos = json.load(f)
 
-            # Asegurar estructura
             datos_completos.setdefault("web", {})
             datos_completos["web"].setdefault("index_page", {})
 
-            # Detectar cambios SIEMPRE
             cambios = self.detectar_cambios(self.contenido_original, self.state["carrusel"])
 
-            # Registrar historial si hubo cambios
             if cambios:
                 datos_completos["web"]["index_page"].setdefault("history", [])
                 datos_completos["web"]["index_page"]["history"].append({
@@ -93,27 +88,19 @@ class CarruselWindow(tk.Toplevel):
                     "summary": "Actualización en carrusel"
                 })
 
-            # Guardar carrusel en la ruta correcta
             datos_completos["web"]["index_page"]["carrusel"] = self.state["carrusel"]
 
-            # Guardar JSON completo
             with open(ruta, "w", encoding="utf-8") as f:
                 json.dump(datos_completos, f, indent=4, ensure_ascii=False)
 
             messagebox.showinfo("Guardado", f"Archivo JSON actualizado:\n{ruta}")
 
-            # Actualizar contenido original
             self.contenido_original = json.loads(json.dumps(self.state["carrusel"]))
 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo guardar el archivo:\n{e}")
 
 
-
-
-# ============================================================
-#   PESTAÑA DATOS
-# ============================================================
 class DatosTab(ttk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
@@ -122,9 +109,6 @@ class DatosTab(ttk.Frame):
         frm = ttk.Frame(self)
         frm.pack(fill="both", expand=True, padx=10, pady=10)
 
-        # -----------------------------
-        # CAMPOS
-        # -----------------------------
         ttk.Label(frm, text="Imagen:").grid(row=0, column=0, sticky="w", pady=6)
         self.entry_imagen = ttk.Entry(frm)
         self.entry_imagen.grid(row=0, column=1, sticky="ew", pady=6)
@@ -137,9 +121,6 @@ class DatosTab(ttk.Frame):
 
         frm.columnconfigure(1, weight=1)
 
-        # -----------------------------
-        # BOTONES CRUD
-        # -----------------------------
         btn_frame = ttk.Frame(frm)
         btn_frame.grid(row=2, column=0, columnspan=3, pady=10)
 
@@ -148,12 +129,9 @@ class DatosTab(ttk.Frame):
         ttk.Button(btn_frame, text="Editar", command=self.edit_item).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Subir", command=self.move_up).pack(side="left", padx=5)
         ttk.Button(btn_frame, text="Bajar", command=self.move_down).pack(side="left", padx=5)
-        ttk.Button(btn_frame, text="Crear plantilla 2700x700", command=self.crear_plantilla).pack(side="right", padx=5)
+        ttk.Button(btn_frame, text="Crear plantilla 2700x700",
+                   command=self.crear_plantilla).pack(side="right", padx=5)
 
-
-        # -----------------------------
-        # TABLA
-        # -----------------------------
         self.tree = ttk.Treeview(frm, columns=("Imagen", "Enlace"), show="headings", height=12)
         self.tree.grid(row=3, column=0, columnspan=3, sticky="nsew")
 
@@ -162,9 +140,6 @@ class DatosTab(ttk.Frame):
 
         frm.rowconfigure(3, weight=1)
 
-    # -----------------------------
-    # FUNCIONES
-    # -----------------------------
     def select_file(self):
         ruta = filedialog.askopenfilename(
             title="Seleccionar archivo",
@@ -180,7 +155,7 @@ class DatosTab(ttk.Frame):
             return
 
         try:
-            destino_dir = "geoso2-web-template/imput/docs/carrusel"
+            destino_dir = resource_path("geoso2-web-template/imput/docs/carrusel")
             os.makedirs(destino_dir, exist_ok=True)
 
             nombre = os.path.basename(ruta)
@@ -195,6 +170,7 @@ class DatosTab(ttk.Frame):
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo copiar el archivo:\n{e}")
 
+
     def select_imagen(self):
         ruta = filedialog.askopenfilename(
             filetypes=[("Imagen", "*.png;*.jpg;*.jpeg;*.gif")]
@@ -204,23 +180,14 @@ class DatosTab(ttk.Frame):
 
         try:
             nombre = os.path.basename(ruta)
-
-            # Carpeta destino REAL dentro del proyecto
-            carpeta_destino = os.path.join(
-                "geoso2-web-template", "imput", "img", "carrusel"
-            )
+            carpeta_destino = resource_path("geoso2-web-template/imput/img/carrusel")
             os.makedirs(carpeta_destino, exist_ok=True)
 
             destino = os.path.join(carpeta_destino, nombre)
-
-            # Copiar la imagen (sin usar rutas absolutas)
             shutil.copy(ruta, destino)
 
-            # Ruta relativa que irá al JSON
-            ruta_relativa = f"../imput/img/carrusel/{nombre}"
-
             self.entry_imagen.delete(0, tk.END)
-            self.entry_imagen.insert(0, ruta_relativa)
+            self.entry_imagen.insert(0, f"../imput/img/carrusel/{nombre}")
 
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo procesar la imagen:\n{e}")
@@ -243,6 +210,7 @@ class DatosTab(ttk.Frame):
         self.entry_imagen.delete(0, tk.END)
         self.entry_enlace.delete(0, tk.END)
 
+
     def delete_item(self):
         selected = self.tree.selection()
         if not selected:
@@ -250,6 +218,7 @@ class DatosTab(ttk.Frame):
         index = self.tree.index(selected[0])
         del self.controller.state["carrusel"][index]
         self.refresh_table()
+
 
     def move_up(self):
         selected = self.tree.selection()
@@ -263,6 +232,7 @@ class DatosTab(ttk.Frame):
             self.refresh_table()
             self.tree.selection_set(self.tree.get_children()[index - 1])
 
+
     def move_down(self):
         selected = self.tree.selection()
         if not selected:
@@ -275,6 +245,7 @@ class DatosTab(ttk.Frame):
             self.refresh_table()
             self.tree.selection_set(self.tree.get_children()[index + 1])
 
+
     def edit_item(self):
         selected = self.tree.selection()
         if not selected:
@@ -282,7 +253,6 @@ class DatosTab(ttk.Frame):
 
         index = self.tree.index(selected[0])
         item = self.controller.state["carrusel"][index]
-        self.editing_index = index
 
         self.entry_imagen.delete(0, tk.END)
         self.entry_imagen.insert(0, item["imagen"])
@@ -292,7 +262,8 @@ class DatosTab(ttk.Frame):
 
         del self.controller.state["carrusel"][index]
         self.refresh_table()
-        
+
+
     def refresh_table(self):
         for item in self.tree.get_children():
             self.tree.delete(item)
@@ -300,9 +271,11 @@ class DatosTab(ttk.Frame):
         for elem in self.controller.state["carrusel"]:
             self.tree.insert("", tk.END, values=(elem["imagen"], elem["enlace"]))
 
+
     def set_data(self, datos):
         self.controller.state["carrusel"] = datos.get("carrusel", [])
         self.refresh_table()
+
 
     def crear_plantilla(self):
         try:
@@ -312,7 +285,6 @@ class DatosTab(ttk.Frame):
 
             ruta = os.path.join(carpeta_destino, "plantilla_carrusel.png")
 
-            # Crear imagen base
             img = Image.new("RGB", (2700, 700), color=(240, 240, 240))
             draw = ImageDraw.Draw(img)
             draw.text((50, 50), "Plantilla 2700x700", fill=(80, 80, 80))
@@ -337,6 +309,6 @@ class DatosTab(ttk.Frame):
             "\n"
             "4. Usa los botones para añadir, eliminar o mover elementos en el carrusel.\n"
             "\n"
-            "5. Pulsa en Guarda los cambios para guardar los cambios realizados."
+            "5. Pulsa en Guardar los cambios para guardar los cambios realizados."
         )
         messagebox.showinfo("Instrucciones", instrucciones)

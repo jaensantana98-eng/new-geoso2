@@ -5,11 +5,14 @@ import datetime
 import os
 import shutil
 import webbrowser
+import sys
 
+def resource_path(relative_path):
+    """Devuelve la ruta absoluta tanto en script como en ejecutable .exe""" 
+    if hasattr(sys, "_MEIPASS"):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
 
-# ============================================================
-#   PESTAÑA 2 — INVESTIGADORES
-# ============================================================
 class InvestigadoresTab(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
@@ -83,7 +86,7 @@ class InvestigadoresTab(tk.Frame):
         try:
             nombre = os.path.basename(ruta)
 
-            carpeta_destino = os.path.join(
+            carpeta_destino = resource_path(
                 "geoso2-web-template", "imput", "img", "quienes_somos"
             )
             os.makedirs(carpeta_destino, exist_ok=True)
@@ -233,9 +236,6 @@ class InvestigadoresTab(tk.Frame):
         )
         messagebox.showinfo("Instrucciones", instrucciones)
 
-# ============================================================
-#   PESTAÑA 3 — COLABORADORES
-# ============================================================
 class ColaboradoresTab(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
@@ -308,7 +308,7 @@ class ColaboradoresTab(tk.Frame):
         try:
             nombre = os.path.basename(ruta)
 
-            carpeta_destino = os.path.join(
+            carpeta_destino = resource_path(
                 "geoso2-web-template", "imput", "img", "quienes_somos"
             )
             os.makedirs(carpeta_destino, exist_ok=True)
@@ -440,9 +440,6 @@ class ColaboradoresTab(tk.Frame):
                 )
             )
 
-# ============================================================
-#   CLASE PRINCIPAL — EDITORWINDOW
-# ============================================================
 class EditorWindow(tk.Toplevel):
     def __init__(self, mode="create", filepath=None):
         super().__init__()
@@ -493,9 +490,6 @@ class EditorWindow(tk.Toplevel):
         self.notebook.add(self.tab_investigadores, text="Investigadores")
         self.notebook.add(self.tab_colaboradores, text="Colaboradores")
 
-        # ============================
-        #  FOOTER: Instrucciones + Guardar
-        # ============================
         footer = ttk.Frame(self)
         footer.pack(fill="x", side="bottom", pady=10)
 
@@ -531,7 +525,7 @@ class EditorWindow(tk.Toplevel):
 
 
     def save_json(self):
-        ruta = "geoso2-web-template/json/web.json"
+        ruta = resource_path("geoso2-web-template/json/web.json")
 
         try:
             with open(ruta, "r", encoding="utf-8") as f:
@@ -540,10 +534,8 @@ class EditorWindow(tk.Toplevel):
             datos_completos.setdefault("web", {})
             datos_completos["web"].setdefault("quienes_somos", {})
 
-            # Detectar cambios
             cambios = self.detectar_cambios(self.contenido_original, self.state["quienes_somos"])
 
-            # Registrar historial
             if cambios:
                 datos_completos["web"]["quienes_somos"].setdefault("history", [])
                 datos_completos["web"]["quienes_somos"]["history"].append({
@@ -552,16 +544,13 @@ class EditorWindow(tk.Toplevel):
                     "summary": "Actualización en Quiénes Somos"
                 })
 
-            # Guardar datos
             datos_completos["web"]["quienes_somos"] = self.state["quienes_somos"]
 
-            # Guardar archivo
             with open(ruta, "w", encoding="utf-8") as f:
                 json.dump(datos_completos, f, indent=4, ensure_ascii=False)
 
             messagebox.showinfo("Guardado", f"Archivo JSON actualizado:\n{ruta}")
 
-            # Actualizar contenido original
             self.contenido_original = json.loads(json.dumps(self.state["quienes_somos"]))
 
         except Exception as e:
