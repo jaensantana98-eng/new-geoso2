@@ -176,25 +176,26 @@ Todas las secciones existentes pueden usarse como ejemplo.
 
 ## Cómo crear el ejecutable
 
+Para crear el ejecutable necesitas tener installado pyinstaller, para descargarlo abre terminal o cmd y escribe:
+pip install pyinstaller
+y una vez instalado sigue el siguiente paso.
+
 # En IOS:
 
-1. Antes de nada, para que funcione correctamente hay que crear una función "def resource_path(relative_path)" en cada interfaz para que detecte si estás en modo “normal” o en modo “ejecutable”.
+1. una vez modificado eso nos diriguimos a "terminal" en nuestro dispositivo
 
-2. También debemos cambiar las rutas para funcionen correctamente. 
-por ejemplo antes : open("data/config.json")
-y ahora : open(resource_path("data/config.json"))
+2. Debemos diriguirnos a la carpeta raiz de nuestro proyecto, en este caso es new-geoso2 : "cd new-geoso2"
 
-3. una vez modificado eso nos diriguimos a "terminal" en nuestro dispositivo
-
-4. Debemos diriguirnos a la carpeta raiz de nuestro proyecto, en este caso es new-geoso2 : "cd new-geoso2"
-
-5. Escribimos lo siguiente:
+3. Escribimos lo siguiente:
 pyinstaller --noconsole --onedir --add-data "geoso2-web-template:geoso2-web-template" geoso2-web-template/interfaz_ventana_principal.py
+
+4. Se abrá creado en geoso2-web-template una carpeta llamada "dist" y dentro esta el ejecutable interfaz_ventana_principal que puedes ya mover a donde quieras
 
 # En Windows:
 
-1. Hacer doble clic en el archivo llamado build_exe.bat que esta dentro del repositorio.
+1. Hacer doble clic en el archivo llamado Crear aplicación.bat que esta dentro del repositorio.
 
+2. Se abrá creado en geoso2-web-template una carpeta llamada "dist" y dentro esta el ejecutable interfaz_ventana_principal que puedes ya mover a donde quieras
 
 ## Autor
 
