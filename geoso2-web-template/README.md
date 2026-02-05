@@ -186,10 +186,10 @@ y ahora : open(resource_path("data/config.json"))
 
 3. una vez modificado eso nos diriguimos a "terminal" en nuestro dispositivo
 
-4. Debemos diriguirnos a la carpeta de nuestro proyecto: "cd geoso2-web-template"
+4. Debemos diriguirnos a la carpeta raiz de nuestro proyecto, en este caso es new-geoso2 : "cd new-geoso2"
 
 5. Escribimos lo siguiente:
-pyinstaller --noconsole --onefile --add-data "geoso2-web-template;geoso2-web-template" interfaz_ventana_principal.py
+pyinstaller --noconsole --onedir --add-data "geoso2-web-template:geoso2-web-template" geoso2-web-template/interfaz_ventana_principal.py
 
 # En Windows:
 
