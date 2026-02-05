@@ -176,6 +176,8 @@ Todas las secciones existentes pueden usarse como ejemplo.
 
 ## Cómo crear el ejecutable
 
+# En IOS:
+
 1. Antes de nada, para que funcione correctamente hay que crear una función "def resource_path(relative_path)" en cada interfaz para que detecte si estás en modo “normal” o en modo “ejecutable”.
 
 2. También debemos cambiar las rutas para funcionen correctamente. 
@@ -189,6 +191,9 @@ y ahora : open(resource_path("data/config.json"))
 5. Escribimos lo siguiente:
 pyinstaller --noconsole --onefile --add-data "geoso2-web-template;geoso2-web-template" interfaz_ventana_principal.py
 
+# En Windows:
+
+1. Hacer doble clic en el archivo llamado build_exe.bat que esta dentro del repositorio.
 
 
 ## Autor
