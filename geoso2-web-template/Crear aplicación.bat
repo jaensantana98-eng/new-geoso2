@@ -34,8 +34,7 @@ echo.
 
 pyinstaller ^
  --noconsole ^
- --onefile ^
- --add-data "%WEB_DIR%:geoso2-web-template" ^
+ --add-data "geoso2-web-template;geoso2-web-template" ^
  "%MAIN_SCRIPT%"
 
 echo.
