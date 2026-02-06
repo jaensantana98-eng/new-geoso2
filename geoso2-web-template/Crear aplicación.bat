@@ -5,7 +5,7 @@ echo ============================================
 echo   GENERANDO EJECUTABLE DE GEOSO2...
 echo ============================================
 echo Editor GEOSO2 - Versión 1.0
-echo Creado por: Jesús Jaén Santana
+echo Creado por: Jesus Jaen Santana
 
 REM Ir al directorio donde está este BAT
 cd /d "%~dp0"
@@ -41,7 +41,7 @@ pyinstaller ^
  --onedir ^
  --name "Editor GEOSO2" ^
  --distpath "%DESKTOP%" ^
- --add-data "%WEB_DIR%\geoso2-web-template" ^
+ --add-data "%WEB_DIR%;geoso2-web-template" ^
  "%MAIN_SCRIPT%"
 
 echo.
