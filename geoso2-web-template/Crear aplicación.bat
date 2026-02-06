@@ -4,8 +4,6 @@ setlocal enabledelayedexpansion
 echo ============================================
 echo   GENERANDO EJECUTABLE DE GEOSO2...
 echo ============================================
-echo Editor GEOSO2 - Versión 1.0
-echo Creado por: Jesus Jaen Santana
 
 REM Ir al directorio donde está este BAT
 cd /d "%~dp0"
@@ -49,5 +47,8 @@ echo ============================================
 echo   PROCESO COMPLETADO
 echo   El ejecutable está en:
 echo   %DESKTOP%\Editor GEOSO2
+echo --------------------------------------------
+echo Editor GEOSO2 - Versión 1.0
+echo Creado por: Jesus Jaen Santana
 echo ============================================
 pause

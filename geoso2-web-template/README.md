@@ -195,10 +195,10 @@ pyinstaller --noconsole --onedir --add-data "geoso2-web-template:geoso2-web-temp
 
 1. Hacer doble clic en el archivo llamado Crear aplicación.bat que esta dentro del repositorio.
 
-2. Se abrá creado en el escirtorio una carpeta llamada "GEOSO2" y dentro esta el ejecutable Editor GEOSO".exe y la carpeta Geoso2-web-template donde se encuentran todos los ficheros de la aplicación.
+2. Se abrá creado en el escirtorio una carpeta llamada "GEOSO2" y dentro esta el ejecutable Editor GEOSO2.exe y una carpeta llamada _internal. La carpeta Geoso2-web-template donde se encuentran todos los ficheros de la aplicación como las plantillas y los outputs esta dentro de _internal.
 
 ## Autor
 
 Jesús Jaén Santana  
-Versión del editor: 2.0 / 2026
+Versión del editor: 1.0 / 2026
 
