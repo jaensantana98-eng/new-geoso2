@@ -8,11 +8,14 @@ echo ============================================
 REM Ir al directorio donde está este BAT
 cd /d "%~dp0"
 
+REM Directorio actual
+set WEB_DIR=%cd%
+
 REM Ruta del escritorio
 set DESKTOP=%USERPROFILE%\Desktop
 
 REM Script principal
-set MAIN_SCRIPT=interfaz_ventana_principal.py
+set MAIN_SCRIPT=%WEB_DIR%\interfaz_ventana_principal.py
 
 REM Validación
 if not exist "%MAIN_SCRIPT%" (
@@ -36,7 +39,7 @@ pyinstaller ^
  --onedir ^
  --name "Editor GEOSO2" ^
  --distpath "%DESKTOP%" ^
- --add-data "geoso2-web-template;geoso2-web-template" ^
+ --add-data "%WEB_DIR%\geoso2-web-template;geoso2-web-template" ^
  "%MAIN_SCRIPT%"
 
 echo.
