@@ -12,6 +12,9 @@ REM Directorio actual (geoso2-web-template)
 set WEB_DIR=%cd%
 echo Carpeta web detectada: %WEB_DIR%
 
+REM Ruta del escritorio
+set DESKTOP=%USERPROFILE%\Desktop
+
 REM Script principal
 set MAIN_SCRIPT=%WEB_DIR%\interfaz_ventana_principal.py
 
@@ -29,17 +32,20 @@ rmdir /s /q build 2>nul
 del interfaz_ventana_principal.spec 2>nul
 
 echo.
-echo Incluyendo carpeta completa: geoso2-web-template
+echo Generando ejecutable...
 echo.
 
 pyinstaller ^
  --noconsole ^
+ --name "Editor GEOSO2" ^
+ --distpath "%DESKTOP%\GEOSO2" ^
  --add-data "geoso2-web-template;geoso2-web-template" ^
  "%MAIN_SCRIPT%"
 
 echo.
 echo ============================================
 echo   PROCESO COMPLETADO
-echo   El ejecutable está en: dist\
+echo   El ejecutable está en:
+echo   %DESKTOP%\GEOSO2
 echo ============================================
 pause
